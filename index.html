@@ -1,7 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GluOne Developer – Александр Киселев</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3b82f6; /* синий */
+      --secondary-color: #f97316; /* оранжевый */
+      --bg-color: #f9fafb;
+      --card-bg: #ffffff;
+      --text-color: #1f2937;
+      --muted-color: #6b7280;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: var(--bg-color);
+      padding: 1rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid var(--primary-color);
+      margin: 0 auto 1rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+    }
+    p.title {
+      font-size: 1rem;
+      color: var(--secondary-color);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    p.description {
+      font-size: 0.9rem;
+      color: var(--muted-color);
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    .links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .links a {
+      color: var(--primary-color);
+      font-size: 1.25rem;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+    .links a:hover {
+      transform: scale(1.1);
+    }
+    .button {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--secondary-color);
+      color: #fff;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      transition: background 0.2s ease;
+    }
+    .button:hover {
+      background: #d65a0e;
+    }
+  </style>
+</head>
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+  <div class="card">
+    <img src="https://meatar.github.io/GluOne.github.io/avatar.jpg" alt="Александр Киселев" class="avatar">
+    <h1>Александр Киселев</h1>
+    <p class="title">iOS & Backend Developer</p>
+    <p class="description">Создатель приложения GluOne для управления диабетом. 
+      P2P-криптоэнтузиаст и разработчик с опытом в Swift, Python и облачных решениях.</p>
+    <div class="links">
+      <a href="mailto:support@gluone.app" title="Email">✉️</a>
+      <a href="https://github.com/meatar/GluOne.github.io" title="GitHub">🐙</a>
+      <a href="https://meatar.github.io/GluOne.github.io" title="Website">🌐</a>
+    </div>
+    <a href="https://meatar.github.io/GluOne.github.io/privacy.html" class="button">Политика конфиденциальности</a>
+  </div>
 </body>
 </html>
