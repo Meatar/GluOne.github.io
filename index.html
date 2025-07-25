@@ -61,7 +61,6 @@
         <div class="feature"><h3>iCloud-синхронизация</h3><p>Сохраняйте данные и синхронизируйте между устройствами.</p></div>
       </div>
       <div class="cta"><a href="#">Скачать в App Store</a></div>
-      <p>Контакт: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
     </div>
     <div id="content-en" class="lang">
       <p>GluOne helps you keep a digital diabetes journal. Track glucose levels, insulin doses, meals, and bread units (BU) all in one simple, intuitive app.</p>
@@ -74,7 +73,6 @@
         <div class="feature"><h3>iCloud Sync</h3><p>Save data and sync across devices securely.</p></div>
       </div>
       <div class="cta"><a href="#">Download on the App Store</a></div>
-      <p>Contact: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
     </div>
   </section>
   <footer>
@@ -86,7 +84,6 @@
     function setLang(lang) {
       document.querySelectorAll('.lang').forEach(el => el.classList.remove('active'));
       document.getElementById('content-' + lang).classList.add('active');
-      const taglines = { ru: 'Your Diabetes Companion', en: 'Your Diabetes Companion' };
       document.getElementById('tagline').textContent = (lang === 'ru') ? 'Ваш помощник в управлении диабетом' : 'Your Diabetes Companion';
     }
   </script>

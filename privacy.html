@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Политика конфиденциальности GluOne</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --bg-color: #f9fafb;
+      --text-color: #1f2937;
+      --muted-color: #4b5563;
+    }
+    body { margin:0; padding:0; font-family:'Inter',sans-serif; background:var(--bg-color); color:var(--text-color); }
+    header { background:var(--primary-color); color:#fff; padding:1rem; text-align:center; position:relative; }
+    header h1 { margin:0; font-size:1.5rem; }
+    .lang-switch { position:absolute; top:1rem; right:1rem; }
+    .lang-switch button { background:none; border:none; color:white; margin-left:0.5rem; cursor:pointer; font-weight:600; }
+    .content { max-width:800px; margin:2rem auto; padding:0 1rem; }
+    h2 { margin-top:1.5rem; color:var(--primary-color); }
+    p, li { line-height:1.6; }
+    ul { margin-left:1.2rem; }
+    footer { text-align:center; padding:1rem; font-size:0.85rem; color:var(--muted-color); }
+    .lang { display:none; }
+    .lang.active { display:block; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Политика конфиденциальности</h1>
+    <div class="lang-switch">
+      <button onclick="setLang('ru')">RU</button>
+      <button onclick="setLang('en')">EN</button>
+    </div>
+  </header>
+  <div class="content">
+    <div id="policy-ru" class="lang active">
+      <p>Дата вступления в силу: <strong>1 января 2025</strong></p>
+      <p>Мы уважаем вашу конфиденциальность. Ниже описано, какие данные собирает приложение <strong>GluOne</strong>, как они используются и защищаются.</p>
+      <h2>1. Сбор данных</h2>
+      <ul>
+        <li>Уровень глюкозы</li>
+        <li>Дозы инсулина</li>
+        <li>Питание и количество ХЕ</li>
+        <li>Настройки напоминаний</li>
+        <li>Информация о подписке</li>
+      </ul>
+      <h2>2. Использование данных</h2>
+      <p>Данные используются только для работы приложения: ведения журнала, аналитики, синхронизации и экспорта отчетов. Мы не продаем и не передаем персональные данные третьим лицам.</p>
+      <h2>3. Хранение и безопасность</h2>
+      <p>Данные хранятся локально на устройстве пользователя. При включенной синхронизации используются защищенные сервисы Apple iCloud.</p>
+      <h2>4. Права пользователя</h2>
+      <p>Вы можете в любой момент удалить записи в приложении или удалить само приложение для очистки данных. Для запроса полного удаления или экспорта свяжитесь с нами.</p>
+      <h2>5. Связь с нами</h2>
+      <p>По вопросам конфиденциальности пишите на: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
+    </div>
+    <div id="policy-en" class="lang">
+      <p>Effective date: <strong>January 1, 2025</strong></p>
+      <p>We respect your privacy. This policy explains what data <strong>GluOne</strong> collects, how it is used, and how it is protected.</p>
+      <h2>1. Data Collection</h2>
+      <ul>
+        <li>Glucose readings</li>
+        <li>Insulin doses</li>
+        <li>Meals and bread units (BU)</li>
+        <li>Reminder settings</li>
+        <li>Subscription information</li>
+      </ul>
+      <h2>2. Data Usage</h2>
+      <p>Data is used solely for app functionality: logging, analytics, syncing, and report export. We do not sell or share personal data with third parties.</p>
+      <h2>3. Storage & Security</h2>
+      <p>Data is stored locally on your device. iCloud sync utilizes Apple’s secure cloud services.</p>
+      <h2>4. User Rights</h2>
+      <p>You can delete entries or uninstall the app at any time. For full data deletion or export requests, please contact us.</p>
+      <h2>5. Contact</h2>
+      <p>For privacy inquiries, email: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
+    </div>
+  </div>
+  <footer>
+    <p>ИП Киселев Александр Борисович (ИНН: 230110074610)</p>
+    <p>&copy; 2025 GluOne. All rights reserved.</p>
+  </footer>
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('.lang').forEach(el=>el.classList.remove('active'));
+      document.getElementById('policy-' + lang).classList.add('active');
+    }
+  </script>
+</body>
+</html>
