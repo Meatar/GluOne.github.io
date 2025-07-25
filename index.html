@@ -3,109 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GluOne Developer – Александр Киселев</title>
+  <title>GluOne – Your Diabetes Companion</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #3b82f6; /* синий */
-      --secondary-color: #f97316; /* оранжевый */
+      --primary-color: #3b82f6;
+      --secondary-color: #f97316;
       --bg-color: #f9fafb;
       --card-bg: #ffffff;
       --text-color: #1f2937;
       --muted-color: #6b7280;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-    }
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background-color: var(--bg-color);
-      padding: 1rem;
-    }
-    .card {
-      background: var(--card-bg);
-      border-radius: 1rem;
-      box-shadow: 0 10px 15px rgba(0,0,0,0.05);
-      max-width: 360px;
-      width: 100%;
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg-color); color: var(--text-color); }
+    header {
+      background: var(--primary-color);
+      color: white;
+      padding: 2rem 1rem;
       text-align: center;
-      padding: 2rem 1.5rem;
     }
-    .avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid var(--primary-color);
-      margin: 0 auto 1rem;
-    }
-    h1 {
-      font-size: 1.5rem;
-      color: var(--text-color);
-      margin-bottom: 0.5rem;
-    }
-    p.title {
-      font-size: 1rem;
-      color: var(--secondary-color);
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-    p.description {
-      font-size: 0.9rem;
-      color: var(--muted-color);
-      margin-bottom: 1.5rem;
-      line-height: 1.4;
-    }
-    .links {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .links a {
-      color: var(--primary-color);
-      font-size: 1.25rem;
-      text-decoration: none;
-      transition: transform 0.2s ease;
-    }
-    .links a:hover {
-      transform: scale(1.1);
-    }
-    .button {
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      background: var(--secondary-color);
-      color: #fff;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      font-weight: 600;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-      transition: background 0.2s ease;
-    }
-    .button:hover {
-      background: #d65a0e;
-    }
+    header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    header p { font-size: 1.25rem; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; margin-top: 2rem; }
+    .feature { background: var(--card-bg); border-radius: 0.75rem; padding: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
+    .feature h3 { color: var(--secondary-color); margin-bottom: 0.5rem; font-size: 1.1rem; }
+    .feature p { font-size: 0.9rem; color: var(--muted-color); }
+    .cta { text-align: center; margin: 3rem 0; }
+    .cta a { display: inline-block; padding: 1rem 2rem; background: var(--secondary-color); color: white; text-decoration: none; font-weight: 600; border-radius: 0.5rem; transition: background 0.2s ease; }
+    .cta a:hover { background: #d65a0e; }
+    footer { text-align: center; padding: 2rem 1rem; font-size: 0.85rem; color: var(--muted-color); }
+    footer a { color: var(--primary-color); text-decoration: none; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <img src="https://meatar.github.io/GluOne.github.io/avatar.jpg" alt="Александр Киселев" class="avatar">
-    <h1>Александр Киселев</h1>
-    <p class="title">iOS & Backend Developer</p>
-    <p class="description">Создатель приложения GluOne для управления диабетом. 
-      P2P-криптоэнтузиаст и разработчик с опытом в Swift, Python и облачных решениях.</p>
-    <div class="links">
-      <a href="mailto:support@gluone.app" title="Email">✉️</a>
-      <a href="https://github.com/meatar/GluOne.github.io" title="GitHub">🐙</a>
-      <a href="https://meatar.github.io/GluOne.github.io" title="Website">🌐</a>
+  <header>
+    <h1>GluOne</h1>
+    <p>Your Diabetes Companion</p>
+  </header>
+  <section class="container">
+    <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание и хлебные единицы (ХЕ) — всё в одном простом и удобном приложении.</p>
+    <div class="features">
+      <div class="feature">
+        <h3>Журнал глюкозы</h3>
+        <p>Записывайте измерения с отметками времени до и после приёма пищи.</p>
+      </div>
+      <div class="feature">
+        <h3>Учёт инсулина</h3>
+        <p>Следите за болюсным и базальным введением.</p>
+      </div>
+      <div class="feature">
+        <h3>Калькулятор ХЕ</h3>
+        <p>Расчёт хлебных единиц и углеводов в блюдах.</p>
+      </div>
+      <div class="feature">
+        <h3>Графики и аналитика</h3>
+        <p>Анализируйте тренды за день, неделю, месяц.</p>
+      </div>
+      <div class="feature">
+        <h3>Экспорт в PDF</h3>
+        <p>Готовьте отчёты для врача и личного архива.</p>
+      </div>
+      <div class="feature">
+        <h3>iCloud-синхронизация</h3>
+        <p>Сохраняйте данные и синхронизируйте между устройствами.</p>
+      </div>
     </div>
-    <a href="https://meatar.github.io/GluOne.github.io/privacy.html" class="button">Политика конфиденциальности</a>
-  </div>
+    <div class="cta">
+      <a href="#">Скачать в App Store</a>
+    </div>
+  </section>
+  <footer>
+    <p>ИП Киселев Александр Борисович (ИНН: 230110074610)</p>
+    <p><a href="https://meatar.github.io/GluOne.github.io/privacy.html" target="_blank">Политика конфиденциальности</a></p>
+    <p>&copy; 2025 GluOne. All rights reserved.</p>
+  </footer>
 </body>
 </html>
