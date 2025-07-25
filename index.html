@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GluOne – Ваш спутник при диабете</title>
+  <title>GluOne – Your Diabetes Companion</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -24,6 +24,8 @@
     }
     header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
     header p { font-size: 1.25rem; }
+    .lang-switch { position: absolute; top: 1rem; right: 1rem; }
+    .lang-switch button { background: none; border: none; color: white; margin-left: 0.5rem; font-size: 1rem; cursor: pointer; }
     .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
     .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; margin-top: 2rem; }
     .feature { background: var(--card-bg); border-radius: 0.75rem; padding: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
@@ -34,43 +36,45 @@
     .cta a:hover { background: #d65a0e; }
     footer { text-align: center; padding: 2rem 1rem; font-size: 0.85rem; color: var(--muted-color); }
     footer a { color: var(--primary-color); text-decoration: none; }
+    .lang { display: none; }
+    .lang.active { display: block; }
   </style>
 </head>
 <body>
   <header>
+    <div class="lang-switch">
+      <button onclick="setLang('ru')">RU</button>
+      <button onclick="setLang('en')">EN</button>
+    </div>
     <h1>GluOne</h1>
-    <p>Your Diabetes Companion</p>
+    <p id="tagline">Your Diabetes Companion</p>
   </header>
   <section class="container">
-    <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание и хлебные единицы (ХЕ) — всё в одном простом и удобном приложении.</p>
-    <div class="features">
-      <div class="feature">
-        <h3>Журнал глюкозы</h3>
-        <p>Записывайте измерения с отметками времени до и после приёма пищи.</p>
+    <div id="content-ru" class="lang active">
+      <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание и хлебные единицы (ХЕ) — всё в одном простом и удобном приложении.</p>
+      <div class="features">
+        <div class="feature"><h3>Журнал глюкозы</h3><p>Записывайте измерения с отметками времени до и после приёма пищи.</p></div>
+        <div class="feature"><h3>Учёт инсулина</h3><p>Следите за болюсным и базальным введением.</p></div>
+        <div class="feature"><h3>Калькулятор ХЕ</h3><p>Расчёт хлебных единиц и углеводов в блюдах.</p></div>
+        <div class="feature"><h3>Графики и аналитика</h3><p>Анализируйте тренды за день, неделю, месяц.</p></div>
+        <div class="feature"><h3>Экспорт в PDF</h3><p>Готовьте отчёты для врача и личного архива.</p></div>
+        <div class="feature"><h3>iCloud-синхронизация</h3><p>Сохраняйте данные и синхронизируйте между устройствами.</p></div>
       </div>
-      <div class="feature">
-        <h3>Учёт инсулина</h3>
-        <p>Следите за болюсным и базальным введением.</p>
-      </div>
-      <div class="feature">
-        <h3>Калькулятор ХЕ</h3>
-        <p>Расчёт хлебных единиц и углеводов в блюдах.</p>
-      </div>
-      <div class="feature">
-        <h3>Графики и аналитика</h3>
-        <p>Анализируйте тренды за день, неделю, месяц.</p>
-      </div>
-      <div class="feature">
-        <h3>Экспорт в PDF</h3>
-        <p>Готовьте отчёты для врача и личного архива.</p>
-      </div>
-      <div class="feature">
-        <h3>iCloud-синхронизация</h3>
-        <p>Сохраняйте данные и синхронизируйте между устройствами.</p>
-      </div>
+      <div class="cta"><a href="#">Скачать в App Store</a></div>
+      <p>Контакт: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
     </div>
-    <div class="cta">
-      <a href="#">Скачать в App Store</a>
+    <div id="content-en" class="lang">
+      <p>GluOne helps you keep a digital diabetes journal. Track glucose levels, insulin doses, meals, and bread units (BU) all in one simple, intuitive app.</p>
+      <div class="features">
+        <div class="feature"><h3>Glucose Logbook</h3><p>Record readings with time-of-day tags before and after meals.</p></div>
+        <div class="feature"><h3>Insulin Tracking</h3><p>Monitor basal and bolus injections.</p></div>
+        <div class="feature"><h3>BU Calculator</h3><p>Calculate bread units and carbs in your meals.</p></div>
+        <div class="feature"><h3>Charts & Analytics</h3><p>Analyze trends by day, week, and month.</p></div>
+        <div class="feature"><h3>PDF Export</h3><p>Generate reports for your doctor or personal archive.</p></div>
+        <div class="feature"><h3>iCloud Sync</h3><p>Save data and sync across devices securely.</p></div>
+      </div>
+      <div class="cta"><a href="#">Download on the App Store</a></div>
+      <p>Contact: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
     </div>
   </section>
   <footer>
@@ -78,5 +82,13 @@
     <p><a href="https://meatar.github.io/GluOne.github.io/privacy.html" target="_blank">Политика конфиденциальности</a></p>
     <p>&copy; 2025 GluOne. All rights reserved.</p>
   </footer>
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('.lang').forEach(el => el.classList.remove('active'));
+      document.getElementById('content-' + lang).classList.add('active');
+      const taglines = { ru: 'Your Diabetes Companion', en: 'Your Diabetes Companion' };
+      document.getElementById('tagline').textContent = (lang === 'ru') ? 'Ваш помощник в управлении диабетом' : 'Your Diabetes Companion';
+    }
+  </script>
 </body>
 </html>
