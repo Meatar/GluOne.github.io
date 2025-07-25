@@ -16,7 +16,7 @@
     header { background:var(--primary-color); color:#fff; padding:1rem; text-align:center; position:relative; }
     header h1 { margin:0; font-size:1.5rem; }
     .lang-switch { position:absolute; top:1rem; right:1rem; }
-    .lang-switch button { background:none; border:none; color:white; margin-left:0.5rem; cursor:pointer; font-weight:600; }
+    .lang-switch select { padding:0.25rem; border:none; border-radius:0.25rem; font-weight:600; cursor:pointer; }
     .content { max-width:800px; margin:2rem auto; padding:0 1rem; }
     h2 { margin-top:1.5rem; color:var(--primary-color); }
     p, li { line-height:1.6; }
@@ -30,12 +30,14 @@
   <header>
     <h1>Политика конфиденциальности</h1>
     <div class="lang-switch">
-      <button onclick="setLang('ru')">RU</button>
-      <button onclick="setLang('en')">EN</button>
+      <select id="language-select">
+        <option value="ru">RU</option>
+        <option value="en">EN</option>
+      </select>
     </div>
   </header>
   <div class="content">
-    <div id="policy-ru" class="lang active">
+    <div data-lang="ru" class="lang active" id="policy-ru">
       <p>Дата вступления в силу: <strong>1 января 2025</strong></p>
       <p>Мы уважаем вашу конфиденциальность. Ниже описано, какие данные собирает приложение <strong>GluOne</strong>, как они используются и защищаются.</p>
       <h2>1. Сбор данных</h2>
@@ -55,7 +57,7 @@
       <h2>5. Связь с нами</h2>
       <p>По вопросам конфиденциальности пишите на: <a href="mailto:ip-kiselev@internet.ru">ip-kiselev@internet.ru</a></p>
     </div>
-    <div id="policy-en" class="lang">
+    <div data-lang="en" class="lang" id="policy-en">
       <p>Effective date: <strong>January 1, 2025</strong></p>
       <p>We respect your privacy. This policy explains what data <strong>GluOne</strong> collects, how it is used, and how it is protected.</p>
       <h2>1. Data Collection</h2>
@@ -81,10 +83,11 @@
     <p>&copy; 2025 GluOne. All rights reserved.</p>
   </footer>
   <script>
-    function setLang(lang) {
-      document.querySelectorAll('.lang').forEach(el=>el.classList.remove('active'));
-      document.getElementById('policy-' + lang).classList.add('active');
-    }
+    const select = document.getElementById('language-select');
+    select.addEventListener('change', () => {
+      const lang = select.value;
+      document.querySelectorAll('[data-lang]').forEach(el => el.classList.toggle('active', el.getAttribute('data-lang') === lang));
+    });
   </script>
 </body>
 </html>
