@@ -64,32 +64,32 @@
   </header>
   <section class="container">
     <div data-lang="ru" class="lang active">
-      <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание и хлебные единицы (ХЕ) — всё в одном простом и удобном приложении.</p>
+      <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание, давление, активность и приём медикаментов — всё локально и без регистрации.</p>
       <div class="features">
-        <div class="feature"><h3>Журнал глюкозы</h3><p>Записывайте измерения с отметками времени до и после приёма пищи.</p></div>
-        <div class="feature"><h3>Учёт инсулина</h3><p>Следите за болюсным и базальным введением.</p></div>
-        <div class="feature"><h3>Калькулятор ХЕ</h3><p>Расчёт хлебных единиц и углеводов в блюдах.</p></div>
-        <div class="feature"><h3>Графики и аналитика</h3><p>Анализируйте тренды за день, неделю, месяц.</p></div>
-        <div class="feature"><h3>Экспорт в PDF</h3><p>Готовьте отчёты для врача и личного архива.</p></div>
-        <div class="feature"><h3>iCloud-синхронизация</h3><p>Сохраняйте данные и синхронизируйте между устройствами.</p></div>
+        <div class="feature"><h3>Журнал глюкозы</h3><p>Записывайте измерения с отметками времени.</p></div>
+        <div class="feature"><h3>Учёт инсулина</h3><p>Фиксируйте базальные и болюсные введения.</p></div>
+        <div class="feature"><h3>Журнал питания</h3><p>Вносите приёмы пищи и рассчитывайте ХЕ.</p></div>
+        <div class="feature"><h3>Измерение давления</h3><p>Записывайте показания артериального давления.</p></div>
+        <div class="feature"><h3>Активность</h3><p>Отслеживайте физическую нагрузку и шаги.</p></div>
+        <div class="feature"><h3>Графики и аналитика</h3><p>Анализируйте тренды за день, неделю и месяц.</p></div>
       </div>
       <div class="cta"><a href="#">Скачать в App Store</a></div>
     </div>
     <div data-lang="en" class="lang">
-      <p>GluOne helps you keep a digital diabetes journal. Track glucose levels, insulin doses, meals, and bread units (BU) all in one simple, intuitive app.</p>
+      <p>GluOne helps you keep a digital diabetes journal—all data stays on your device. Track glucose, insulin, meals, blood pressure, activity, and meds without any signup.</p>
       <div class="features">
-        <div class="feature"><h3>Glucose Logbook</h3><p>Record readings with time-of-day tags before and after meals.</p></div>
-        <div class="feature"><h3>Insulin Tracking</h3><p>Monitor basal and bolus injections.</p></div>
-        <div class="feature"><h3>BU Calculator</h3><p>Calculate bread units and carbs in your meals.</p></div>
-        <div class="feature"><h3>Charts & Analytics</h3><p>Analyze trends by day, week, and month.</p></div>
-        <div class="feature"><h3>PDF Export</h3><p>Generate reports for your doctor or personal archive.</p></div>
-        <div class="feature"><h3>iCloud Sync</h3><p>Save data and sync across devices securely.</p></div>
+        <div class="feature"><h3>Glucose Logbook</h3><p>Record your readings with timestamps.</p></div>
+        <div class="feature"><h3>Insulin Tracking</h3><p>Log basal and bolus doses.</p></div>
+        <div class="feature"><h3>Meals Journal</h3><p>Enter meals and calculate bread units (BU).</p></div>
+        <div class="feature"><h3>Blood Pressure</h3><p>Track your BP readings over time.</p></div>
+        <div class="feature"><h3>Activity Log</h3><p>Monitor physical activities and steps.</p></div>
+        <div class="feature"><h3>Charts & Analytics</h3><p>Analyze daily, weekly, and monthly trends.</p></div>
       </div>
       <div class="cta"><a href="#">Download on the App Store</a></div>
     </div>
   </section>
   <footer>
-    <p>ИП Киселев Александр Борисович (ИНН: 230110074610)</p>
+    <p>ИП Киселев АБ ОГРНИП 324619600076322</p>
     <p><a href="https://meatar.github.io/GluOne.github.io/privacy.html" target="_blank">Политика конфиденциальности</a></p>
     <p>&copy; 2025 GluOne. All rights reserved.</p>
   </footer>
@@ -103,7 +103,7 @@
     select.addEventListener('change', () => {
       const lang = select.value;
       sections.forEach(sec => sec.classList.toggle('active', sec.getAttribute('data-lang') === lang));
-      document.getElementById('tagline').textContent = taglines[lang] || '';
+      document.getElementById('tagline').textContent = taglines[lang];
     });
   </script>
 </body>
