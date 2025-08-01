@@ -62,7 +62,9 @@
     <h1>GluOne</h1>
     <p id="tagline">Ваш помощник в управлении диабетом</p>
   </header>
+
   <section class="container">
+    <!-- Russian content -->
     <div data-lang="ru" class="lang active">
       <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание, давление, активность и приём медикаментов — всё локально и без регистрации.</p>
       <div class="features">
@@ -75,6 +77,8 @@
       </div>
       <div class="cta"><a href="#">Скачать в App Store</a></div>
     </div>
+
+    <!-- English content -->
     <div data-lang="en" class="lang">
       <p>GluOne helps you keep a digital diabetes journal—all data stays on your device. Track glucose, insulin, meals, blood pressure, activity, and meds without any signup.</p>
       <div class="features">
@@ -88,22 +92,50 @@
       <div class="cta"><a href="#">Download on the App Store</a></div>
     </div>
   </section>
+
   <footer>
     <p>ИП Киселев АБ ОГРНИП 324619600076322</p>
-    <p><a href="https://meatar.github.io/GluOne.github.io/privacy.html" target="_blank">Политика конфиденциальности</a></p>
+    <p>
+      <a
+        id="privacy-link"
+        href="https://meatar.github.io/GluOne.github.io/privacy.html"
+        target="_blank"
+      >
+        Политика конфиденциальности
+      </a>
+    </p>
     <p>&copy; 2025 GluOne. All rights reserved.</p>
   </footer>
+
   <script>
     const select = document.getElementById('language-select');
     const sections = document.querySelectorAll('[data-lang]');
+    const tagline = document.getElementById('tagline');
+    const privacyLink = document.getElementById('privacy-link');
+
     const taglines = {
       ru: 'Ваш помощник в управлении диабетом',
       en: 'Your Diabetes Companion'
     };
+
+    const privacyTexts = {
+      ru: 'Политика конфиденциальности',
+      en: 'Privacy Policy'
+    };
+
     select.addEventListener('change', () => {
       const lang = select.value;
-      sections.forEach(sec => sec.classList.toggle('active', sec.getAttribute('data-lang') === lang));
-      document.getElementById('tagline').textContent = taglines[lang];
+
+      // Переключаем видимость языковых секций
+      sections.forEach(sec =>
+        sec.classList.toggle('active', sec.getAttribute('data-lang') === lang)
+      );
+
+      // Меняем текст слогана
+      tagline.textContent = taglines[lang];
+
+      // Меняем текст ссылки на политику
+      privacyLink.textContent = privacyTexts[lang];
     });
   </script>
 </body>
