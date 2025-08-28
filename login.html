@@ -27,7 +27,7 @@
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('access_token', data.access_token);
-        const meRes = await fetch('https://api.gluone.ru/auth/me', {
+        const meRes = await fetch('https://api.gluone.ru/auth/web/me', {
           headers: { 'Authorization': 'Bearer ' + data.access_token }
         });
         if (meRes.ok) {
