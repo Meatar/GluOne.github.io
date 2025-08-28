@@ -18,9 +18,10 @@
       const form = e.target;
       const username = form.username.value;
       const password = form.password.value;
-      const res = await fetch('/auth/login', {
+      const res = await fetch('https://api.gluone.ru/auth/web/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       });
       if (res.ok) {

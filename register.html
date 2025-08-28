@@ -20,9 +20,10 @@
       const username = form.username.value;
       const email = form.email.value;
       const password = form.password.value;
-      const res = await fetch('/auth/register', {
+      const res = await fetch('https://api.gluone.ru/auth/web/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, email, password })
       });
       if (res.ok) {
