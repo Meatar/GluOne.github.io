@@ -68,11 +68,6 @@
     <a href="profile.html">Личный кабинет</a>
   </nav>
 
-  <div style="text-align:center;margin:1rem;">
-    <button id="check-db-btn">Проверить соединение с БД</button>
-    <pre id="db-result" style="margin-top:1rem;"></pre>
-  </div>
-
   <section class="container">
     <!-- Russian content -->
     <div data-lang="ru" class="lang active">
@@ -148,27 +143,6 @@
       privacyLink.textContent = privacyTexts[lang];
     });
 
-    const checkBtn = document.getElementById('check-db-btn');
-    const dbResult = document.getElementById('db-result');
-
-    checkBtn.addEventListener('click', async () => {
-      dbResult.textContent = 'Проверка...';
-      try {
-        // Запрашиваем тот же хост, с которого загружена страница.
-        // Это избегает ошибок типа "The string did not match the expected pattern"
-        // когда `window.location.origin` недоступен или содержит невалидное значение
-        // (например, при открытии файла напрямую из файловой системы).
-        const response = await fetch('/check-db');
-        const data = await response.json();
-        if (data.success) {
-          dbResult.textContent = data.tables.join(', ');
-        } else {
-          dbResult.textContent = 'Ошибка: ' + (data.message || 'Неизвестная ошибка');
-        }
-      } catch (err) {
-        dbResult.textContent = 'Ошибка: ' + (err.message || err);
-      }
-    });
 </script>
 </body>
 </html>
