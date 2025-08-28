@@ -5,54 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GluOne – Your Diabetes Companion</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #3b82f6;
-      --secondary-color: #f97316;
-      --bg-color: #f9fafb;
-      --card-bg: #ffffff;
-      --text-color: #1f2937;
-      --muted-color: #6b7280;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background: var(--bg-color); color: var(--text-color); }
-    header {
-      background: var(--primary-color);
-      color: white;
-      padding: 2rem 1rem;
-      text-align: center;
-      position: relative;
-    }
-    header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    header p { font-size: 1.25rem; }
-    .lang-switch {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-    }
-    .lang-switch select {
-      padding: 0.25rem;
-      border-radius: 0.25rem;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; margin-top: 2rem; }
-    .feature { background: var(--card-bg); border-radius: 0.75rem; padding: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
-    .feature h3 { color: var(--secondary-color); margin-bottom: 0.5rem; font-size: 1.1rem; }
-    .feature p { font-size: 0.9rem; color: var(--muted-color); }
-    .cta { text-align: center; margin: 3rem 0; }
-    .cta a { display: inline-block; padding: 1rem 2rem; background: var(--secondary-color); color: white; text-decoration: none; font-weight: 600; border-radius: 0.5rem; transition: background 0.2s ease; }
-    .cta a:hover { background: #d65a0e; }
-    footer { text-align: center; padding: 2rem 1rem; font-size: 0.85rem; color: var(--muted-color); }
-    footer a { color: var(--primary-color); text-decoration: none; }
-    .lang { display: none; }
-    .lang.active { display: block; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
+    <div class="theme-switch">
+      <select id="theme-select">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
     <div class="lang-switch">
       <select id="language-select">
         <option value="ru">RU</option>
@@ -69,7 +31,6 @@
   </nav>
 
   <section class="container">
-    <!-- Russian content -->
     <div data-lang="ru" class="lang active">
       <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание, давление, активность и приём медикаментов — всё локально и без регистрации.</p>
       <div class="features">
@@ -83,7 +44,6 @@
       <div class="cta"><a href="#">Скачать в App Store</a></div>
     </div>
 
-    <!-- English content -->
     <div data-lang="en" class="lang">
       <p>GluOne helps you keep a digital diabetes journal—all data stays on your device. Track glucose, insulin, meals, blood pressure, activity, and meds without any signup.</p>
       <div class="features">
@@ -101,11 +61,7 @@
   <footer>
     <p>ИП Киселев АБ ОГРНИП 324619600076322</p>
     <p>
-      <a
-        id="privacy-link"
-        href="https://gluone.ru/privacy.html"
-        target="_blank"
-      >
+      <a id="privacy-link" href="https://gluone.ru/privacy.html" target="_blank">
         Политика конфиденциальности
       </a>
     </p>
@@ -114,6 +70,7 @@
 
   <script>
     const select = document.getElementById('language-select');
+    const themeSelect = document.getElementById('theme-select');
     const sections = document.querySelectorAll('[data-lang]');
     const tagline = document.getElementById('tagline');
     const privacyLink = document.getElementById('privacy-link');
@@ -128,21 +85,29 @@
       en: 'Privacy Policy'
     };
 
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.body.classList.add('dark');
+      } else {
+        document.body.classList.remove('dark');
+      }
+      localStorage.setItem('theme', theme);
+    }
+
     select.addEventListener('change', () => {
       const lang = select.value;
-
-      // Переключаем видимость языковых секций
       sections.forEach(sec =>
         sec.classList.toggle('active', sec.getAttribute('data-lang') === lang)
       );
-
-      // Меняем текст слогана
       tagline.textContent = taglines[lang];
-
-      // Меняем текст ссылки на политику
       privacyLink.textContent = privacyTexts[lang];
     });
 
-</script>
+    themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    themeSelect.value = savedTheme;
+    applyTheme(savedTheme);
+  </script>
 </body>
 </html>
