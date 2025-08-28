@@ -23,7 +23,9 @@
     async function loadMe() {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      const res = await fetch('https://api.gluone.ru/auth/me', {
+      
+      const res = await fetch('https://api.gluone.ru/auth/web/me', {
+
         headers: { 'Authorization': 'Bearer ' + token }
       });
       if (res.ok) {
