@@ -8,6 +8,14 @@
   <h1>Личный кабинет</h1>
   <div id="info"></div>
 
+  <h2>Подписка</h2>
+  <div id="plans">
+    <button data-plan="month">1 месяц – 99 ₽</button>
+    <button data-plan="quarter">3 месяца – 279 ₽</button>
+    <button data-plan="half">6 месяцев – 499 ₽</button>
+    <button data-plan="year">12 месяцев – 899 ₽</button>
+  </div>
+
   <h2>Смена пароля</h2>
   <form id="change-password">
     <input type="password" name="old_password" placeholder="Старый пароль" required>
@@ -100,6 +108,29 @@
       } else {
         alert('Ошибка смены пароля');
       }
+    });
+
+    // ---- Subscription payment ----
+    document.querySelectorAll('#plans button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const plan = btn.dataset.plan;
+        try {
+          const res = await fetch('/api/create-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plan })
+          });
+          const data = await res.json();
+          if (data && data.PaymentURL) {
+            window.location.href = data.PaymentURL;
+          } else {
+            alert('Ошибка оплаты');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Ошибка связи с сервером');
+        }
+      });
     });
   </script>
 </body>
