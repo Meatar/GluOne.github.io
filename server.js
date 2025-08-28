@@ -6,11 +6,15 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 app.get('/check-db', async (req, res) => {
+  // Allow overriding connection settings via environment variables so the
+  // application can connect to the local database by default but still be
+  // configurable in different environments.
   const connectionConfig = {
-    host: 'localhost',
-    user: 'u3239193_default',
-    password: 'LX59kglhVRs17i7R',
-    database: 'u3239193_default'
+    host: process.env.DB_HOST || '127.0.0.1',
+    user: process.env.DB_USER || 'u3239193_default',
+    password: process.env.DB_PASSWORD || 'LX59kglhVRs17i7R',
+    database: process.env.DB_NAME || 'u3239193_default',
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306
   };
 
   try {

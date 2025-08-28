@@ -154,8 +154,11 @@
     checkBtn.addEventListener('click', async () => {
       dbResult.textContent = 'Проверка...';
       try {
-        const baseUrl = window.location.origin === 'null' ? 'http://localhost:8080' : '';
-        const response = await fetch(baseUrl + '/check-db');
+        const baseUrl =
+          window.location.origin && window.location.origin !== 'null'
+            ? window.location.origin
+            : 'http://localhost:8080';
+        const response = await fetch(`${baseUrl}/check-db`);
         const data = await response.json();
         if (data.success) {
           dbResult.textContent = data.tables.join(', ');
