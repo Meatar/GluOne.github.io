@@ -20,7 +20,7 @@ app.get('/check-db', async (req, res) => {
     const tables = rows.map(row => Object.values(row)[0]);
     res.json({ success: true, tables });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: err.message || err.code });
   }
 });
 
