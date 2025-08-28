@@ -23,8 +23,9 @@
     async function loadMe() {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-      const res = await fetch('/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + token }
+      const res = await fetch('https://api.gluone.ru/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token },
+        credentials: 'include'
       });
       if (res.ok) {
         const data = await res.json();
@@ -36,7 +37,10 @@
     loadMe();
 
     document.getElementById('refresh').addEventListener('click', async () => {
-      const res = await fetch('/auth/refresh', { method: 'POST' });
+      const res = await fetch('https://api.gluone.ru/auth/web/refresh', {
+        method: 'POST',
+        credentials: 'include'
+      });
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('access_token', data.access_token);
@@ -47,7 +51,10 @@
     });
 
     document.getElementById('logout').addEventListener('click', async () => {
-      await fetch('/auth/logout', { method: 'POST' });
+      await fetch('https://api.gluone.ru/auth/web/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
       localStorage.removeItem('access_token');
       alert('Вы вышли');
       location.href = 'index.html';
@@ -57,9 +64,10 @@
       const username = localStorage.getItem('username');
       const password = prompt('Подтвердите удаление, введя пароль');
       if (!password) return;
-      const res = await fetch('/auth/delete', {
+      const res = await fetch('https://api.gluone.ru/auth/web/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       });
       if (res.ok) {
@@ -76,9 +84,10 @@
       const username = localStorage.getItem('username');
       const old_password = e.target.old_password.value;
       const new_password = e.target.new_password.value;
-      const res = await fetch('/auth/change-password', {
+      const res = await fetch('https://api.gluone.ru/auth/web/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, old_password, new_password })
       });
       if (res.status === 204) {
