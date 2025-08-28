@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Регистрация</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <script>if(localStorage.getItem('theme')==='dark'){document.body.classList.add('dark');}</script>
   <h1>Регистрация</h1>
   <form id="register-form">
     <input name="username" placeholder="Имя пользователя" required>
@@ -31,7 +34,6 @@
         localStorage.setItem('access_token', data.access_token);
 
         const meRes = await fetch('https://api.gluone.ru/auth/web/me', {
-
           headers: { 'Authorization': 'Bearer ' + data.access_token }
         });
         if (meRes.ok) {
