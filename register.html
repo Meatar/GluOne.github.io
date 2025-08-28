@@ -40,11 +40,6 @@
           localStorage.setItem('email', me.email);
           localStorage.setItem('is_premium', me.is_premium);
           localStorage.setItem('premium_expires_at', me.premium_expires_at || '');
-          await fetch('/users', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(me)
-          });
         }
         alert('Успешная регистрация');
         location.href = 'profile.html';
