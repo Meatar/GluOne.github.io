@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Личный кабинет</title>
+</head>
+<body>
+  <h1>Личный кабинет</h1>
+  <div id="info"></div>
+
+  <h2>Смена пароля</h2>
+  <form id="change-password">
+    <input type="password" name="old_password" placeholder="Старый пароль" required>
+    <input type="password" name="new_password" placeholder="Новый пароль" required>
+    <button type="submit">Сменить пароль</button>
+  </form>
+
+  <button id="refresh">Обновить токен</button>
+  <button id="logout">Выйти</button>
+  <button id="delete">Удалить аккаунт</button>
+
+  <script>
+    async function loadMe() {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      const res = await fetch('/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('info').textContent = JSON.stringify(data);
+      } else {
+        document.getElementById('info').textContent = 'Не удалось получить данные';
+      }
+    }
+    loadMe();
+
+    document.getElementById('refresh').addEventListener('click', async () => {
+      const res = await fetch('/auth/refresh', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('access_token', data.access_token);
+        alert('Токен обновлен');
+      } else {
+        alert('Ошибка обновления');
+      }
+    });
+
+    document.getElementById('logout').addEventListener('click', async () => {
+      await fetch('/auth/logout', { method: 'POST' });
+      localStorage.removeItem('access_token');
+      alert('Вы вышли');
+      location.href = 'index.html';
+    });
+
+    document.getElementById('delete').addEventListener('click', async () => {
+      const username = localStorage.getItem('username');
+      const password = prompt('Подтвердите удаление, введя пароль');
+      if (!password) return;
+      const res = await fetch('/auth/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        localStorage.clear();
+        alert('Аккаунт удален');
+        location.href = 'index.html';
+      } else {
+        alert('Ошибка удаления');
+      }
+    });
+
+    document.getElementById('change-password').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = localStorage.getItem('username');
+      const old_password = e.target.old_password.value;
+      const new_password = e.target.new_password.value;
+      const res = await fetch('/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, old_password, new_password })
+      });
+      if (res.status === 204) {
+        alert('Пароль изменен');
+        e.target.reset();
+      } else {
+        alert('Ошибка смены пароля');
+      }
+    });
+  </script>
+</body>
+</html>
