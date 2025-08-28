@@ -68,6 +68,11 @@
     <a href="profile.html">Личный кабинет</a>
   </nav>
 
+  <div style="text-align:center;margin:1rem;">
+    <button id="check-db-btn">Проверить соединение с БД</button>
+    <pre id="db-result" style="margin-top:1rem;"></pre>
+  </div>
+
   <section class="container">
     <!-- Russian content -->
     <div data-lang="ru" class="lang active">
@@ -142,6 +147,25 @@
       // Меняем текст ссылки на политику
       privacyLink.textContent = privacyTexts[lang];
     });
-  </script>
+
+    const checkBtn = document.getElementById('check-db-btn');
+    const dbResult = document.getElementById('db-result');
+
+    checkBtn.addEventListener('click', async () => {
+      dbResult.textContent = 'Проверка...';
+      try {
+        const baseUrl = window.location.origin === 'null' ? 'http://localhost:8080' : '';
+        const response = await fetch(baseUrl + '/check-db');
+        const data = await response.json();
+        if (data.success) {
+          dbResult.textContent = data.tables.join(', ');
+        } else {
+          dbResult.textContent = 'Ошибка: ' + (data.message || 'Неизвестная ошибка');
+        }
+      } catch (err) {
+        dbResult.textContent = 'Ошибка: ' + (err.message || err);
+      }
+    });
+</script>
 </body>
 </html>
