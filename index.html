@@ -154,11 +154,11 @@
     checkBtn.addEventListener('click', async () => {
       dbResult.textContent = 'Проверка...';
       try {
-        const baseUrl =
-          window.location.origin && window.location.origin !== 'null'
-            ? window.location.origin
-            : 'http://localhost:8080';
-        const response = await fetch(`${baseUrl}/check-db`);
+        // Запрашиваем тот же хост, с которого загружена страница.
+        // Это избегает ошибок типа "The string did not match the expected pattern"
+        // когда `window.location.origin` недоступен или содержит невалидное значение
+        // (например, при открытии файла напрямую из файловой системы).
+        const response = await fetch('/check-db');
         const data = await response.json();
         if (data.success) {
           dbResult.textContent = data.tables.join(', ');
