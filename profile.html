@@ -32,11 +32,6 @@
         const data = await res.json();
         localStorage.setItem('user_data', JSON.stringify(data));
         document.getElementById('info').textContent = JSON.stringify(data);
-        await fetch('/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
       } else {
         document.getElementById('info').textContent = 'Не удалось получить данные';
       }
@@ -80,11 +75,6 @@
         body: JSON.stringify({ username, password })
       });
       if (res.ok) {
-        await fetch('/users', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username })
-        });
         localStorage.clear();
         alert('Аккаунт удален');
         location.href = 'index.html';
