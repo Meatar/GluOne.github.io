@@ -10,30 +10,38 @@ require __DIR__ . '/PHPMailer/src/SMTP.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// -------------------- Конфигурация --------------------
-$API_TOKEN  = "ТОКЕН_ИЗ_config.env";      // Токен
-$SMTP_HOST  = "mail.hosting.reg.ru";      // SMTP сервер reg.ru
-$SMTP_PORT  = 465;                        // Порт: 465 (SMTPS) или 587 (STARTTLS)
-$SMTP_USER  = "no-reply@gluone.ru";       // Логин (почтовый ящик)
-$SMTP_PASS  = "ПАРОЛЬ";                   // Пароль
-$FROM_EMAIL = "no-reply@gluone.ru";       // Отправитель
-$FROM_NAME  = "GluOne App";               // Имя отправителя
-$USE_SMTPS  = true;                       // true = SMTPS(465), false = STARTTLS(587)
+// -------------------- Чтение config.env --------------------
+$configPath = __DIR__ . '/config.env';
+$env = file_exists($configPath)
+    ? (parse_ini_file($configPath, false, INI_SCANNER_RAW) ?: [])
+    : [];
+
+$API_TOKEN  = $env['API_TOKEN']  ?? '';
+$SMTP_HOST  = $env['SMTP_HOST']  ?? 'mail.hosting.reg.ru';
+$SMTP_PORT  = (int)($env['SMTP_PORT'] ?? 465);
+$SMTP_USER  = $env['SMTP_USER']  ?? '';
+$SMTP_PASS  = $env['SMTP_PASS']  ?? '';
+$FROM_EMAIL = $env['FROM_EMAIL'] ?? $SMTP_USER;
+$FROM_NAME  = $env['FROM_NAME']  ?? 'Mailer';
+$USE_SMTPS  = isset($env['USE_SMTPS']) ? filter_var($env['USE_SMTPS'], FILTER_VALIDATE_BOOLEAN) : true;
 
 // -------------------- Авторизация --------------------
 $headers = function_exists('getallheaders') ? getallheaders() : [];
-$auth = $_SERVER['HTTP_AUTHORIZATION'] ?? ($headers['Authorization'] ?? $headers['authorization'] ?? null);
+$auth = $_SERVER['HTTP_AUTHORIZATION']
+    ?? ($headers['Authorization'] ?? $headers['authorization'] ?? null);
+
+// fallback на X-Api-Key
 if (!$auth && isset($headers['X-Api-Key'])) {
     $auth = 'Bearer ' . $headers['X-Api-Key'];
 }
 
-if ($auth !== "Bearer $API_TOKEN") {
+if ($API_TOKEN === '' || $auth !== "Bearer $API_TOKEN") {
     http_response_code(401);
-    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    echo json_encode(['status'=>'error','message'=>'Unauthorized']);
     exit;
 }
 
-// -------------------- Чтение запроса --------------------
+// -------------------- Чтение JSON --------------------
 $data = json_decode(file_get_contents("php://input"), true);
 if (!is_array($data)) {
     http_response_code(400);
@@ -41,12 +49,12 @@ if (!is_array($data)) {
     exit;
 }
 
-$to        = $data['to'] ?? null;
-$subject   = $data['subject'] ?? '(no subject)';
-$body      = $data['body'] ?? '';
-$isHtml    = $data['isHtml'] ?? true;
-$attachments = $data['attachments'] ?? [];
-$embedded    = $data['embedded'] ?? [];
+$to         = $data['to'] ?? null;
+$subject    = $data['subject'] ?? '(no subject)';
+$body       = $data['body'] ?? '';
+$isHtml     = $data['isHtml'] ?? true;
+$attachments= $data['attachments'] ?? [];
+$embedded   = $data['embedded'] ?? [];
 
 if (!$to) {
     http_response_code(400);
@@ -68,10 +76,10 @@ try {
 
     if ($USE_SMTPS) {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port       = $SMTP_PORT;
+        $mail->Port       = $SMTP_PORT ?: 465;
     } else {
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
+        $mail->Port       = $SMTP_PORT ?: 587;
     }
 
     $mail->setFrom($FROM_EMAIL, $FROM_NAME);
@@ -84,7 +92,7 @@ try {
         }
     }
 
-    // Inline-картинки
+    // Inline картинки
     foreach ($embedded as $item) {
         if (isset($item['path'], $item['cid']) && file_exists($item['path'])) {
             $mail->addEmbeddedImage(
