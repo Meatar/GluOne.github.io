@@ -52,7 +52,7 @@ header('Content-Type: application/json; charset=UTF-8');
 $env = [];
 $configPath = __DIR__ . '/config.env';
 if (file_exists($configPath)) {
-    $env = parse_ini_file($configPath, false, INI_SCANNER_TYPED) ?: [];
+    $env = parse_ini_file($configPath, false, INI_SCANNER_RAW) ?: [];
 }
 
 // Чтение переменных окружения с fallback на config.env и дефолты
