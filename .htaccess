@@ -1,0 +1,3 @@
+RewriteEngine On
+# Пробрасываем Authorization в PHP
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
