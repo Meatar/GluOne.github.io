@@ -55,11 +55,10 @@
     }
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    /* кнопки одинакового размера */
+    /* крупные кнопки в hero */
     .btn-hero{
-      height: 56px;                 /* ↑ чуть крупнее для солидности */
-      min-width: 220px;             /* одинаковая минимальная ширина */
-      padding-inline: 24px;
+      height: 56px;
+      min-width: 220px;
       border-radius: 9999px;
       display: inline-flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 18px;
@@ -67,29 +66,47 @@
     }
     .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
 
-    /* App Store как полноценная кнопка */
-    .store-btn{
-      background:#fff; border:1px solid #e2e8f0; color:#0f172a;
-      gap:48px; /* отступ вокруг бейджа */
+    /* компактная кнопка в шапке — ровно как логотип (h-9 = 36px) */
+    .btn-header{
+      height: 36px;               /* = высота логотипа */
+      padding: 0 16px;
+      border-radius: 9999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px;
+      transition: opacity .18s ease, transform .18s ease;
     }
-    .store-btn img{ height: 30px; width:auto; display:block; } /* крупнее бейдж внутри */
+    .btn-header:hover{ opacity:.9; transform: translateY(-1px); }
+
+    /* App Store как «заливка» кнопки — SVG на 100% */
+    .store-btn{
+      padding:0;
+      background:#fff;
+      border:1px solid #e2e8f0;
+      overflow:hidden;
+      border-radius:9999px;
+    }
+    .store-btn svg{ width:100%; height:100%; display:block; }
 
     /* иконки-чипы */
     .ic{ inline-size:36px; block-size:36px; border-radius:9999px; background:#f1f5f9;
          display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
     .ic svg{ width:20px; height:20px; stroke:#0f172a; }
 
-    @media (max-width:1024px){ .hero-img{ aspect-ratio: 3/2; } .btn-hero{ min-width: 0; width:auto; } }
+    @media (max-width:1024px){
+      .hero-img{ aspect-ratio: 3/2; }
+      .btn-hero{ min-width: 0; width:auto; }
+    }
   </style>
 </head>
 <body class="bg-white text-slate-900">
+
   <!-- Header -->
   <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
     <a class="flex items-center gap-3" href="/">
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
-    <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
+    <a href="/auth" class="btn-header bg-slate-900 text-white">Авторизация</a>
   </header>
 
   <!-- HERO -->
@@ -124,8 +141,22 @@
 
           <div class="mt-7 flex items-center gap-3 flex-wrap">
             <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
-            <a href="#" target="_blank" rel="noopener" class="btn-hero store-btn" aria-label="Загрузите в App Store">
-              <img src="assets/appstore.png" alt="">
+
+            <!-- App Store: SVG заполняет кнопку целиком -->
+            <a href="#" target="_blank" rel="noopener"
+               class="btn-hero store-btn" aria-label="Загрузите в App Store">
+              <svg viewBox="0 0 135 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+                <rect x="0" y="0" width="135" height="40" rx="20" fill="#000"/>
+                <!-- Apple логотип -->
+                <path fill="#fff" d="M28.7 22.9c-.1 2.1 1.9 2.8 1.9 2.8s-1.5 4.3-4.3 4.2c-1.1 0-2-.7-2.8-.7-.8 0-2 .7-3.2.7-2.3 0-4.8-3.9-4.8-7.4 0-3.3 2.1-5 4-5 .9 0 1.8.6 2.7.6.9 0 2.1-.7 3.6-.7.6 0 2.8.3 3.6 2.2-2 .8-1.7 3.7-.7 4.1zM26 13.1c.7-.9 1.2-2.2 1.1-3.5-1.1.1-2.4.8-3.1 1.7-.7.8-1.3 2.2-1.2 3.4 1.2.1 2.5-.7 3.2-1.6z"/>
+                <!-- Текст: Загрузите в -->
+                <text x="42" y="16" fill="#fff" font-size="8.2"
+                      font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+                      letter-spacing=".2">Загрузите в</text>
+                <!-- Текст: App Store -->
+                <text x="42" y="30" fill="#fff" font-size="16.5" font-weight="700"
+                      font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">App Store</text>
+              </svg>
             </a>
           </div>
         </div>
@@ -207,21 +238,19 @@
     // год в футере
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // Переключение вкладок функционала (важно: ID панелей и data-panel должны совпадать)
+    // Переключение вкладок функционала
     (function () {
       const tabs = Array.from(document.querySelectorAll('.feature-tab'));
       const panels = Array.from(document.querySelectorAll('.feature-panel'));
       if (!tabs.length || !panels.length) return;
 
       function activate(panelId){
-        // вкладки
         tabs.forEach(b => {
           const on = b.dataset.panel === panelId;
           b.classList.toggle('bg-slate-900', on);
           b.classList.toggle('text-white', on);
           b.setAttribute('aria-selected', on ? 'true' : 'false');
         });
-        // панели
         panels.forEach(p => {
           const on = p.id === panelId;
           p.classList.toggle('hidden', !on);
@@ -229,7 +258,6 @@
         });
       }
       tabs.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.panel)));
-      // гарантия: активируем первую по умолчанию
       activate(document.querySelector('.feature-tab[aria-selected="true"]')?.dataset.panel || 'panel-track');
     })();
   </script>
