@@ -1,98 +1,63 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GluOne — цифровой помощник в управлении диабетом</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root { --hero-zoom: 118%; } /* ↑ Увеличь/уменьшай, чтобы «дотянуть» картинку до линии */
-    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    /* Эллиптическая маска: правый край скруглён и ровно совпадает с границей колонки */
-    .hero-blob{
-      width:100%; height:100%;
-      background-image:url('assets/hero.jpg');
-      background-repeat:no-repeat;
-      background-position: center;        /* при необходимости: right center / 60% center */
-      background-size: var(--hero-zoom) auto; /* управляет «увеличением» картинки */
-      clip-path: ellipse(88% 78% at 100% 50%); /* скругление справа (зеркально) */
-    }
-    @media (min-width:1024px){
-      .hero-blob{ clip-path: ellipse(85% 78% at 100% 50%); }
-    }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GluOne — цифровой помощник в управлении диабетом</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{ --hero-zoom:120%; } /* ↑ подгони, если нужно ближе/дальше к линии */
+  body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+  /* Фото как фон внутри маски — эллипс справа, кончается ровно у правой кромки блока */
+  .hero-blob{
+    width:100%;height:100%;min-height:520px;
+    background:url('assets/hero.jpg') right center / var(--hero-zoom) auto no-repeat;
+    clip-path: ellipse(86% 78% at 100% 50%);
+    border-top-left-radius:24px;border-bottom-left-radius:24px; /* лёгкое слева */
+  }
+  @media (max-width: 768px){ .hero-blob{ min-height:420px; } }
+</style>
 </head>
 <body class="bg-white text-slate-900">
 
-  <!-- Header -->
-  <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-3">
-      <img src="assets/logo.png" alt="GluOne" class="h-9 w-9 rounded-xl shadow" />
-      <span class="text-lg font-semibold tracking-tight">GluOne</span>
-    </a>
-    <a href="/auth" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm">Авторизация</a>
-  </header>
+<header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+  <a class="flex items-center gap-3" href="/"><img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt=""><span class="font-semibold">GluOne</span></a>
+  <a href="/auth" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm">Авторизация</a>
+</header>
 
-  <!-- Hero -->
-  <section class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-0 px-4 py-10 items-stretch">
-    <!-- Левая колонка: фото. Слева лёгкое скругление, справа — эллипс к линии -->
-    <div class="relative rounded-l-[24px] overflow-hidden">
-      <div class="hero-blob min-h-[420px] md:min-h-[520px] lg:min-h-[560px]"></div>
+<!-- 3-колоночный hero: [фото] | [вертикальная линия] | [контент] -->
+<section class="max-w-6xl mx-auto grid grid-cols-[1fr_1px_1fr] gap-0 px-4 py-10 items-stretch">
+  <!-- Фото -->
+  <div class="relative overflow-hidden"><div class="hero-blob"></div></div>
+
+  <!-- Вертикальная линия (всегда на полную высоту секции) -->
+  <div class="bg-slate-200"></div>
+
+  <!-- Контент -->
+  <div class="flex flex-col justify-center px-8 lg:px-12">
+    <span class="text-sm text-slate-500">GluOne</span>
+    <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight">GluOne — цифровой помощник в управлении диабетом</h1>
+    <p class="mt-4 text-lg text-slate-600 max-w-xl">Контролируйте глюкозу, питание, инсулин и активность в одном приложении.</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium">Авторизация</a>
+      <a href="#" class="px-6 py-3 rounded-full border font-medium">Скачать приложение в App Store</a>
     </div>
+  </div>
+</section>
 
-    <!-- Правая колонка: контент + вертикальная линия слева -->
-    <div class="flex flex-col justify-center border-l border-slate-200 px-8 lg:px-12 py-10">
-      <span class="text-sm text-slate-500">GluOne</span>
-      <h1 class="mt-2 text-4xl md:text-5xl font-bold leading-tight">
-        GluOne — цифровой помощник в управлении диабетом
-      </h1>
-      <p class="mt-4 text-lg text-slate-600 max-w-xl">
-        Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
-      </p>
-      <div class="mt-8 flex flex-wrap items-center gap-3">
-        <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium">Авторизация</a>
-        <a href="#" class="px-6 py-3 rounded-full border font-medium">Скачать приложение в App Store</a>
-      </div>
-    </div>
-  </section>
+<!-- Возможности (01–05) -->
+<section id="features" class="max-w-6xl mx-auto px-4 pb-20">
+  <div class="divide-y">
+    <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">01.</div><div><h3 class="text-xl font-semibold">Контроль глюкозы</h3><p class="mt-2 text-slate-600">Наглядные графики и статистика.</p></div></div>
+    <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">02.</div><div><h3 class="text-xl font-semibold">Учёт инсулина и питания</h3><p class="mt-2 text-slate-600">Дозы, ХЕ и состав рациона.</p></div></div>
+    <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">03.</div><div><h3 class="text-xl font-semibold">Индивидуальные цели</h3><p class="mt-2 text-slate-600">С учётом типа, возраста и стандартов.</p></div></div>
+    <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">04.</div><div><h3 class="text-xl font-semibold">Напоминания</h3><p class="mt-2 text-slate-600">О замерах, инъекциях и приёмах пищи.</p></div></div>
+    <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">05.</div><div><h3 class="text-xl font-semibold">Время в диапазоне</h3><p class="mt-2 text-slate-600">Отчёты по гипо/гипер и TIR.</p></div></div>
+  </div>
+</section>
 
-  <!-- Возможности (01–05) -->
-  <section id="features" class="max-w-6xl mx-auto px-4 pb-20">
-    <div class="divide-y">
-      <div class="flex gap-6 py-8 items-start">
-        <div class="min-w-[64px] text-5xl font-bold leading-none text-slate-300">01.</div>
-        <div><h3 class="text-xl font-semibold">Контроль глюкозы</h3>
-          <p class="mt-2 text-slate-600">Наглядные графики и статистика.</p></div>
-      </div>
-      <div class="flex gap-6 py-8 items-start">
-        <div class="min-w-[64px] text-5xl font-bold leading-none text-slate-300">02.</div>
-        <div><h3 class="text-xl font-semibold">Учёт инсулина и питания</h3>
-          <p class="mt-2 text-slate-600">Дозы, ХЕ и состав рациона.</p></div>
-      </div>
-      <div class="flex gap-6 py-8 items-start">
-        <div class="min-w-[64px] text-5xl font-bold leading-none text-slate-300">03.</div>
-        <div><h3 class="text-xl font-semibold">Индивидуальные цели</h3>
-          <p class="mt-2 text-slate-600">С учётом типа, возраста и стандартов.</p></div>
-      </div>
-      <div class="flex gap-6 py-8 items-start">
-        <div class="min-w-[64px] text-5xl font-bold leading-none text-slate-300">04.</div>
-        <div><h3 class="text-xl font-semibold">Напоминания</h3>
-          <p class="mt-2 text-slate-600">О замерах, инъекциях и приёмах пищи.</p></div>
-      </div>
-      <div class="flex gap-6 py-8 items-start">
-        <div class="min-w-[64px] text-5xl font-bold leading-none text-slate-300">05.</div>
-        <div><h3 class="text-xl font-semibold">Время в диапазоне</h3>
-          <p class="mt-2 text-slate-600">Отчёты по гипо/гипер и доле TIR.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
-    © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
-  </footer>
-  <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+<footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
+  © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
+</footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear()</script>
 </body>
 </html>
