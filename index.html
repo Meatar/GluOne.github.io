@@ -1,113 +1,78 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GluOne – Your Diabetes Companion</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GluOne — цифровой помощник в управлении диабетом</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
-    <div class="theme-switch">
-      <select id="theme-select">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
+  <section class="hero">
+    <div class="hero-image">
+      <img
+        src="https://images.unsplash.com/photo-1582711012124-a58c8a33a71a?auto=format&fit=crop&w=1200&q=80"
+        alt="Измерение глюкозы"
+      />
     </div>
-    <div class="lang-switch">
-      <select id="language-select">
-        <option value="ru">RU</option>
-        <option value="en">EN</option>
-      </select>
-    </div>
-    <h1>GluOne</h1>
-    <p id="tagline">Ваш помощник в управлении диабетом</p>
-  </header>
-  <nav style="text-align:center;margin:1rem;">
-    <a href="login.html">Войти</a> |
-    <a href="register.html">Регистрация</a> |
-    <a href="profile.html">Личный кабинет</a>
-  </nav>
-
-  <section class="container">
-    <div data-lang="ru" class="lang active">
-      <p>GluOne помогает вести цифровой дневник диабета. Отслеживайте уровень глюкозы, дозы инсулина, питание, давление, активность и приём медикаментов — всё локально и без регистрации.</p>
-      <div class="features">
-        <div class="feature"><h3>Журнал глюкозы</h3><p>Записывайте измерения с отметками времени.</p></div>
-        <div class="feature"><h3>Учёт инсулина</h3><p>Фиксируйте базальные и болюсные введения.</p></div>
-        <div class="feature"><h3>Журнал питания</h3><p>Вносите приёмы пищи и рассчитывайте ХЕ.</p></div>
-        <div class="feature"><h3>Измерение давления</h3><p>Записывайте показания артериального давления.</p></div>
-        <div class="feature"><h3>Активность</h3><p>Отслеживайте физическую нагрузку и шаги.</p></div>
-        <div class="feature"><h3>Графики и аналитика</h3><p>Анализируйте тренды за день, неделю и месяц.</p></div>
+    <div class="hero-content">
+      <h1>GluOne</h1>
+      <p class="hero-tagline">цифровой помощник в управлении диабетом</p>
+      <div class="hero-actions">
+        <a class="btn" href="login.html">Авторизация</a>
+        <a class="btn btn-outline" href="#">Скачать приложение в AppStore</a>
       </div>
-      <div class="cta"><a href="#">Скачать в App Store</a></div>
     </div>
+  </section>
 
-    <div data-lang="en" class="lang">
-      <p>GluOne helps you keep a digital diabetes journal—all data stays on your device. Track glucose, insulin, meals, blood pressure, activity, and meds without any signup.</p>
-      <div class="features">
-        <div class="feature"><h3>Glucose Logbook</h3><p>Record your readings with timestamps.</p></div>
-        <div class="feature"><h3>Insulin Tracking</h3><p>Log basal and bolus doses.</p></div>
-        <div class="feature"><h3>Meals Journal</h3><p>Enter meals and calculate bread units (BU).</p></div>
-        <div class="feature"><h3>Blood Pressure</h3><p>Track your BP readings over time.</p></div>
-        <div class="feature"><h3>Activity Log</h3><p>Monitor physical activities and steps.</p></div>
-        <div class="feature"><h3>Charts & Analytics</h3><p>Analyze daily, weekly, and monthly trends.</p></div>
-      </div>
-      <div class="cta"><a href="#">Download on the App Store</a></div>
-    </div>
+  <section class="benefits">
+    <h2>Наши преимущества</h2>
+    <ul class="benefit-list">
+      <li>
+        <span class="num">01.</span>
+        <div>
+          <h3>Контроль глюкозы</h3>
+          <p>Удобный дневник измерений с наглядными графиками и статистикой.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">02.</span>
+        <div>
+          <h3>Учёт инсулина и питания</h3>
+          <p>Фиксируйте дозы, хлебные единицы и состав рациона в несколько кликов.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">03.</span>
+        <div>
+          <h3>Индивидуальные цели</h3>
+          <p>Приложение учитывает тип диабета, возраст и рекомендации международных стандартов.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">04.</span>
+        <div>
+          <h3>Напоминания</h3>
+          <p>Автоматические уведомления о замерах, инъекциях и приёмах пищи.</p>
+        </div>
+      </li>
+      <li>
+        <span class="num">05.</span>
+        <div>
+          <h3>Аналитика времени в диапазоне</h3>
+          <p>Подробные отчёты о гипо- и гипергликемии, времени в целевых значениях.</p>
+        </div>
+      </li>
+    </ul>
   </section>
 
   <footer>
     <p>ИП Киселев АБ ОГРНИП 324619600076322</p>
     <p>
-      <a id="privacy-link" href="https://gluone.ru/privacy.html" target="_blank">
-        Политика конфиденциальности
-      </a>
+      <a href="privacy.html" target="_blank">Политика конфиденциальности</a>
     </p>
     <p>&copy; 2025 GluOne. All rights reserved.</p>
   </footer>
-
-  <script>
-    const select = document.getElementById('language-select');
-    const themeSelect = document.getElementById('theme-select');
-    const sections = document.querySelectorAll('[data-lang]');
-    const tagline = document.getElementById('tagline');
-    const privacyLink = document.getElementById('privacy-link');
-
-    const taglines = {
-      ru: 'Ваш помощник в управлении диабетом',
-      en: 'Your Diabetes Companion'
-    };
-
-    const privacyTexts = {
-      ru: 'Политика конфиденциальности',
-      en: 'Privacy Policy'
-    };
-
-    function applyTheme(theme) {
-      if (theme === 'dark') {
-        document.body.classList.add('dark');
-      } else {
-        document.body.classList.remove('dark');
-      }
-      localStorage.setItem('theme', theme);
-    }
-
-    select.addEventListener('change', () => {
-      const lang = select.value;
-      sections.forEach(sec =>
-        sec.classList.toggle('active', sec.getAttribute('data-lang') === lang)
-      );
-      tagline.textContent = taglines[lang];
-      privacyLink.textContent = privacyTexts[lang];
-    });
-
-    themeSelect.addEventListener('change', () => applyTheme(themeSelect.value));
-
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    themeSelect.value = savedTheme;
-    applyTheme(savedTheme);
-  </script>
 </body>
 </html>
+
