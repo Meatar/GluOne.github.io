@@ -19,41 +19,42 @@
 
   <style>
     :root{
-      --hero-zoom: 122%;         /* масштаб фото */
-      --divider:   #e5e7eb;      /* цвет вертикальной линии */
+      --arc-size-x: 140%;   /* ширина эллипса маски (больше — мягче) */
+      --arc-size-y: 95%;    /* высота эллипса маски */
+      --arc-solid: 80%;     /* до какого радиуса непрозрачно */
+      --arc-feather: 81%;   /* начало прозрачности (перо края) */
+      --divider:   #e5e7eb; /* цвет вертикальной линии */
     }
     body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
-    /* === ГАРАНТИРОВАННОЕ СКРУГЛЕНИЕ СПРАВА ===
-       1) .hero-mask зеркалим (scaleX(-1)) -> маска станет "правой"
-       2) .hero-img зеркалим обратно (scaleX(-1)) -> фото не перевёрнуто
-       Маска сделана через radial-gradient, работает стабильно в Safari. */
     .hero-mask{
-      transform: scaleX(-1);               /* перевернули контейнер */
       width:100%; height:100%; min-height:540px;
-      border-top-left-radius:24px;         /* лёгкое скругление слева */
-      border-bottom-left-radius:24px;
+      border-radius:24px;
+      overflow:hidden;
 
-      /* Маска-дуга (теперь визуально справа из-за scaleX) */
-      -webkit-mask-image: radial-gradient(120% 85% at 0% 50%, #000 75%, transparent 76%);
-              mask-image: radial-gradient(120% 85% at 0% 50%, #000 75%, transparent 76%);
-      -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-      overflow: hidden;
+      -webkit-mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y)
+        at var(--arc-x, 100%) 50%, #000 var(--arc-solid), transparent var(--arc-feather));
+              mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y)
+        at var(--arc-x, 100%) 50%, #000 var(--arc-solid), transparent var(--arc-feather));
+      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
     }
+    .hero-mask--left  { --arc-x: 0%;   }  /* дуга слева */
+    .hero-mask--right { --arc-x: 100%; }  /* дуга справа */
+
     .hero-img{
       width:100%; height:100%;
       object-fit: cover;
-      object-position: right 45%;
-      transform: scaleX(-1);               /* вернули ориентацию изображения */
-      /* zoom без потери резкости */
-      transform-origin: center;
+      object-position: center 45%;
     }
+
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
     @media (max-width: 768px){
-      .hero-mask{ min-height:420px;
-        -webkit-mask-image: radial-gradient(130% 90% at 0% 50%, #000 76%, transparent 77%);
-                mask-image: radial-gradient(130% 90% at 0% 50%, #000 76%, transparent 77%);
+      :root{
+        --arc-size-x: 150%;
+        --arc-size-y: 100%;
+        --arc-solid: 82%;
+        --arc-feather: 83%;
       }
     }
   </style>
@@ -75,7 +76,8 @@
   <section class="max-w-6xl mx-auto grid grid-cols-[1fr_1px_1fr] gap-0 px-4 py-12 items-stretch">
     <!-- Фото -->
     <div class="relative overflow-hidden">
-      <div class="hero-mask">
+      <!-- выбери сторону: hero-mask--left или hero-mask--right -->
+      <div class="hero-mask hero-mask--right">
         <img src="assets/hero.jpg" alt="Диабет: приборы и принадлежности" class="hero-img">
       </div>
     </div>
@@ -94,7 +96,9 @@
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90">Авторизация</a>
-        <a href="#" class="px-6 py-3 rounded-full border border-slate-200 font-medium hover:bg-slate-50">Скачать приложение в App Store</a>
+        <a href="#" target="_blank" rel="noopener">
+          <img src="assets/appstore.png" alt="Загрузите в App Store" class="h-12">
+        </a>
       </div>
     </div>
   </section>
