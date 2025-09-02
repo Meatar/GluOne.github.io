@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GluOne — цифровой помощник</title>
+  <title>GluOne</title>
 
   <meta name="description" content="GluOne — контроль глюкозы, инсулин, питание и активность в одном приложении.">
   <meta name="theme-color" content="#0f172a">
@@ -77,23 +77,21 @@
     }
     .btn-header:hover{ opacity:.9; transform: translateY(-1px); }
 
-    /* Кнопка App Store = размер по картинке */
+    /* Кнопка App Store = просто картинка */
     .store-btn{
-      background:#fff;
-      border:1px solid #e2e8f0;
-      border-radius:9999px;
-      padding:0 20px;            /* чтобы не липло */
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      height:56px;               /* как у .btn-hero */
+      display:inline-block;
+      line-height:0;       /* убираем зазоры */
+      border:none;
+      background:none;
+      padding:0;
+    }
+    .store-btn img{
+      display:block;
+      height:auto;         /* нативный размер */
+      width:auto;
+      max-height:56px;     /* если хочешь ограничить по высоте как у Авторизации */
     }
 
-    .store-btn img{
-      height:100%;               /* растянуть на всю высоту */
-      width:auto;
-      display:block;
-    }
 
     /* Чипы-эмоджи */
     .emo{
@@ -155,11 +153,16 @@
           </p>
 
           <div class="mt-7 flex items-center gap-3 flex-wrap">
-            <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
-            <a href="#" target="_blank" rel="noopener" class="store-btn" aria-label="Загрузите в App Store">
+            <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">
+              Авторизация
+            </a>
+
+            <a href="https://apps.apple.com/app/idXXXXXXXXX" target="_blank" rel="noopener"
+               class="store-btn" aria-label="Загрузите в App Store">
               <img src="assets/appstore.png" alt="Загрузите в App Store">
             </a>
           </div>
+
         </div>
       </div>
     </div>
