@@ -14,10 +14,10 @@
   <link rel="icon" href="/favicon-192.png?v=4" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" sizes="180x180">
 
-  <!-- Fonts / Tailwind -->
+  <!-- Fonts / Tailwind (только нормализация, дизайн пишем сами) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -55,39 +55,38 @@
     }
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    /* кнопки одинаковой высоты (40px) */
+    /* ====== Кнопки: одинаково 40px ====== */
+    .hero-buttons{
+      display:flex;
+      align-items:center;  /* центр по высоте */
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    /* Авторизация = жёстко 40px, без раздувания за счёт line-height */
     .btn-hero{
       height:40px;
       padding:0 20px;
       border-radius:9999px;
       display:inline-flex; align-items:center; justify-content:center;
-      font-weight:700; font-size:16px;
+      font-weight:700; font-size:16px; line-height:1;
       background:#0f172a; color:#fff;
       transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
     }
-    .btn-hero:hover{
-      transform:translateY(-1px);
-      box-shadow:0 6px 16px rgba(2,6,23,.12);
-    }
+    .btn-hero:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); }
 
-    /* App Store бейдж */
-    .store-btn img{
-      display:block;
-      height:40px;   /* нативная высота */
-      width:auto;
-    }
+    /* Ссылка на App Store: внешний бокс тоже 40px */
+    .store-btn{ display:inline-block; height:40px; line-height:0; }
+    .store-btn img{ display:block; height:40px; width:auto; }
 
     /* Чипы-эмоджи */
     .emo{
-      inline-size:40px; block-size:40px;
-      border-radius:9999px;
-      background:#f1f5f9;
-      display:inline-flex; align-items:center; justify-content:center;
-      font-size:22px;
-      line-height:1;
-      user-select:none;
-      flex:0 0 auto;
+      inline-size:40px; block-size:40px; border-radius:9999px;
+      background:#f1f5f9; display:inline-flex; align-items:center; justify-content:center;
+      font-size:22px; line-height:1; user-select:none; flex:0 0 auto;
     }
+
+    @media (max-width:1024px){ .hero-img{ aspect-ratio:3/2; } }
   </style>
 </head>
 <body class="bg-white text-slate-900">
@@ -98,6 +97,7 @@
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
+    <!-- та же 40px кнопка в шапке -->
     <a href="/auth" class="btn-hero">Авторизация</a>
   </header>
 
@@ -131,7 +131,7 @@
             Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
           </p>
 
-          <div class="mt-7 flex items-center gap-3 flex-wrap">
+          <div class="mt-7 hero-buttons">
             <a href="/auth" class="btn-hero">Авторизация</a>
             <a href="https://apps.apple.com/app/idXXXXXXXX"
                target="_blank" rel="noopener"
@@ -182,6 +182,31 @@
         <span class="emo">🏃‍♂️</span>
         <div><h3 class="text-[17px] font-semibold">Активность и симптомы</h3><p class="mt-1 text-slate-600 text-sm">Тип, длительность/интенсивность, отметки самочувствия.</p></div>
       </div>
+    </div>
+
+    <div id="panel-analytics" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Время в диапазоне (TIR/TBR/TAR)</h3><p class="text-sm text-slate-600">Доля времени в целевом, ниже и выше диапазона.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Постпрандиальный контроль</h3><p class="text-sm text-slate-600">Динамика через 1–2 часа после еды и средний пик.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Инсулин</h3><p class="text-sm text-slate-600">Соотношение базал/болюс, TDD, пропуски базала.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Давление</h3><p class="text-sm text-slate-600">Распределение по клиническим зонам.</p></div>
+      <div class="p-5 border rounded-2xl md:col-span-2"><h3 class="font-semibold">Симптомы</h3><p class="text-sm text-slate-600">Частота, средняя тяжесть, взаимосвязи.</p></div>
+    </div>
+
+    <div id="panel-goals" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Гибкие цели</h3><p class="text-sm text-slate-600">По рекомендациям (ВОЗ/национальные) или собственные значения.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Единицы измерения</h3><p class="text-sm text-slate-600">ммоль/л ↔ mg/dL; граммы ↔ ХЕ (10/12/15 г на 1 ХЕ).</p></div>
+    </div>
+
+    <div id="panel-tools" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Напоминания</h3><p class="text-sm text-slate-600">О приёме таблеток, замерах и событиях.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Экспорт отчётов</h3><p class="text-sm text-slate-600">CSV / Excel / PDF за выбранный период.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Интеграция с Apple Health</h3><p class="text-sm text-slate-600">Чтение/запись поддерживаемых категорий.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Темы и локализация</h3><p class="text-sm text-slate-600">Тёмная/светлая тема; RU/EN.</p></div>
+    </div>
+
+    <div id="panel-important" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Юридически важно</h3><p class="text-sm text-slate-600">Приложение не ставит диагнозы и не заменяет консультацию врача.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Конфиденциальность</h3><p class="text-sm text-slate-600">Данные шифруются. Можно экспортировать или удалить их в любой момент.</p></div>
     </div>
   </section>
 
