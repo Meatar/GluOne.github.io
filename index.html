@@ -1,67 +1,163 @@
 <!doctype html>
 <html lang="ru">
-    <head>
-        <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-            <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-                <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
-                    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
-                        <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-                            <title>GluOne</title>
-                            <script src="https://cdn.tailwindcss.com"></script>
-                            <style>
-                                :root{ --hero-zoom:120%; } /* ↑ подгони, если нужно ближе/дальше к линии */
-                                body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-                                /* Фото как фон внутри маски — эллипс справа, кончается ровно у правой кромки блока */
-                                .hero-blob{
-                                    width:100%;height:100%;min-height:520px;
-                                    background:url('assets/hero.jpg') right center / var(--hero-zoom) auto no-repeat;
-                                    clip-path: ellipse(86% 78% at 100% 50%);
-                                    border-top-left-radius:24px;border-bottom-left-radius:24px; /* лёгкое слева */
-                                }
-                                @media (max-width: 768px){ .hero-blob{ min-height:420px; } }
-                            </style>
-    </head>
-    <body class="bg-white text-slate-900">
-        
-        <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <a class="flex items-center gap-3" href="/"><img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt=""><span class="font-semibold">GluOne</span></a>
-            <a href="/auth" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm">Авторизация</a>
-        </header>
-        
-        <!-- 3-колоночный hero: [фото] | [вертикальная линия] | [контент] -->
-        <section class="max-w-6xl mx-auto grid grid-cols-[1fr_1px_1fr] gap-0 px-4 py-10 items-stretch">
-            <!-- Фото -->
-            <div class="relative overflow-hidden"><div class="hero-blob"></div></div>
-            
-            <!-- Вертикальная линия (всегда на полную высоту секции) -->
-            <div class="bg-slate-200"></div>
-            
-            <!-- Контент -->
-            <div class="flex flex-col justify-center px-8 lg:px-12">
-                <span class="text-sm text-slate-500">GluOne</span>
-                <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight">GluOne — цифровой помощник в управлении диабетом</h1>
-                <p class="mt-4 text-lg text-slate-600 max-w-xl">Контролируйте глюкозу, питание, инсулин и активность в одном приложении.</p>
-                <div class="mt-8 flex flex-wrap gap-3">
-                    <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium">Авторизация</a>
-                    <a href="#" class="px-6 py-3 rounded-full border font-medium">Скачать приложение в App Store</a>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Возможности (01–05) -->
-        <section id="features" class="max-w-6xl mx-auto px-4 pb-20">
-            <div class="divide-y">
-                <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">01.</div><div><h3 class="text-xl font-semibold">Контроль глюкозы</h3><p class="mt-2 text-slate-600">Наглядные графики и статистика.</p></div></div>
-                <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">02.</div><div><h3 class="text-xl font-semibold">Учёт инсулина и питания</h3><p class="mt-2 text-slate-600">Дозы, ХЕ и состав рациона.</p></div></div>
-                <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">03.</div><div><h3 class="text-xl font-semibold">Индивидуальные цели</h3><p class="mt-2 text-slate-600">С учётом типа, возраста и стандартов.</p></div></div>
-                <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">04.</div><div><h3 class="text-xl font-semibold">Напоминания</h3><p class="mt-2 text-slate-600">О замерах, инъекциях и приёмах пищи.</p></div></div>
-                <div class="flex gap-6 py-8 items-start"><div class="min-w-[64px] text-5xl font-bold text-slate-300">05.</div><div><h3 class="text-xl font-semibold">Время в диапазоне</h3><p class="mt-2 text-slate-600">Отчёты по гипо/гипер и TIR.</p></div></div>
-            </div>
-        </section>
-        
-        <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
-            © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
-        </footer>
-        <script>document.getElementById('y').textContent=new Date().getFullYear()</script>
-    </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GluOne — цифровой помощник</title>
+
+  <!-- Favicons -->
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
+  <meta name="theme-color" content="#0f172a">
+
+  <!-- Fonts & Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --hero-zoom:122%;         /* масштаб фото в hero */
+      --accent:#0f172a;         /* основной акцент */
+      --divider:#e5e7eb;        /* цвет вертикальной линии */
+    }
+    body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+
+    /* Фото как фон внутри маски — эллипс справа, чуть скруглено слева */
+    .hero-blob{
+      width:100%;height:100%;min-height:540px;
+      background:url('assets/hero.jpg') right 45% / var(--hero-zoom) auto no-repeat;
+      clip-path: ellipse(84% 76% at 100% 50%);
+      border-top-left-radius:24px;border-bottom-left-radius:24px;
+      transition: transform .6s ease, filter .6s ease;
+    }
+    .hero-blob:hover{ transform: scale(1.01); filter: saturate(1.03); }
+
+    /* Тонкая «воздушная» вертикальная линия */
+    .v-divider{
+      width:1px;
+      background: linear-gradient(transparent, var(--divider) 40%, transparent);
+    }
+
+    /* Лёгкое появление элементов */
+    @keyframes revealUp { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+    .reveal{ animation: revealUp .6s ease both; }
+    .reveal:nth-child(1){ animation-delay:.05s } .reveal:nth-child(2){ animation-delay:.12s }
+    .reveal:nth-child(3){ animation-delay:.18s } .reveal:nth-child(4){ animation-delay:.24s }
+
+    /* Хедер при скролле — «стекло» */
+    .glass{ backdrop-filter: blur(8px); background: rgba(255,255,255,.72); }
+
+    /* Уважение к сниженной анимации */
+    @media (prefers-reduced-motion: reduce){
+      .hero-blob{ transition:none }
+      .reveal{ animation:none }
+    }
+
+    /* Мобайл правки */
+    @media (max-width: 768px){
+      .hero-blob{ min-height:420px; clip-path: ellipse(90% 70% at 100% 50%); }
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-900">
+
+  <!-- Header (sticky + glass) -->
+  <header class="sticky top-0 z-50 glass border-b border-black/[.04]">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a class="flex items-center gap-3" href="/">
+        <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
+        <span class="font-semibold tracking-tight">GluOne</span>
+      </a>
+      <a href="/auth"
+         class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+         Авторизация
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO: [фото] | [вертикальная линия] | [контент] -->
+  <section class="max-w-6xl mx-auto grid grid-cols-[1fr_1px_1fr] gap-0 px-4 py-12 items-stretch">
+    <!-- Фото -->
+    <div class="relative overflow-hidden">
+      <div class="hero-blob"></div>
+    </div>
+
+    <!-- Вертикальная линия -->
+    <div class="v-divider"></div>
+
+    <!-- Контент -->
+    <div class="flex flex-col justify-center px-8 lg:px-12">
+      <span class="text-sm text-slate-500 reveal">GluOne</span>
+      <h1 class="mt-2 text-4xl md:text-5xl xl:text-[56px] font-extrabold leading-[1.05] tracking-[-0.015em] reveal">
+        GluOne — цифровой помощник в управлении диабетом
+      </h1>
+      <p class="mt-4 text-lg text-slate-700 max-w-xl reveal">
+        Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3 reveal">
+        <a href="/auth"
+           class="group px-6 py-3 rounded-full bg-slate-900 text-white font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900">
+          Авторизация <span class="inline-block translate-x-0 group-hover:translate-x-0.5 transition">›</span>
+        </a>
+        <a href="#"
+           class="group px-6 py-3 rounded-full border border-slate-200 font-medium hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900/40">
+          Скачать приложение в App Store
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ВОЗМОЖНОСТИ -->
+  <section id="features" class="max-w-6xl mx-auto px-4 pb-20">
+    <div class="grid md:grid-cols-2 gap-4">
+      <!-- item -->
+      <div class="reveal flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">01</span>
+        <div>
+          <h3 class="text-[17px] font-semibold">Контроль глюкозы</h3>
+          <p class="mt-1 text-slate-600 text-sm">Наглядные графики и статистика.</p>
+        </div>
+      </div>
+      <div class="reveal flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">02</span>
+        <div>
+          <h3 class="text-[17px] font-semibold">Учёт инсулина и питания</h3>
+          <p class="mt-1 text-slate-600 text-sm">Дозы, ХЕ и состав рациона.</p>
+        </div>
+      </div>
+      <div class="reveal flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">03</span>
+        <div>
+          <h3 class="text-[17px] font-semibold">Индивидуальные цели</h3>
+          <p class="mt-1 text-slate-600 text-sm">С учётом типа, возраста и стандартов.</p>
+        </div>
+      </div>
+      <div class="reveal flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">04</span>
+        <div>
+          <h3 class="text-[17px] font-semibold">Напоминания</h3>
+          <p class="mt-1 text-slate-600 text-sm">О замерах, инъекциях и приёмах пищи.</p>
+        </div>
+      </div>
+      <div class="reveal flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition md:col-span-2">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">05</span>
+        <div>
+          <h3 class="text-[17px] font-semibold">Время в диапазоне</h3>
+          <p class="mt-1 text-slate-600 text-sm">Отчёты по гипо/гипер и TIR.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
+    © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
+  </footer>
+
+  <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+</body>
 </html>
