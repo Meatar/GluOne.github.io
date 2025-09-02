@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GluOne — цифровой помощник</title>
 
-  <!-- Favicons -->
+  <!-- Favicons (оставь как у тебя, тут пример с версионированием) -->
   <link rel="shortcut icon" href="/favicon.ico?v=4" type="image/x-icon">
   <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png">
   <link rel="icon" href="/favicon-192.png?v=4" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" sizes="180x180">
   <meta name="theme-color" content="#0f172a">
 
-  <!-- Fonts & Tailwind -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,42 +19,41 @@
 
   <style>
     :root{
-      --hero-zoom:122%;
-      --accent:#0f172a;
-      --divider:#e5e7eb;
+      --hero-zoom: 122%;         /* масштаб фото */
+      --divider:   #e5e7eb;      /* цвет вертикальной линии */
     }
     body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
-    /* Фото: эллиптическое скругление справа */
-    .hero-blob{
+    /* === ГАРАНТИРОВАННОЕ СКРУГЛЕНИЕ СПРАВА ===
+       1) .hero-mask зеркалим (scaleX(-1)) -> маска станет "правой"
+       2) .hero-img зеркалим обратно (scaleX(-1)) -> фото не перевёрнуто
+       Маска сделана через radial-gradient, работает стабильно в Safari. */
+    .hero-mask{
+      transform: scaleX(-1);               /* перевернули контейнер */
       width:100%; height:100%; min-height:540px;
-      background:url('assets/hero.jpg') right center / var(--hero-zoom) auto no-repeat;
-
-      /* Fallback для современных браузеров */
-      clip-path: ellipse(84% 76% at 100% 50%);
-
-      /* Маска для Safari */
-      -webkit-mask-image: radial-gradient(120% 85% at 100% 50%, #000 75%, transparent 76%);
-      mask-image: radial-gradient(120% 85% at 100% 50%, #000 75%, transparent 76%);
-      -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-
-      border-top-left-radius:24px;
+      border-top-left-radius:24px;         /* лёгкое скругление слева */
       border-bottom-left-radius:24px;
-      transition: transform .6s ease, filter .6s ease;
-    }
-    .hero-blob:hover{ transform: scale(1.01); filter: saturate(1.03); }
 
+      /* Маска-дуга (теперь визуально справа из-за scaleX) */
+      -webkit-mask-image: radial-gradient(120% 85% at 0% 50%, #000 75%, transparent 76%);
+              mask-image: radial-gradient(120% 85% at 0% 50%, #000 75%, transparent 76%);
+      -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+      overflow: hidden;
+    }
+    .hero-img{
+      width:100%; height:100%;
+      object-fit: cover;
+      object-position: right 45%;
+      transform: scaleX(-1);               /* вернули ориентацию изображения */
+      /* zoom без потери резкости */
+      transform-origin: center;
+    }
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    @media (prefers-reduced-motion: reduce){
-      .hero-blob{ transition:none }
-    }
     @media (max-width: 768px){
-      .hero-blob{
-        min-height:420px;
-        clip-path: ellipse(90% 70% at 100% 50%);
-        -webkit-mask-image: radial-gradient(130% 90% at 100% 50%, #000 76%, transparent 77%);
-        mask-image: radial-gradient(130% 90% at 100% 50%, #000 76%, transparent 77%);
+      .hero-mask{ min-height:420px;
+        -webkit-mask-image: radial-gradient(130% 90% at 0% 50%, #000 76%, transparent 77%);
+                mask-image: radial-gradient(130% 90% at 0% 50%, #000 76%, transparent 77%);
       }
     }
   </style>
@@ -68,17 +66,18 @@
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
-    <a href="/auth"
-       class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium hover:opacity-90">
-       Авторизация
+    <a href="/auth" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium hover:opacity-90">
+      Авторизация
     </a>
   </header>
 
-  <!-- Hero -->
+  <!-- HERO: [фото с дугой справа] | [вертикальная линия] | [контент] -->
   <section class="max-w-6xl mx-auto grid grid-cols-[1fr_1px_1fr] gap-0 px-4 py-12 items-stretch">
     <!-- Фото -->
     <div class="relative overflow-hidden">
-      <div class="hero-blob"></div>
+      <div class="hero-mask">
+        <img src="assets/hero.jpg" alt="Диабет: приборы и принадлежности" class="hero-img">
+      </div>
     </div>
 
     <!-- Вертикальная линия -->
@@ -94,14 +93,8 @@
         Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
-        <a href="/auth"
-           class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90">
-          Авторизация
-        </a>
-        <a href="#"
-           class="px-6 py-3 rounded-full border border-slate-200 font-medium hover:bg-slate-50">
-          Скачать приложение в App Store
-        </a>
+        <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90">Авторизация</a>
+        <a href="#" class="px-6 py-3 rounded-full border border-slate-200 font-medium hover:bg-slate-50">Скачать приложение в App Store</a>
       </div>
     </div>
   </section>
@@ -111,43 +104,27 @@
     <div class="grid md:grid-cols-2 gap-4">
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">01</span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Контроль глюкозы</h3>
-          <p class="mt-1 text-slate-600 text-sm">Наглядные графики и статистика.</p>
-        </div>
+        <div><h3 class="text-[17px] font-semibold">Контроль глюкозы</h3><p class="mt-1 text-slate-600 text-sm">Наглядные графики и статистика.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">02</span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Учёт инсулина и питания</h3>
-          <p class="mt-1 text-slate-600 text-sm">Дозы, ХЕ и состав рациона.</p>
-        </div>
+        <div><h3 class="text-[17px] font-semibold">Учёт инсулина и питания</h3><p class="mt-1 text-slate-600 text-sm">Дозы, ХЕ и состав рациона.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">03</span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Индивидуальные цели</h3>
-          <p class="mt-1 text-slate-600 text-sm">С учётом типа, возраста и стандартов.</p>
-        </div>
+        <div><h3 class="text-[17px] font-semibold">Индивидуальные цели</h3><p class="mt-1 text-slate-600 text-sm">С учётом типа, возраста и стандартов.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">04</span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Напоминания</h3>
-          <p class="mt-1 text-slate-600 text-sm">О замерах, инъекциях и приёмах пищи.</p>
-        </div>
+        <div><h3 class="text-[17px] font-semibold">Напоминания</h3><p class="mt-1 text-slate-600 text-sm">О замерах, инъекциях и приёмах пищи.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition md:col-span-2">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">05</span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Время в диапазоне</h3>
-          <p class="mt-1 text-slate-600 text-sm">Отчёты по гипо/гипер и TIR.</p>
-        </div>
+        <div><h3 class="text-[17px] font-semibold">Время в диапазоне</h3><p class="mt-1 text-slate-600 text-sm">Отчёты по гипо/гипер и TIR.</p></div>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
   <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
     © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
   </footer>
