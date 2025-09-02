@@ -79,17 +79,20 @@
 
     /* Кнопка App Store = размер по картинке */
     .store-btn{
-      display:inline-block;
-      line-height:0;
-      border:0;
-      background:transparent;
-      padding:0;
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:9999px;
+      padding:0 20px;            /* чтобы не липло */
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      height:56px;               /* как у .btn-hero */
     }
 
     .store-btn img{
+      height:100%;               /* растянуть на всю высоту */
+      width:auto;
       display:block;
-      height:56px;   /* = высота кнопки Авторизация */
-      width:auto;    /* ширина автоматически */
     }
 
     /* Чипы-эмоджи */
@@ -153,10 +156,7 @@
 
           <div class="mt-7 flex items-center gap-3 flex-wrap">
             <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
-
-            <!-- App Store — размер строго по изображению -->
-            <a href="#" target="_blank" rel="noopener"
-               class="store-btn" aria-label="Загрузите в App Store">
+            <a href="#" target="_blank" rel="noopener" class="store-btn" aria-label="Загрузите в App Store">
               <img src="assets/appstore.png" alt="Загрузите в App Store">
             </a>
           </div>
