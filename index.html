@@ -11,11 +11,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-    /* Зеркальное скругление справа */
-    .hero-mask { clip-path: ellipse(90% 75% at 100% 50%); }
-    @media (min-width: 1024px) {
-      .hero-mask { clip-path: ellipse(85% 75% at 100% 50%); }
-    }
+    /* Зеркальное радиальное скругление: правая кромка эллипсом, совпадает с вертикальной линией */
+    .hero-mask { clip-path: ellipse(88% 78% at 100% 50%); }
+    @media (min-width:1024px){ .hero-mask{ clip-path: ellipse(85% 78% at 100% 50%);} }
   </style>
 </head>
 <body class="bg-white text-slate-900">
@@ -32,34 +30,36 @@
   </header>
 
   <!-- Hero -->
-  <section class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-0 px-4 py-8 items-stretch">
-    <!-- Левая колонка: фото со скруглениями -->
-    <div class="relative rounded-l-[24px] overflow-hidden border-r border-slate-200">
+  <section class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-0 px-4 py-10 items-stretch">
+    <!-- Фото: лёгкое скругление слева, эллипс справа; конец ровно в линии -->
+    <div class="relative rounded-l-[28px] overflow-hidden">
       <div class="hero-mask w-full h-full">
         <img src="assets/hero.jpg" alt="Диабет: приборы и принадлежности"
              class="w-full h-[420px] md:h-[520px] lg:h-full object-cover" />
       </div>
     </div>
 
-    <!-- Правая колонка: текст -->
-    <div class="flex flex-col justify-center px-8 py-12">
+    <!-- Контент с вертикальной линией слева -->
+    <div class="flex flex-col justify-center border-l border-slate-200 px-8 lg:px-12 py-10">
       <span class="text-sm text-slate-500">GluOne</span>
       <h1 class="mt-2 text-4xl md:text-5xl font-bold leading-tight">
         GluOne — цифровой помощник в управлении диабетом
       </h1>
-      <p class="mt-4 text-lg text-slate-600">
+      <p class="mt-4 text-lg text-slate-600 max-w-xl">
         Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
       </p>
-      <div class="mt-8">
-        <a href="/auth"
-           class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90 transition">
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90 transition">
           Авторизация
+        </a>
+        <a href="#" class="px-6 py-3 rounded-full border font-medium hover:bg-slate-50">
+          Скачать приложение в App Store
         </a>
       </div>
     </div>
   </section>
 
-  <!-- Возможности -->
+  <!-- Возможности (01–05) -->
   <section id="features" class="max-w-6xl mx-auto px-4 pb-20">
     <div class="divide-y">
       <div class="flex gap-6 py-8 items-start">
