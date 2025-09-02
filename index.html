@@ -68,10 +68,13 @@
     }
     .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
 
-    .store-badge{ height: 48px; display: inline-flex; align-items:center; }
-    .store-badge img{ height: 100%; width: auto; display:block; }
+    .store-badge{
+      height: 48px; border-radius:9999px;
+      display: inline-flex; align-items:center; justify-content:center;
+      padding-inline: 20px; border:1px solid #e2e8f0; background:#fff;
+    }
+    .store-badge img{ height: 24px; width:auto; display:block; }
 
-    /* иконки-чипы */
     .ic{ inline-size:36px; block-size:36px; border-radius:9999px; background:#f1f5f9;
          display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
     .ic svg{ width:20px; height:20px; stroke:#0f172a; }
@@ -146,93 +149,37 @@
     <div id="panel-track" class="feature-panel grid md:grid-cols-2 gap-4" role="tabpanel">
       <!-- Глюкоза -->
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic" aria-hidden="true">
-          <!-- капля -->
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <path d="M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z"/>
-          </svg>
-        </span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Глюкоза</h3>
-          <p class="mt-1 text-slate-600 text-sm">ммоль/л или mg/dL; контекст (до/после еды, сон и др.); кетоны; самочувствие.</p>
-        </div>
+        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z"/></svg></span>
+        <div><h3 class="text-[17px] font-semibold">Глюкоза</h3><p class="mt-1 text-slate-600 text-sm">ммоль/л или mg/dL; контекст (до/после еды, сон и др.); кетоны; самочувствие.</p></div>
       </div>
       <!-- Инсулин -->
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic" aria-hidden="true">
-          <!-- шприц -->
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <path d="m15 3 6 6"/>
-            <path d="M16 8 8.5 15.5a4 4 0 1 1-5.7-5.7L10.3 2"/>
-            <path d="M5 21h4"/>
-          </svg>
-        </span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Инсулин</h3>
-          <p class="mt-1 text-slate-600 text-sm">Базальный/болюсный; пищевые и корректирующие дозы; выбор препарата.</p>
-        </div>
+        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m15 3 6 6"/><path d="M16 8 8.5 15.5a4 4 0 1 1-5.7-5.7L10.3 2"/><path d="M5 21h4"/></svg></span>
+        <div><h3 class="text-[17px] font-semibold">Инсулин</h3><p class="mt-1 text-slate-600 text-sm">Базальный/болюсный; пищевые и корректирующие дозы; выбор препарата.</p></div>
       </div>
       <!-- Питание -->
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic" aria-hidden="true">
-          <!-- вилка-ложка -->
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <path d="M4 3v8a2 2 0 0 0 4 0V3"/>
-            <path d="M6 3v18"/>
-            <path d="M14 3h2a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-2V3z"/>
-          </svg>
-        </span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Питание</h3>
-          <p class="mt-1 text-slate-600 text-sm">Граммы и ХЕ; поиск продуктов; поддержка штрих-кодов.</p>
-        </div>
+        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 3v8a2 2 0 0 0 4 0V3"/><path d="M6 3v18"/><path d="M14 3h2a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-2V3z"/></svg></span>
+        <div><h3 class="text-[17px] font-semibold">Питание</h3><p class="mt-1 text-slate-600 text-sm">Граммы и ХЕ; поиск продуктов; поддержка штрих-кодов.</p></div>
       </div>
       <!-- Таблетки -->
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic" aria-hidden="true">
-          <!-- таблетка -->
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <rect x="3" y="7" width="18" height="10" rx="5"/>
-            <path d="M12 7v10"/>
-          </svg>
-        </span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Таблетки</h3>
-          <p class="mt-1 text-slate-600 text-sm">Дозы и режим приёма; напоминания.</p>
-        </div>
+        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="10" rx="5"/><path d="M12 7v10"/></svg></span>
+        <div><h3 class="text-[17px] font-semibold">Таблетки</h3><p class="mt-1 text-slate-600 text-sm">Дозы и режим приёма; напоминания.</p></div>
       </div>
       <!-- Давление -->
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic" aria-hidden="true">
-          <!-- тонометр (сердце+линия) -->
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <path d="M4 12h4l2-4 4 8 2-4h4"/>
-            <path d="M12.5 5.5a3.5 3.5 0 0 1 5 0l.5.5.5-.5a3.5 3.5 0 0 1 5 5l-5.5 5.5L12 11a3.5 3.5 0 0 1 .5-5.5z" transform="scale(.5) translate(6 6)"/>
-          </svg>
-        </span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Артериальное давление</h3>
-          <p class="mt-1 text-slate-600 text-sm">SYS/DIA; поза и рука измерения.</p>
-        </div>
+        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M12 4h9"/><path d="M12 12h9"/><path d="M3 6h.01"/><path d="M3 18h.01"/></svg></span>
+        <div><h3 class="text-[17px] font-semibold">Артериальное давление</h3><p class="mt-1 text-slate-600 text-sm">SYS/DIA; поза и рука измерения.</p></div>
       </div>
-      <!-- Активность и симптомы -->
+      <!-- Активность -->
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic" aria-hidden="true">
-          <!-- бегущий -->
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <circle cx="16" cy="4" r="2"/>
-            <path d="M6 15l4-4 3 1 3-2"/>
-            <path d="M13 7l-2 4-3 6"/>
-            <path d="M5 22l3-5 4 1 3-3"/>
-          </svg>
-        </span>
-        <div>
-          <h3 class="text-[17px] font-semibold">Активность и симптомы</h3>
-          <p class="mt-1 text-slate-600 text-sm">Тип, длительность/интенсивность, отметки самочувствия.</p>
-        </div>
+        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="16" cy="4" r="2"/><path d="M6 15l4-4 3 1 3-2"/><path d="M13 7l-2 4-3 6"/><path d="M5 22l3-5 4 1 3-3"/></svg></span>
+        <div><h3 class="text-[17px] font-semibold">Активность и симптомы</h3><p class="mt-1 text-slate-600 text-sm">Тип, длительность/интенсивность, отметки самочувствия.</p></div>
       </div>
     </div>
 
+    <!-- Остальные вкладки (без иконок для краткости) -->
     <div id="panel-analytics" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
       <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Время в диапазоне (TIR/TBR/TAR)</h3><p class="text-sm text-slate-600">Доля времени в целевом, ниже и выше диапазона.</p></div>
       <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Постпрандиальный контроль</h3><p class="text-sm text-slate-600">Динамика через 1–2 часа после еды и средний пик.</p></div>
@@ -255,28 +202,4 @@
 
     <div id="panel-important" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
       <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Юридически важно</h3><p class="text-sm text-slate-600">Приложение не ставит диагнозы и не заменяет консультацию врача.</p></div>
-      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Конфиденциальность</h3><p class="text-sm text-slate-600">Данные шифруются. Можно экспортировать или удалить их в любой момент.</p></div>
-    </div>
-  </section>
-
-  <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
-    © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
-  </footer>
-
-  <script>
-    document.getElementById('y').textContent = new Date().getFullYear();
-
-    // переключение вкладок функционала
-    const tabs = document.querySelectorAll('.feature-tab');
-    const panels = document.querySelectorAll('.feature-panel');
-
-    tabs.forEach(btn => btn.addEventListener('click', () => {
-      tabs.forEach(b => { b.classList.remove('bg-slate-900','text-white'); b.setAttribute('aria-selected','false'); });
-      btn.classList.add('bg-slate-900','text-white'); btn.setAttribute('aria-selected','true');
-
-      const id = btn.dataset.panel;
-      panels.forEach(p => { p.classList.toggle('hidden', p.id !== id); p.setAttribute('aria-hidden', p.id !== id); });
-    }));
-  </script>
-</body>
-</html>
+      <div class
