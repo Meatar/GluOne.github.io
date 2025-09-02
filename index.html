@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GluOne — цифровой помощник</title>
 
-  <!-- Favicons (оставь как у тебя, тут пример с версионированием) -->
+  <!-- Favicons -->
   <link rel="shortcut icon" href="/favicon.ico?v=4" type="image/x-icon">
   <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png">
   <link rel="icon" href="/favicon-192.png?v=4" sizes="192x192" type="image/png">
@@ -19,92 +19,110 @@
 
   <style>
     :root{
-      --arc-size-x: 140%;   /* ширина эллипса маски (больше — мягче) */
-      --arc-size-y: 95%;    /* высота эллипса маски */
-      --arc-solid: 80%;     /* до какого радиуса непрозрачно */
-      --arc-feather: 81%;   /* начало прозрачности (перо края) */
-      --divider:   #e5e7eb; /* цвет вертикальной линии */
+      /* Настройка дуги */
+      --arc-size-x: 165%;   /* ширина эллипса маски (↑ = мягче) */
+      --arc-size-y: 105%;   /* высота эллипса маски  */
+      --arc-solid : 78%;    /* радиус сплошной области */
+      --arc-feather: 80%;   /* где начинается перо */
+      --divider: #e5e7eb;
     }
     body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
+    /* Фото-блок выглядит как карточка и маскируется дугой справа */
+    .hero-card{
+      border-radius: 24px;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,.04),
+        0 8px 24px rgba(15,23,42,.08);
+      overflow: hidden;
+      background: #fff;
+    }
     .hero-mask{
-      width:100%; height:100%; min-height:540px;
-      border-radius:24px;
-      overflow:hidden;
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
 
       -webkit-mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y)
-        at var(--arc-x, 100%) 50%, #000 var(--arc-solid), transparent var(--arc-feather));
+        at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
               mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y)
-        at var(--arc-x, 100%) 50%, #000 var(--arc-solid), transparent var(--arc-feather));
-      -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+        at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
+      -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
     }
-    .hero-mask--left  { --arc-x: 0%;   }  /* дуга слева */
-    .hero-mask--right { --arc-x: 100%; }  /* дуга справа */
-
     .hero-img{
-      width:100%; height:100%;
+      width: 100%; height: 100%;
       object-fit: cover;
       object-position: center 45%;
+      display: block;
+      aspect-ratio: 4/3; /* стабильная высота на загрузке */
     }
 
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
+    /* более компактная сетка на md и ниже */
+    @media (max-width: 1024px){
+      .hero-mask{ min-height: 460px; }
+    }
     @media (max-width: 768px){
       :root{
-        --arc-size-x: 150%;
-        --arc-size-y: 100%;
-        --arc-solid: 82%;
-        --arc-feather: 83%;
+        --arc-size-x: 190%;
+        --arc-size-y: 110%;
+        --arc-solid : 80%;
+        --arc-feather: 82%;
       }
+      .hero-img{ aspect-ratio: 3/2; }
     }
   </style>
 </head>
 <body class="bg-white text-slate-900">
-
   <!-- Header -->
   <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
     <a class="flex items-center gap-3" href="/">
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
-    <a href="/auth" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium hover:opacity-90">
+    <a href="/auth" class="px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium hover:opacity-90 transition">
       Авторизация
     </a>
   </header>
 
-  <!-- HERO: [фото с дугой справа] | [вертикальная линия] | [контент] -->
-  <section class="max-w-6xl mx-auto grid grid-cols-[1fr_1px_1fr] gap-0 px-4 py-12 items-stretch">
-    <!-- Фото -->
-    <div class="relative overflow-hidden">
-      <!-- выбери сторону: hero-mask--left или hero-mask--right -->
-      <div class="hero-mask hero-mask--right">
-        <img src="assets/hero.jpg" alt="Диабет: приборы и принадлежности" class="hero-img">
+  <!-- HERO -->
+  <section class="max-w-6xl mx-auto px-4 py-10 lg:py-14">
+    <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_1px_1fr] gap-8 lg:gap-10 items-center">
+      <!-- Фото -->
+      <div class="hero-card">
+        <div class="hero-mask">
+          <img src="assets/hero.jpg" alt="Диабет: приборы и принадлежности" class="hero-img">
+        </div>
       </div>
-    </div>
 
-    <!-- Вертикальная линия -->
-    <div class="v-divider"></div>
+      <!-- Вертикальная линия (скрываем на мобилке) -->
+      <div class="v-divider hidden lg:block"></div>
 
-    <!-- Контент -->
-    <div class="flex flex-col justify-center px-8 lg:px-12">
-      <span class="text-sm text-slate-500">GluOne</span>
-      <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight">
-        GluOne — цифровой помощник в управлении диабетом
-      </h1>
-      <p class="mt-4 text-lg text-slate-700 max-w-xl">
-        Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="/auth" class="px-6 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90">Авторизация</a>
-        <a href="#" target="_blank" rel="noopener">
-          <img src="assets/appstore.png" alt="Загрузите в App Store" class="h-12">
-        </a>
+      <!-- Контент -->
+      <div class="lg:pl-4">
+        <span class="text-sm text-slate-500">GluOne</span>
+        <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
+          GluOne — цифровой помощник в&nbsp;управлении диабетом
+        </h1>
+        <p class="mt-4 text-lg text-slate-700 max-w-xl">
+          Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
+        </p>
+
+        <div class="mt-7 flex items-center gap-3">
+          <a href="/auth" class="px-5 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90 transition">
+            Авторизация
+          </a>
+          <!-- Бейдж App Store -->
+          <a href="#" target="_blank" rel="noopener" class="inline-flex">
+            <img src="assets/appstore.png" alt="Загрузите в App Store" class="h-12 md:h-12 w-auto" loading="lazy">
+          </a>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Возможности -->
-  <section id="features" class="max-w-6xl mx-auto px-4 pb-20">
+  <section id="features" class="max-w-6xl mx-auto px-4 pb-16">
     <div class="grid md:grid-cols-2 gap-4">
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">01</span>
