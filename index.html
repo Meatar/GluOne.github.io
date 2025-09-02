@@ -55,7 +55,7 @@
     }
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    /* крупные кнопки в hero */
+    /* крупная кнопка в hero */
     .btn-hero{
       height: 56px;
       min-width: 220px;
@@ -66,9 +66,9 @@
     }
     .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
 
-    /* компактная кнопка в шапке — ровно как логотип (h-9 = 36px) */
+    /* компактная кнопка в шапке — ровно по высоте логотипа (36px) */
     .btn-header{
-      height: 36px;               /* = высота логотипа */
+      height: 36px;
       padding: 0 16px;
       border-radius: 9999px;
       display: inline-flex; align-items: center; justify-content: center;
@@ -77,20 +77,29 @@
     }
     .btn-header:hover{ opacity:.9; transform: translateY(-1px); }
 
-    /* App Store как «заливка» кнопки — SVG на 100% */
+    /* Кнопка App Store = размер по картинке */
     .store-btn{
-      padding:0;
-      background:#fff;
-      border:1px solid #e2e8f0;
-      overflow:hidden;
-      border-radius:9999px;
+      display:inline-block;         /* размер по содержимому */
+      line-height:0;                /* убираем лишние зазоры */
+      border:0; background:transparent; padding:0;
     }
-    .store-btn svg{ width:100%; height:100%; display:block; }
+    .store-btn img{
+      display:block;
+      height:40px;                  /* нативная высота бейджа Apple */
+      width:auto;                   /* ширина пропорционально */
+    }
 
-    /* иконки-чипы */
-    .ic{ inline-size:36px; block-size:36px; border-radius:9999px; background:#f1f5f9;
-         display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; }
-    .ic svg{ width:20px; height:20px; stroke:#0f172a; }
+    /* Чипы-эмоджи */
+    .emo{
+      inline-size:40px; block-size:40px;
+      border-radius:9999px;
+      background:#f1f5f9;
+      display:inline-flex; align-items:center; justify-content:center;
+      font-size:22px;               /* размер эмоджи */
+      line-height:1;
+      user-select:none;
+      flex:0 0 auto;
+    }
 
     @media (max-width:1024px){
       .hero-img{ aspect-ratio: 3/2; }
@@ -142,21 +151,10 @@
           <div class="mt-7 flex items-center gap-3 flex-wrap">
             <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
 
-            <!-- App Store: SVG заполняет кнопку целиком -->
+            <!-- App Store — размер строго по изображению -->
             <a href="#" target="_blank" rel="noopener"
-               class="btn-hero store-btn" aria-label="Загрузите в App Store">
-              <svg viewBox="0 0 135 40" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
-                <rect x="0" y="0" width="135" height="40" rx="20" fill="#000"/>
-                <!-- Apple логотип -->
-                <path fill="#fff" d="M28.7 22.9c-.1 2.1 1.9 2.8 1.9 2.8s-1.5 4.3-4.3 4.2c-1.1 0-2-.7-2.8-.7-.8 0-2 .7-3.2.7-2.3 0-4.8-3.9-4.8-7.4 0-3.3 2.1-5 4-5 .9 0 1.8.6 2.7.6.9 0 2.1-.7 3.6-.7.6 0 2.8.3 3.6 2.2-2 .8-1.7 3.7-.7 4.1zM26 13.1c.7-.9 1.2-2.2 1.1-3.5-1.1.1-2.4.8-3.1 1.7-.7.8-1.3 2.2-1.2 3.4 1.2.1 2.5-.7 3.2-1.6z"/>
-                <!-- Текст: Загрузите в -->
-                <text x="42" y="16" fill="#fff" font-size="8.2"
-                      font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
-                      letter-spacing=".2">Загрузите в</text>
-                <!-- Текст: App Store -->
-                <text x="42" y="30" fill="#fff" font-size="16.5" font-weight="700"
-                      font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">App Store</text>
-              </svg>
+               class="store-btn" aria-label="Загрузите в App Store">
+              <img src="assets/appstore.png" alt="Загрузите в App Store">
             </a>
           </div>
         </div>
@@ -179,27 +177,27 @@
     <!-- Panels -->
     <div id="panel-track" class="feature-panel grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="false">
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z"/></svg></span>
+        <span class="emo">🩸</span>
         <div><h3 class="text-[17px] font-semibold">Глюкоза</h3><p class="mt-1 text-slate-600 text-sm">ммоль/л или mg/dL; контекст (до/после еды, сон и др.); кетоны; самочувствие.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m15 3 6 6"/><path d="M16 8 8.5 15.5a4 4 0 1 1-5.7-5.7L10.3 2"/><path d="M5 21h4"/></svg></span>
+        <span class="emo">💉</span>
         <div><h3 class="text-[17px] font-semibold">Инсулин</h3><p class="mt-1 text-slate-600 text-sm">Базальный/болюсный; пищевые и корректирующие дозы; выбор препарата.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 3v8a2 2 0 0 0 4 0V3"/><path d="M6 3v18"/><path d="M14 3h2a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-2V3z"/></svg></span>
+        <span class="emo">🍽️</span>
         <div><h3 class="text-[17px] font-semibold">Питание</h3><p class="mt-1 text-slate-600 text-sm">Граммы и ХЕ; поиск продуктов; поддержка штрих-кодов.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="10" rx="5"/><path d="M12 7v10"/></svg></span>
+        <span class="emo">💊</span>
         <div><h3 class="text-[17px] font-semibold">Таблетки</h3><p class="mt-1 text-slate-600 text-sm">Дозы и режим приёма; напоминания.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M12 4h9"/><path d="M12 12h9"/><path d="M3 6h.01"/><path d="M3 18h.01"/></svg></span>
+        <span class="emo">🩺</span>
         <div><h3 class="text-[17px] font-semibold">Артериальное давление</h3><p class="mt-1 text-slate-600 text-sm">SYS/DIA; поза и рука измерения.</p></div>
       </div>
       <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="ic"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="16" cy="4" r="2"/><path d="M6 15l4-4 3 1 3-2"/><path d="M13 7l-2 4-3 6"/><path d="M5 22l3-5 4 1 3-3"/></svg></span>
+        <span class="emo">🏃‍♂️</span>
         <div><h3 class="text-[17px] font-semibold">Активность и симптомы</h3><p class="mt-1 text-slate-600 text-sm">Тип, длительность/интенсивность, отметки самочувствия.</p></div>
       </div>
     </div>
