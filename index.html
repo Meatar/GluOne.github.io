@@ -5,12 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GluOne — цифровой помощник</title>
 
-  <!-- SEO / Open Graph -->
   <meta name="description" content="GluOne — контроль глюкозы, инсулин, питание и активность в одном приложении.">
-  <meta property="og:title" content="GluOne — цифровой помощник в управлении диабетом">
-  <meta property="og:description" content="Графики, напоминания, индивидуальные цели и TIR.">
-  <meta property="og:image" content="https://gluone.ru/assets/og.jpg">
-  <meta name="twitter:card" content="summary_large_image">
   <meta name="theme-color" content="#0f172a">
 
   <!-- Favicons -->
@@ -35,7 +30,7 @@
     }
     body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
-    /* фон-паттерн для верхнего экрана */
+    /* лёгкий фон у hero */
     .hero-bg{
       background:
         radial-gradient(circle at 20% 10%, rgba(99,102,241,.08), transparent 25%),
@@ -48,49 +43,53 @@
       box-shadow: 0 1px 2px rgba(2,6,23,.06), 0 20px 40px rgba(2,6,23,.08);
       overflow: hidden; background: #fff; border:1px solid rgba(2,6,23,.06);
     }
+
+    /* ВАЖНО: убрали min-height, чтобы не было «пустого низа» */
     .hero-mask{
-      width: 100%; height: 100%; min-height: 520px;
+      width: 100%; height: 100%;
       -webkit-mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
               mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
       -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
     }
+
     .hero-img{
-      width:100%; height:100%; object-fit:cover; object-position:center 45%;
-      display:block; aspect-ratio: 4/3;
+      width:100%; height:auto; display:block;
+      object-fit: cover; object-position:center 45%;
+      /* управляем высотой через аспект — карточка подстраивается под саму картинку */
+      aspect-ratio: 4 / 3;
     }
 
-    /* микро-анимации */
-    .btn, .store-badge img{ transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease; }
-    .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
-    .store-badge img:hover{ transform: translateY(-1px) scale(1.02); }
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    /* тёмная тема */
-    @media (prefers-color-scheme: dark){
-      body{ background:#0b1220; color:#e5e7eb; }
-      .hero-bg{ background: radial-gradient(circle at 20% 10%, rgba(99,102,241,.15), transparent 25%),
-                           radial-gradient(circle at 80% 30%, rgba(14,165,233,.15), transparent 25%),
-                           linear-gradient(#0b1220,#0b1220); }
-      .hero-card{ background:#0f172a; border-color:rgba(255,255,255,.06); box-shadow: 0 10px 28px rgba(0,0,0,.35); }
-      .v-divider{ background: linear-gradient(transparent, rgba(255,255,255,.12) 40%, transparent); }
+    /* универсальный класс кнопки с одинаковой высотой */
+    .btn-hero{
+      height: 48px;                       /* одинаковая высота */
+      padding-inline: 24px;
+      border-radius: 9999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 600;
+      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
     }
+    .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
 
-    @media (max-width: 1024px){ .hero-mask{ min-height: 460px; } }
-    @media (max-width: 768px){
-      :root{ --arc-size-x: 190%; --arc-size-y: 110%; --arc-solid: 80%; --arc-feather: 82%; }
-      .hero-img{ aspect-ratio: 3/2; }
+    /* Делает бейдж App Store одинаковой высоты с кнопкой */
+    .store-badge{
+      height: 48px;                        /* = .btn-hero */
+      display: inline-flex; align-items:center;
     }
+    .store-badge img{ height: 100%; width: auto; display:block; }
+
+    @media (max-width: 1024px){ .hero-img{ aspect-ratio: 3 / 2; } }
   </style>
 </head>
-<body class="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
+<body class="bg-white text-slate-900">
   <!-- Header -->
-  <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-slate-900/70 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md z-50">
+  <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
     <a class="flex items-center gap-3" href="/">
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
-    <a href="/auth"
-       class="btn px-4 py-2 rounded-full bg-slate-900 text-white text-sm font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900 dark:ring-offset-slate-900">
+    <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">
       Авторизация
     </a>
   </header>
@@ -102,7 +101,6 @@
         <!-- Фото -->
         <div class="hero-card">
           <div class="hero-mask">
-            <!-- один источник, но со справочными размерностями — не даст 404 -->
             <img
               src="assets/hero.jpg"
               srcset="assets/hero.jpg 800w, assets/hero.jpg 1200w, assets/hero.jpg 1600w"
@@ -114,32 +112,23 @@
           </div>
         </div>
 
-        <!-- Разделитель -->
+        <!-- Разделитель (прячем на мобилке) -->
         <div class="v-divider hidden lg:block"></div>
 
         <!-- Контент -->
         <div class="lg:pl-4">
-          <span class="text-sm text-slate-500 dark:text-slate-400">GluOne</span>
+          <span class="text-sm text-slate-500">GluOne</span>
           <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
             GluOne — цифровой помощник в&nbsp;управлении диабетом
           </h1>
-          <p class="mt-4 text-lg text-slate-700 dark:text-slate-300 max-w-xl">
+          <p class="mt-4 text-lg text-slate-700 max-w-xl">
             Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
           </p>
 
-          <ul class="mt-4 flex flex-wrap gap-2 text-sm text-slate-600 dark:text-slate-300">
-            <li class="px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10">Без рекламы</li>
-            <li class="px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10">Данные в РФ</li>
-            <li class="px-3 py-1 rounded-full bg-slate-100 dark:bg-white/10">Шифрование end-to-end</li>
-          </ul>
-
           <div class="mt-7 flex items-center gap-3">
-            <a href="/auth"
-               class="btn px-5 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900 dark:ring-offset-slate-900">
-              Авторизация
-            </a>
-            <a href="#" target="_blank" rel="noopener" class="store-badge inline-flex">
-              <img src="assets/appstore.png" alt="Загрузите в App Store" class="h-12 md:h-12 w-auto" loading="lazy">
+            <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
+            <a href="#" target="_blank" rel="noopener" class="store-badge">
+              <img src="assets/appstore.png" alt="Загрузите в App Store" loading="lazy">
             </a>
           </div>
         </div>
@@ -148,70 +137,32 @@
   </section>
 
   <!-- Возможности -->
-  <section id="features" class="max-w-6xl mx-auto px-4 pb-10">
+  <section id="features" class="max-w-6xl mx-auto px-4 pb-16">
     <div class="grid md:grid-cols-2 gap-4">
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition dark:border-white/10">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 text-xs font-semibold">01</span>
-        <div><h3 class="text-[17px] font-semibold">Контроль глюкозы</h3><p class="mt-1 text-slate-600 dark:text-slate-300 text-sm">Наглядные графики и статистика.</p></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">01</span>
+        <div><h3 class="text-[17px] font-semibold">Контроль глюкозы</h3><p class="mt-1 text-slate-600 text-sm">Наглядные графики и статистика.</p></div>
       </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition dark:border-white/10">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 text-xs font-semibold">02</span>
-        <div><h3 class="text-[17px] font-semibold">Учёт инсулина и питания</h3><p class="mt-1 text-slate-600 dark:text-slate-300 text-sm">Дозы, ХЕ и состав рациона.</p></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">02</span>
+        <div><h3 class="text-[17px] font-semibold">Учёт инсулина и питания</h3><p class="mt-1 text-slate-600 text-sm">Дозы, ХЕ и состав рациона.</p></div>
       </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition dark:border-white/10">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 text-xs font-semibold">03</span>
-        <div><h3 class="text-[17px] font-semibold">Индивидуальные цели</h3><p class="mt-1 text-slate-600 dark:text-slate-300 text-sm">С учётом типа, возраста и стандартов.</p></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">03</span>
+        <div><h3 class="text-[17px] font-semibold">Индивидуальные цели</h3><p class="mt-1 text-slate-600 text-sm">С учётом типа, возраста и стандартов.</p></div>
       </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition dark:border-white/10">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 text-xs font-semibold">04</span>
-        <div><h3 class="text-[17px] font-semibold">Напоминания</h3><p class="mt-1 text-slate-600 dark:text-slate-300 text-sm">О замерах, инъекциях и приёмах пищи.</p></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">04</span>
+        <div><h3 class="text-[17px] font-semibold">Напоминания</h3><p class="mt-1 text-slate-600 text-sm">О замерах, инъекциях и приёмах пищи.</p></div>
       </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition md:col-span-2 dark:border-white/10">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-600 text-xs font-semibold">05</span>
-        <div><h3 class="text-[17px] font-semibold">Время в диапазоне</h3><p class="mt-1 text-slate-600 dark:text-slate-300 text-sm">Отчёты по гипо/гипер и TIR.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="max-w-6xl mx-auto px-4 pb-12">
-    <h2 class="text-xl font-semibold">Частые вопросы</h2>
-    <div class="mt-4 divide-y rounded-2xl border dark:border-white/10">
-      <details class="group p-4 open:bg-slate-50/60 dark:open:bg-white/5">
-        <summary class="cursor-pointer font-medium">Нужна ли подписка для базовых функций?</summary>
-        <div class="mt-2 text-slate-600 dark:text-slate-300 text-sm">Базовые функции доступны бесплатно. Подписка открывает расширенную аналитику, экспорт и персональные цели.</div>
-      </details>
-      <details class="group p-4">
-        <summary class="cursor-pointer font-medium">Где хранятся мои данные?</summary>
-        <div class="mt-2 text-slate-600 dark:text-slate-300 text-sm">Данные хранятся на серверах в РФ и шифруются. Вы можете экспортировать или удалить их в любой момент.</div>
-      </details>
-      <details class="group p-4">
-        <summary class="cursor-pointer font-medium">Есть ли реклама?</summary>
-        <div class="mt-2 text-slate-600 dark:text-slate-300 text-sm">Нет. Приложение не содержит рекламных баннеров.</div>
-      </details>
-    </div>
-  </section>
-
-  <!-- Нижний CTA -->
-  <section class="max-w-6xl mx-auto px-4 pb-12">
-    <div class="rounded-3xl border p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4 dark:border-white/10">
-      <div>
-        <h3 class="text-2xl font-bold">Готовы попробовать GluOne?</h3>
-        <p class="mt-1 text-slate-600 dark:text-slate-300">Установите приложение и начните вести дневник прямо сейчас.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <a href="/auth"
-           class="btn px-5 py-3 rounded-full bg-slate-900 text-white font-medium hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900 dark:ring-offset-slate-900">
-          Авторизация
-        </a>
-        <a href="#" target="_blank" rel="noopener" class="store-badge inline-flex">
-          <img src="assets/appstore.png" alt="Загрузите в App Store" class="h-12 w-auto" loading="lazy">
-        </a>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition md:col-span-2">
+        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">05</span>
+        <div><h3 class="text-[17px] font-semibold">Время в диапазоне</h3><p class="mt-1 text-slate-600 text-sm">Отчёты по гипо/гипер и TIR.</p></div>
       </div>
     </div>
   </section>
 
-  <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 dark:text-slate-400 border-t dark:border-white/10">
+  <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
     © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
   </footer>
 
