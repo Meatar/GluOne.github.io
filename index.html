@@ -55,36 +55,25 @@
     }
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    /* крупная кнопка в hero */
+    /* кнопки одинаковой высоты (40px) */
     .btn-hero{
-      height: 56px;
-      min-width: 220px;
-      border-radius: 9999px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 18px;
-      transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+      height:40px;
+      padding:0 20px;
+      border-radius:9999px;
+      display:inline-flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:16px;
+      background:#0f172a; color:#fff;
+      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
     }
-    .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
+    .btn-hero:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 16px rgba(2,6,23,.12);
+    }
 
-    /* компактная кнопка в шапке — по высоте логотипа (36px) */
-    .btn-header{
-      height: 36px;
-      padding: 0 16px;
-      border-radius: 9999px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 14px;
-      transition: opacity .18s ease, transform .18s ease;
-    }
-    .btn-header:hover{ opacity:.9; transform: translateY(-1px); }
-
-    /* App Store как отдельная картинка */
-    .store-btn{
-      display:inline-block;
-      line-height:0;
-    }
+    /* App Store бейдж */
     .store-btn img{
       display:block;
-      height:56px;      /* одинаковая высота с Авторизацией */
+      height:40px;   /* нативная высота */
       width:auto;
     }
 
@@ -109,7 +98,7 @@
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
-    <a href="/auth" class="btn-header bg-slate-900 text-white">Авторизация</a>
+    <a href="/auth" class="btn-hero">Авторизация</a>
   </header>
 
   <!-- HERO -->
@@ -143,10 +132,9 @@
           </p>
 
           <div class="mt-7 flex items-center gap-3 flex-wrap">
-            <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
-
-            <!-- App Store бейдж -->
-            <a href="https://apps.apple.com/app/idXXXXXXXX" target="_blank" rel="noopener"
+            <a href="/auth" class="btn-hero">Авторизация</a>
+            <a href="https://apps.apple.com/app/idXXXXXXXX"
+               target="_blank" rel="noopener"
                class="store-btn" aria-label="Загрузите в App Store">
               <img src="assets/appstore.png" alt="Загрузите в App Store">
             </a>
