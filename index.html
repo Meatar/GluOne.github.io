@@ -30,7 +30,6 @@
     }
     body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
-    /* лёгкий фон у hero */
     .hero-bg{
       background:
         radial-gradient(circle at 20% 10%, rgba(99,102,241,.08), transparent 25%),
@@ -44,7 +43,6 @@
       overflow: hidden; background: #fff; border:1px solid rgba(2,6,23,.06);
     }
 
-    /* ВАЖНО: убрали min-height, чтобы не было «пустого низа» */
     .hero-mask{
       width: 100%; height: 100%;
       -webkit-mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
@@ -55,15 +53,13 @@
     .hero-img{
       width:100%; height:auto; display:block;
       object-fit: cover; object-position:center 45%;
-      /* управляем высотой через аспект — карточка подстраивается под саму картинку */
       aspect-ratio: 4 / 3;
     }
 
     .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-    /* универсальный класс кнопки с одинаковой высотой */
     .btn-hero{
-      height: 48px;                       /* одинаковая высота */
+      height: 48px;
       padding-inline: 24px;
       border-radius: 9999px;
       display: inline-flex; align-items: center; justify-content: center;
@@ -72,11 +68,7 @@
     }
     .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,6,23,.12); }
 
-    /* Делает бейдж App Store одинаковой высоты с кнопкой */
-    .store-badge{
-      height: 48px;                        /* = .btn-hero */
-      display: inline-flex; align-items:center;
-    }
+    .store-badge{ height: 48px; display: inline-flex; align-items:center; }
     .store-badge img{ height: 100%; width: auto; display:block; }
 
     @media (max-width: 1024px){ .hero-img{ aspect-ratio: 3 / 2; } }
@@ -89,9 +81,7 @@
       <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
       <span class="font-semibold tracking-tight">GluOne</span>
     </a>
-    <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">
-      Авторизация
-    </a>
+    <a href="/auth" class="btn-hero bg-slate-900 text-white hover:opacity-90">Авторизация</a>
   </header>
 
   <!-- HERO -->
@@ -112,7 +102,6 @@
           </div>
         </div>
 
-        <!-- Разделитель (прячем на мобилке) -->
         <div class="v-divider hidden lg:block"></div>
 
         <!-- Контент -->
@@ -136,29 +125,51 @@
     </div>
   </section>
 
-  <!-- Возможности -->
+  <!-- ФУНКЦИОНАЛ -->
   <section id="features" class="max-w-6xl mx-auto px-4 pb-16">
-    <div class="grid md:grid-cols-2 gap-4">
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">01</span>
-        <div><h3 class="text-[17px] font-semibold">Контроль глюкозы</h3><p class="mt-1 text-slate-600 text-sm">Наглядные графики и статистика.</p></div>
-      </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">02</span>
-        <div><h3 class="text-[17px] font-semibold">Учёт инсулина и питания</h3><p class="mt-1 text-slate-600 text-sm">Дозы, ХЕ и состав рациона.</p></div>
-      </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">03</span>
-        <div><h3 class="text-[17px] font-semibold">Индивидуальные цели</h3><p class="mt-1 text-slate-600 text-sm">С учётом типа, возраста и стандартов.</p></div>
-      </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">04</span>
-        <div><h3 class="text-[17px] font-semibold">Напоминания</h3><p class="mt-1 text-slate-600 text-sm">О замерах, инъекциях и приёмах пищи.</p></div>
-      </div>
-      <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition md:col-span-2">
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">05</span>
-        <div><h3 class="text-[17px] font-semibold">Время в диапазоне</h3><p class="mt-1 text-slate-600 text-sm">Отчёты по гипо/гипер и TIR.</p></div>
-      </div>
+    <!-- Tabs -->
+    <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Функционал GluOne">
+      <button class="feature-tab px-4 py-2 rounded-full border bg-slate-900 text-white"
+              data-panel="panel-track" role="tab" aria-selected="true">Что можно вести</button>
+      <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-analytics" role="tab">Аналитика</button>
+      <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-goals" role="tab">Цели и единицы</button>
+      <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-tools" role="tab">Инструменты</button>
+      <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-important" role="tab">Важно</button>
+    </div>
+
+    <!-- Panels -->
+    <div id="panel-track" class="feature-panel grid md:grid-cols-2 gap-4" role="tabpanel">
+      <div class="flex items-start gap-4 p-5 border rounded-2xl"><span>🩸</span><div><h3 class="font-semibold">Глюкоза</h3><p class="text-sm text-slate-600">ммоль/л или mg/dL; контекст (до/после еды, сон и др.); кетоны; самочувствие.</p></div></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl"><span>💉</span><div><h3 class="font-semibold">Инсулин</h3><p class="text-sm text-slate-600">Базальный/болюсный; пищевые и корректирующие дозы; выбор препарата.</p></div></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl"><span>🍽️</span><div><h3 class="font-semibold">Питание</h3><p class="text-sm text-slate-600">Граммы и ХЕ; поиск продуктов; поддержка штрих-кодов.</p></div></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl"><span>💊</span><div><h3 class="font-semibold">Таблетки</h3><p class="text-sm text-slate-600">Дозы и режим приёма; напоминания.</p></div></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl"><span>🩺</span><div><h3 class="font-semibold">Артериальное давление</h3><p class="text-sm text-slate-600">SYS/DIA; поза и рука измерения.</p></div></div>
+      <div class="flex items-start gap-4 p-5 border rounded-2xl"><span>🏃</span><div><h3 class="font-semibold">Активность и симптомы</h3><p class="text-sm text-slate-600">Тип, длительность/интенсивность, отметки самочувствия.</p></div></div>
+    </div>
+
+    <div id="panel-analytics" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Время в диапазоне (TIR/TBR/TAR)</h3><p class="text-sm text-slate-600">Доля времени в целевом, ниже и выше диапазона.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Постпрандиальный контроль</h3><p class="text-sm text-slate-600">Динамика через 1–2 часа после еды и средний пик.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Инсулин</h3><p class="text-sm text-slate-600">Соотношение базал/болюс, TDD, пропуски базала.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Давление</h3><p class="text-sm text-slate-600">Распределение по клиническим зонам.</p></div>
+      <div class="p-5 border rounded-2xl md:col-span-2"><h3 class="font-semibold">Симптомы</h3><p class="text-sm text-slate-600">Частота, средняя тяжесть, взаимосвязи.</p></div>
+    </div>
+
+    <div id="panel-goals" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Гибкие цели</h3><p class="text-sm text-slate-600">По рекомендациям (ВОЗ/национальные) или собственные значения.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Единицы измерения</h3><p class="text-sm text-slate-600">ммоль/л ↔ mg/dL; граммы ↔ ХЕ (10/12/15 г на 1 ХЕ).</p></div>
+    </div>
+
+    <div id="panel-tools" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Напоминания</h3><p class="text-sm text-slate-600">О приёме таблеток, замерах и событиях.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Экспорт отчётов</h3><p class="text-sm text-slate-600">CSV / Excel / PDF за выбранный период.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Интеграция с Apple Health</h3><p class="text-sm text-slate-600">Чтение/запись поддерживаемых категорий.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Темы и локализация</h3><p class="text-sm text-slate-600">Тёмная/светлая тема; RU/EN.</p></div>
+    </div>
+
+    <div id="panel-important" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Юридически важно</h3><p class="text-sm text-slate-600">Приложение не ставит диагнозы и не заменяет консультацию врача.</p></div>
+      <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Конфиденциальность</h3><p class="text-sm text-slate-600">Данные шифруются. Можно экспортировать или удалить их в любой момент.</p></div>
     </div>
   </section>
 
@@ -166,6 +177,20 @@
     © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
   </footer>
 
-  <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // переключение вкладок функционала
+    const tabs = document.querySelectorAll('.feature-tab');
+    const panels = document.querySelectorAll('.feature-panel');
+
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(b => { b.classList.remove('bg-slate-900','text-white'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('bg-slate-900','text-white'); btn.setAttribute('aria-selected','true');
+
+      const id = btn.dataset.panel;
+      panels.forEach(p => { p.classList.toggle('hidden', p.id !== id); p.setAttribute('aria-hidden', p.id !== id); });
+    }));
+  </script>
 </body>
 </html>
