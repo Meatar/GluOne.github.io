@@ -112,7 +112,6 @@ import { KEYS, load, del } from './storage.js';
   async function onRevoke(deviceId, btn){
     if (!deviceId) return;
 
-    // простая защита от дабл-клика
     const prevText = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Выходим…';
@@ -121,7 +120,6 @@ import { KEYS, load, del } from './storage.js';
       const { ok, status, data } = await authRevokeDevice(token.access_token, deviceId);
 
       if (ok || status === 200) {
-        // перезагрузим список устройств
         await loadDevices();
         meDevicesStatus.hidden = false;
         meDevicesStatus.textContent = 'Устройство разлогинено.';
@@ -169,23 +167,21 @@ import { KEYS, load, del } from './storage.js';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
 
-    // кнопка «Выйти с устройства»
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn-outline device-revoke';
-    btn.textContent = dev?.current ? 'Выйти здесь' : 'Выйти с устройства';
-    btn.disabled = !!dev?.revoked;
-
-    btn.addEventListener('click', async () => {
-      // можно спросить подтверждение
-      const ok = confirm(`Выйти с устройства "${dev?.model || dev?.device_id}"?`);
-      if (!ok) return;
-      await onRevoke(dev?.device_id, btn);
-    });
+    // Кнопку показываем ТОЛЬКО если устройство не отозвано
+    if (!dev?.revoked) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-outline device-revoke';
+      btn.textContent = dev?.current ? 'Выйти здесь' : 'Выйти с устройства';
+      btn.addEventListener('click', async () => {
+        const ok = confirm(`Выйти с устройства "${dev?.model || dev?.device_id}"?`);
+        if (!ok) return;
+        await onRevoke(dev?.device_id, btn);
+      });
+      right.appendChild(btn);
+    }
 
     right.appendChild(badges);
-    right.appendChild(btn);
-
     head.appendChild(title);
     head.appendChild(right);
 
