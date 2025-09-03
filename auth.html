@@ -39,10 +39,8 @@
                    placeholder="Введите логин"
                    class="field"
                    required minlength="3" maxlength="30"
-                   pattern="^[A-Za-z0-9._-]{3,30}$"
-                   aria-describedby="loginHint loginError" />
+                   pattern="^[A-Za-z0-9._-]{3,30}$" />
           </div>
-          <p id="loginHint" class="form-hint" style="margin-top:6px;">Логин от 3 до 30 символов, только латиница, цифры, . _ -</p>
           <p id="loginError" class="form-error" hidden style="margin-top:6px;"></p>
 
           <!-- ПАРОЛЬ -->
@@ -53,8 +51,7 @@
                    placeholder="Введите пароль"
                    class="field field--with-icon"
                    required minlength="12" maxlength="72"
-                   pattern="^(?=.{12,72}$)(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[\x21-\x7E]+$"
-                   aria-describedby="passwordHint passwordError" />
+                   pattern="^(?=.{12,72}$)(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[\x21-\x7E]+$" />
             <button type="button" id="togglePass" class="icon-btn" aria-label="Показать пароль" title="Показать пароль" data-state="hidden">
               <!-- глаз -->
               <svg class="i i-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -69,7 +66,6 @@
               </svg>
             </button>
           </div>
-          <p id="passwordHint" class="form-hint" style="margin-top:6px;">Пароль от 12 символов, без пробелов, содержит буквы разного регистра, цифры и спецсимвол</p>
           <p id="passwordError" class="form-error" hidden style="margin-top:6px;"></p>
 
           <div style="display:flex; justify-content:flex-end; margin-top:8px;">

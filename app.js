@@ -1,19 +1,18 @@
-// ===== Footer year (опционально: есть не на всех страницах) ============
+// ===== Footer year (если есть элемент с id="y") ========================
 (function () {
   const y = document.getElementById('y');
   if (y) y.textContent = new Date().getFullYear();
 })();
 
-// ===== Feature Tabs (главная страница) =================================
+// ===== Feature Tabs (главная) =========================================
 (function () {
   const tabs   = Array.from(document.querySelectorAll('.feature-tab'));
   const panels = Array.from(document.querySelectorAll('.feature-panel'));
-  if (!tabs.length || !panels.length) return; // не на главной
+  if (!tabs.length || !panels.length) return;
 
   function activate(panelId) {
     tabs.forEach(btn => {
       const on = btn.dataset.panel === panelId;
-      // Эти классы есть на главной (Tailwind подключён только там)
       btn.classList.toggle('bg-slate-900', on);
       btn.classList.toggle('text-white', on);
       btn.setAttribute('aria-selected', on ? 'true' : 'false');
@@ -33,7 +32,7 @@
 // ===== Auth module (страница авторизации) ==============================
 (function () {
   const form = document.getElementById('authForm');
-  if (!form) return; // не на auth-странице
+  if (!form) return;
 
   const loginI  = document.getElementById('login');
   const passI   = document.getElementById('password');
@@ -44,7 +43,7 @@
   const formMsg = document.getElementById('formMsg');
 
   // Переключатель видимости пароля (по умолчанию скрыт)
-  if (passI) passI.type = 'password';
+  passI.type = 'password';
   if (toggle) {
     toggle.dataset.state = 'hidden';
     toggle.addEventListener('click', () => {
@@ -56,7 +55,7 @@
     });
   }
 
-  // Жёсткие требования (дублируем атрибуты из HTML на случай будущего переиспользования)
+  // Жёсткие требования (не показываем пользователю)
   loginI.setAttribute('minlength', '3');
   loginI.setAttribute('maxlength', '30');
   loginI.setAttribute('pattern', '^[A-Za-z0-9._-]{3,30}$');
@@ -65,18 +64,15 @@
   passI.setAttribute('maxlength', '72');
   passI.setAttribute('pattern', '^(?=.{12,72}$)(?!.*\\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s])[\\x21-\\x7E]+$');
 
-  // Хелперы ошибок
+  // Лаконичные тексты ошибок — без раскрытия правил
   const explainLogin = (el) => {
-    if (el.validity.valueMissing)  return 'Введите логин.';
-    if (el.validity.tooShort ||
-        el.validity.tooLong)       return 'Логин от 3 до 30 символов.';
-    if (el.validity.patternMismatch) return 'Разрешены латиница, цифры, ".", "-", "_".';
+    if (el.validity.valueMissing) return 'Введите логин.';
+    if (!el.checkValidity())     return 'Некорректный логин.';
     return '';
   };
   const explainPass = (el) => {
-    if (el.validity.valueMissing)   return 'Введите пароль.';
-    if (el.validity.tooShort)       return 'Минимум 12 символов.';
-    if (el.validity.patternMismatch) return 'Без пробелов, с буквами разных регистров, цифрой и спецсимволом.';
+    if (el.validity.valueMissing) return 'Введите пароль.';
+    if (!el.checkValidity())      return 'Некорректный пароль.';
     return '';
   };
   const showError  = (el, errEl, text) => { errEl.textContent = text; errEl.hidden = !text; el.setAttribute('aria-invalid','true'); };
@@ -88,21 +84,20 @@
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Сбрасываем сообщение (без tailwind-классов)
     formMsg.textContent = '';
     formMsg.className   = 'form-hint';
-    formMsg.style.color = ''; // сброс цвета
+    formMsg.style.color = '';
 
     let invalid = false;
     if (!loginI.checkValidity()) { showError(loginI, loginE, explainLogin(loginI)); invalid = true; }
-    if (!passI.checkValidity())  { showError(passI,  passE,  explainPass(passI));  invalid = true; }
+    if (!passI.checkValidity())  { showError(passI,  passE,  explainPass(passI));   invalid = true; }
     if (invalid) return;
 
     const payload = { login: loginI.value.trim(), password: passI.value };
 
     submit.disabled = true; submit.style.opacity = .7;
     try {
-      // Подключи свой бэкенд:
+      // Пример интеграции с бэкендом:
       // const res = await fetch('/api/auth/login', {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
@@ -114,14 +109,13 @@
       // Заглушка успеха
       await new Promise(r => setTimeout(r, 500));
       formMsg.textContent = 'Успешный вход. Перенаправляем…';
-      formMsg.style.color = '#059669'; // emerald-600
+      formMsg.style.color = '#059669';
       // window.location.href = (new URLSearchParams(location.search)).get('next') || '/';
     } catch (err) {
       formMsg.textContent = err.message || 'Не удалось войти. Повторите попытку.';
-      formMsg.style.color = '#e11d48'; // rose-600
+      formMsg.style.color = '#e11d48';
     } finally {
       submit.disabled = false; submit.style.opacity = 1;
     }
   });
 })();
-
