@@ -4,12 +4,17 @@ import { KEYS, load, del } from './storage.js';
 (() => {
   const el = (id) => document.getElementById(id);
 
+  // redirect if no token
   const token = load(KEYS.TOKEN, null);
   if (!token?.access_token) {
     window.location.href = '/auth.html?next=%2Fcabinet.html';
     return;
   }
 
+  const meCard = el('meCard');
+  if (!meCard) return;
+
+  // ---- profile refs
   const meUsername    = el('meUsername');
   const meEmail       = el('meEmail');
   const meAvatar      = el('meAvatar');
@@ -22,12 +27,13 @@ import { KEYS, load, del } from './storage.js';
   const meDiabetes    = el('meDiabetes');
   const meMsg         = el('meMsg');
 
+  // ---- devices refs
   const meDevicesSection = el('meDevicesSection');
   const meDevicesStatus  = el('meDevicesStatus');
   const meDevicesEmpty   = el('meDevicesEmpty');
   const meDevicesList    = el('meDevices');
 
-  // helpers
+  // ===== helpers
   const maskEmail = (em) => (em && typeof em === 'string') ? em : '—';
   const ageFrom = (dateStr) => {
     if (!dateStr) return null;
@@ -60,13 +66,13 @@ import { KEYS, load, del } from './storage.js';
 
       meRoles.innerHTML = '';
       (Array.isArray(data?.roles) ? data.roles : []).forEach(r => {
-        const chip = document.createElement('span');
-        chip.className = 'chip';
-        chip.textContent = r;
-        meRoles.appendChild(chip);
+        const chipEl = document.createElement('span');
+        chipEl.className = 'chip';
+        chipEl.textContent = r;
+        meRoles.appendChild(chipEl);
       });
 
-      // Premium info
+      // ---- Premium info (всегда показываем строку)
       mePremium.hidden = !data?.is_premium;
       mePremiumNote.hidden = false;
       if (data?.is_premium){
@@ -89,10 +95,135 @@ import { KEYS, load, del } from './storage.js';
     }
   }
 
-  // ===== devices (оставляем как у тебя было) ...
-  // loadDevices(), renderDevice(), setupLogout() — без изменений
+  // ===== devices
+  const chip = (text) => {
+    const c = document.createElement('span');
+    c.className = 'chip';
+    c.textContent = text;
+    return c;
+  };
 
+  function attrRow(dt, dd){
+    const dte = document.createElement('dt'); dte.textContent = dt;
+    const dde = document.createElement('dd'); dde.textContent = (dd ?? '—');
+    return [dte, dde];
+  }
+
+  function renderDevice(dev){
+    const item  = document.createElement('section');
+    item.className = 'device-item';
+
+    // header
+    const head  = document.createElement('div');
+    head.className = 'device-head';
+
+    const title = document.createElement('div');
+    title.className = 'device-title';
+    title.textContent = dev?.model || 'Неизвестное устройство';
+
+    const badges = document.createElement('div');
+    badges.className = 'device-badges';
+    if (dev?.current) badges.appendChild(chip('Текущее'));
+    if (dev?.revoked) badges.appendChild(chip('Отозвано'));
+
+    head.appendChild(title);
+    head.appendChild(badges);
+
+    // attrs
+    const attrs = document.createElement('dl');
+    attrs.className = 'device-attrs';
+
+    [
+      ...attrRow('ОС', dev?.os),
+      ...attrRow('Сборка', dev?.app_build),
+      ...attrRow('Активность', dev?.last_seen_at ? fmtDateTime(dev.last_seen_at) : null),
+      ...attrRow('Создано', dev?.created_at ? fmtDate(dev.created_at) : null),
+      ...attrRow('IP', dev?.last_ip),
+      ...attrRow('ID устройства', dev?.device_id),
+    ].forEach(n => attrs.appendChild(n));
+
+    item.appendChild(head);
+    item.appendChild(attrs);
+    return item;
+  }
+
+  async function loadDevices(){
+    if (!meDevicesSection) return;
+
+    // показываем секцию сразу (чтобы пользователь видел статус)
+    meDevicesSection.hidden = false;
+    meDevicesStatus.hidden = false;
+    meDevicesEmpty.hidden = true;
+    meDevicesList.innerHTML = '';
+
+    try {
+      const { ok, status, data } = await authDevices(token.access_token);
+
+      meDevicesStatus.hidden = true;
+
+      if (!ok) {
+        meDevicesEmpty.hidden = false;
+        meDevicesEmpty.textContent =
+          (status === 401 || status === 403)
+            ? 'Требуется повторный вход, чтобы посмотреть устройства.'
+            : `Не удалось загрузить устройства (код ${status}).`;
+        return;
+      }
+
+      const arr = Array.isArray(data) ? data : [];
+      if (!arr.length) {
+        meDevicesEmpty.hidden = false;
+        meDevicesEmpty.textContent = 'Пока нет данных об устройствах.';
+        return;
+      }
+
+      // текущие — сверху, затем по активности
+      arr.sort((a, b) => {
+        if (a.current && !b.current) return -1;
+        if (!a.current && b.current) return 1;
+        return (Date.parse(b.last_seen_at || 0) - Date.parse(a.last_seen_at || 0));
+      });
+
+      arr.forEach(dev => meDevicesList.appendChild(renderDevice(dev)));
+    } catch (e) {
+      meDevicesStatus.hidden = true;
+      meDevicesEmpty.hidden = false;
+      meDevicesEmpty.textContent = 'Ошибка сети при загрузке устройств.';
+      console.error('Devices load error:', e);
+    }
+  }
+
+  // ===== logout
+  function setupLogout(){
+    const btn = document.getElementById('logoutBtn');
+    if (!btn) return;
+
+    function getCookie(name){
+      const m = document.cookie.match(new RegExp('(^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1') + '=([^;]*)'));
+      return m ? decodeURIComponent(m[2]) : null;
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        const csrf = getCookie('csrf_token');
+        await authLogout(csrf);
+      } catch(_) {}
+
+      try {
+        del(KEYS.TOKEN);
+        del(KEYS.STATE);
+        del(KEYS.CHALLENGE);
+        del(KEYS.RESEND_UNTIL);
+      } catch {}
+
+      window.location.href = '/auth.html';
+    });
+  }
+
+  // init — вызываем все безопасно
   loadMe();
-  loadDevices();
+  // чтобы ошибка в блоке устройств не «роняла» скрипт — оборачиваем
+  try { loadDevices(); } catch (e) { console.error('loadDevices() failed:', e); }
   setupLogout();
 })();
