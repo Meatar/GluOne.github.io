@@ -16,7 +16,7 @@
   }
 }
 
-/* ===== Cabinet: profile (as before) ===== */
+/* ===== Cabinet: profile ===== */
 .me-head{
   display:grid;
   grid-template-columns: 64px 1fr auto;
@@ -82,7 +82,6 @@
 .devices-empty{ color:#64748b; font-size:14px; padding:8px 0; }
 .devices-list{ display:flex; flex-direction:column; }
 
-/* один элемент списка устройств */
 .device-item{
   padding:12px 0;
   border-top:1px dashed color-mix(in oklab, var(--divider) 70%, transparent);
@@ -112,7 +111,7 @@
   white-space:nowrap;
 }
 
-/* атрибуты — читаемая двухколоночная таблица */
+/* атрибуты — таблица */
 .device-attrs{
   display:grid;
   grid-template-columns: minmax(120px, 180px) 1fr;
@@ -123,7 +122,7 @@
 .device-attrs dt{ color:#64748b; }
 .device-attrs dd{ margin:0; color:var(--ink); overflow-wrap:anywhere; }
 
-/* компактней на мобильных */
+/* компактней на мобилках */
 @media (max-width: 520px){
   .device-attrs{ grid-template-columns: 1fr; }
   .device-attrs dt{ font-size:12px; opacity:.8; }
@@ -178,26 +177,26 @@
   color:#7f1d1d;
 }
 
-/* ==== Показ/скрытие пароля ==== */
+/* ==== Показ/скрытие пароля (иконка как в логине) ==== */
 .form-field.has-toggle { position: relative; }
 .form-field.has-toggle input { padding-right: 44px; }
 
-.toggle-pass {
-  position: absolute;
-  right: 8px; top: 50%; transform: translateY(-50%);
-  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
-  background: color-mix(in oklab, var(--divider) 10%, transparent);
-  border-radius: 10px;
-  padding: 6px 8px;
-  font: 600 12px/1 Inter, system-ui, sans-serif;
-  cursor: pointer;
-  user-select: none;
+.toggle-pass{
+  position:absolute;
+  right:8px; top:50%; transform:translateY(-50%);
+  width:34px; height:34px;
+  display:grid; place-items:center;
+  border:none; background:transparent; color:#475569;
+  border-radius:8px; cursor:pointer;
 }
-.toggle-pass:hover { filter: brightness(0.98); }
-.toggle-pass:active { transform: translateY(-50%) scale(0.98); }
+.toggle-pass:hover{
+  background: color-mix(in oklab, var(--divider) 12%, transparent);
+}
+.toggle-pass:active{
+  transform: translateY(-50%) scale(0.98);
+}
 
-/* компактнее на очень узких экранах */
-@media (max-width: 380px){
-  .toggle-pass { padding: 4px 6px; }
-  .form-field.has-toggle input { padding-right: 40px; }
-}
+/* Переключение иконок */
+.toggle-pass .i-eye-off{ display:none; }
+.toggle-pass[data-state="visible"] .i-eye{ display:none; }
+.toggle-pass[data-state="visible"] .i-eye-off{ display:block; }

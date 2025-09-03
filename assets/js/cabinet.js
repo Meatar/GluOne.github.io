@@ -189,6 +189,7 @@ import { KEYS, load, del } from './storage.js';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
 
+    // Кнопка «Выйти с устройства» — только если не revoked
     if (!dev?.revoked) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -285,26 +286,39 @@ import { KEYS, load, del } from './storage.js';
     return hide;
   }
 
-  // Кнопка "показать/скрыть" для password-поля
+  // Кнопка-глаз для password-поля (как в авторизации)
   function installPasswordToggle(inputEl) {
     if (!inputEl) return;
     const host = inputEl.closest('.form-field') || inputEl.parentElement;
     if (!host || host.querySelector('.toggle-pass')) return;
 
     host.classList.add('has-toggle');
+
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'toggle-pass';
+    btn.dataset.state = 'hidden';
     btn.setAttribute('aria-label', 'Показать пароль');
-    btn.setAttribute('aria-pressed', 'false');
-    btn.textContent = 'Показать';
+    btn.setAttribute('title', 'Показать пароль');
+
+    btn.innerHTML = `
+      <svg class="i i-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <svg class="i i-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M2 12s3.5-7 10-7c2.2 0 4 .6 5.6 1.5M22 12s-3.5 7-10 7c-2.2 0-4-.6-5.6-1.5" stroke="currentColor" stroke-width="2"/>
+        <path d="M3 3l18 18" stroke="currentColor" stroke-width="2"/>
+        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+      </svg>
+    `;
 
     btn.addEventListener('click', () => {
-      const isHidden = inputEl.type === 'password';
-      inputEl.type = isHidden ? 'text' : 'password';
-      btn.setAttribute('aria-pressed', String(isHidden));
-      btn.textContent = isHidden ? 'Скрыть' : 'Показать';
-      btn.setAttribute('aria-label', isHidden ? 'Скрыть пароль' : 'Показать пароль');
+      const nowHidden = inputEl.type === 'password';
+      inputEl.type = nowHidden ? 'text' : 'password';
+      btn.dataset.state = nowHidden ? 'visible' : 'hidden';
+      btn.setAttribute('aria-label', nowHidden ? 'Скрыть пароль' : 'Показать пароль');
+      btn.setAttribute('title',      nowHidden ? 'Скрыть пароль' : 'Показать пароль');
       inputEl.focus({ preventScroll: true });
       const v = inputEl.value; inputEl.setSelectionRange(v.length, v.length);
     });
