@@ -189,7 +189,6 @@ import { KEYS, load, del } from './storage.js';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
 
-    // Кнопку показываем ТОЛЬКО если устройство не отозвано
     if (!dev?.revoked) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -274,10 +273,7 @@ import { KEYS, load, del } from './storage.js';
     modal.hidden = false; modal.setAttribute('aria-hidden','false');
     const focusable = modal.querySelector('input,button,select,textarea,[href]');
     if (focusable) focusable.focus();
-    // закрытие по фону
-    const close = (e) => {
-      if (e.target.classList.contains('modal-backdrop')) hide();
-    };
+    const close = (e) => { if (e.target.classList.contains('modal-backdrop')) hide(); };
     const hide = () => {
       modal.hidden = true; modal.setAttribute('aria-hidden','true');
       modal.removeEventListener('click', close);
@@ -287,6 +283,33 @@ import { KEYS, load, del } from './storage.js';
     modal.addEventListener('click', close);
     document.addEventListener('keydown', esc);
     return hide;
+  }
+
+  // Кнопка "показать/скрыть" для password-поля
+  function installPasswordToggle(inputEl) {
+    if (!inputEl) return;
+    const host = inputEl.closest('.form-field') || inputEl.parentElement;
+    if (!host || host.querySelector('.toggle-pass')) return;
+
+    host.classList.add('has-toggle');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'toggle-pass';
+    btn.setAttribute('aria-label', 'Показать пароль');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.textContent = 'Показать';
+
+    btn.addEventListener('click', () => {
+      const isHidden = inputEl.type === 'password';
+      inputEl.type = isHidden ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', String(isHidden));
+      btn.textContent = isHidden ? 'Скрыть' : 'Показать';
+      btn.setAttribute('aria-label', isHidden ? 'Скрыть пароль' : 'Показать пароль');
+      inputEl.focus({ preventScroll: true });
+      const v = inputEl.value; inputEl.setSelectionRange(v.length, v.length);
+    });
+
+    host.appendChild(btn);
   }
 
   // ===== смена пароля
@@ -356,7 +379,7 @@ import { KEYS, load, del } from './storage.js';
     btn.addEventListener('click', () => {
       delForm.reset();
       delMsg.textContent = '';
-      delUser.value = currentUsername || '';
+      // НЕ подставляем логин автоматически
       closeModal = openModal(modalDelete);
     });
 
@@ -378,7 +401,6 @@ import { KEYS, load, del } from './storage.js';
       try {
         const res = await authDeleteAccount(username, password);
         if (res.status === 204) {
-          // подчистим локальное состояние
           try {
             del(KEYS.TOKEN); del(KEYS.STATE); del(KEYS.CHALLENGE); del(KEYS.RESEND_UNTIL);
           } catch {}
@@ -407,6 +429,11 @@ import { KEYS, load, del } from './storage.js';
       }
     });
   }
+
+  // init password toggles
+  installPasswordToggle(cpOld);
+  installPasswordToggle(cpNew);
+  installPasswordToggle(delPass);
 
   // ===== logout
   function setupLogout(){
