@@ -1,6 +1,16 @@
 const API = 'https://api.gluone.ru';
 
-async function request(path, { method = 'GET', headers = {}, body, timeout = 15000 } = {}) {
+/**
+ * Базовый запрос с таймаутом.
+ * @param {string} path
+ * @param {Object} [opts]
+ * @param {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} [opts.method='GET']
+ * @param {Object} [opts.headers={}]
+ * @param {BodyInit|null} [opts.body]
+ * @param {number} [opts.timeout=15000]
+ * @param {'omit'|'same-origin'|'include'} [opts.credentials]  // при необходимости можно пробрасывать куки
+ */
+async function request(path, { method = 'GET', headers = {}, body, timeout = 15000, credentials } = {}) {
   const ctrl = new AbortController();
   const tId = setTimeout(() => ctrl.abort(), timeout);
   try {
@@ -8,7 +18,8 @@ async function request(path, { method = 'GET', headers = {}, body, timeout = 150
       method,
       headers,
       body,
-      signal: ctrl.signal
+      signal: ctrl.signal,
+      ...(credentials ? { credentials } : {}) // добавляем только если передали
     });
     const isJson = res.headers.get('content-type')?.includes('application/json');
     const data = isJson ? await res.json().catch(() => null) : null;
@@ -18,6 +29,9 @@ async function request(path, { method = 'GET', headers = {}, body, timeout = 150
   }
 }
 
+/**
+ * Логин (этап 1)
+ */
 export function authLogin(username, password) {
   return request('/auth/web/login', {
     method: 'POST',
@@ -26,6 +40,9 @@ export function authLogin(username, password) {
   });
 }
 
+/**
+ * Подтверждение кода (этап 2)
+ */
 export function authVerify(challenge_id, code) {
   return request('/auth/web/login/verify', {
     method: 'POST',
@@ -34,6 +51,9 @@ export function authVerify(challenge_id, code) {
   });
 }
 
+/**
+ * Повторная отправка кода
+ */
 export function authResend(challenge_id) {
   return request('/auth/web/login/resend', {
     method: 'POST',
@@ -42,6 +62,9 @@ export function authResend(challenge_id) {
   });
 }
 
+/**
+ * Данные профиля текущего пользователя
+ */
 export function authMe(accessToken) {
   return request('/auth/web/me', {
     method: 'GET',
@@ -52,23 +75,47 @@ export function authMe(accessToken) {
   });
 }
 
+/**
+ * Выход (инвалидирует refresh/сессию на сервере)
+ * ВАЖНО: credentials: 'include' — чтобы ушли куки (refresh/csrf), если они используются
+ */
 export async function authLogout(csrfToken) {
   const headers = { 'Accept': '*/*' };
   if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
 
-  const ctrl = new AbortController();
-  const tId = setTimeout(() => ctrl.abort(), 15000);
-  try {
-    const res = await fetch(`${API}/auth/web/logout`, {
-      method: 'POST',
-      headers,
-      credentials: 'include',   // <-- важно, чтобы ушли refresh_token / csrf_token
-      signal: ctrl.signal
-    });
-    const isJson = res.headers.get('content-type')?.includes('application/json');
-    const data = isJson ? await res.json().catch(() => null) : null;
-    return { ok: res.ok, status: res.status, data };
-  } finally {
-    clearTimeout(tId);
-  }
+  return request('/auth/web/logout', {
+    method: 'POST',
+    headers,
+    credentials: 'include' // отправляем куки
+  });
+}
+
+/**
+ * Тип устройства (JSDoc для удобства)
+ * @typedef {Object} AuthDevice
+ * @property {string} device_id
+ * @property {string} model
+ * @property {string} os
+ * @property {string} app_build
+ * @property {string} created_at
+ * @property {string} last_seen_at
+ * @property {string} last_ip
+ * @property {boolean} revoked
+ * @property {boolean} current
+ */
+
+/**
+ * Список устройств, с которых пользователь авторизовывался
+ * GET /auth/web/devices
+ * @param {string} accessToken - Bearer токен
+ * @returns {Promise<{ok: boolean, status: number, data: AuthDevice[] | null}>}
+ */
+export function authDevices(accessToken) {
+  return request('/auth/web/devices', {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    }
+  });
 }

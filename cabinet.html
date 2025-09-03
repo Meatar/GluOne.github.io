@@ -24,6 +24,7 @@
   <main class="page-auth">
     <section class="container-sm">
       <div class="card auth-card" id="meCard" aria-busy="true">
+        <!-- Header -->
         <div class="me-head">
           <div class="me-avatar" id="meAvatar" aria-hidden="true">U</div>
           <div class="me-titles">
@@ -33,6 +34,7 @@
           <div class="me-badge" id="mePremium" hidden>Premium</div>
         </div>
 
+        <!-- Profile fields -->
         <div class="me-body">
           <div class="me-row">
             <span class="me-label">Статус</span>
@@ -54,10 +56,28 @@
             <span class="me-label">Тип диабета</span>
             <span class="me-value" id="meDiabetes">—</span>
           </div>
+
           <div class="me-note" id="mePremiumNote" hidden></div>
           <p id="meMsg" class="form-hint" style="margin-top:8px;"></p>
         </div>
 
+        <!-- Devices section -->
+        <div id="meDevicesSection" hidden>
+          <h2 class="auth-title" style="font-size:18px; margin:14px 0 6px;">Устройства</h2>
+
+          <!-- спиннер/статус -->
+          <p id="meDevicesStatus" class="form-hint" style="margin:6px 0;" hidden>Загрузка устройств…</p>
+
+          <!-- пустое состояние -->
+          <div id="meDevicesEmpty" class="form-hint" style="margin:6px 0;" hidden>
+            Пока нет данных об устройствах.
+          </div>
+
+          <!-- список устройств -->
+          <div id="meDevices" role="list" aria-live="polite"></div>
+        </div>
+
+        <!-- Actions -->
         <div class="me-actions">
           <button id="logoutBtn" type="button" class="btn-outline">Выйти</button>
           <a class="btn-hero" href="/">На главную</a>
