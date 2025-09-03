@@ -62,6 +62,8 @@
           </div>
 
           <div class="me-actions">
+            <button id="changePassBtn" type="button" class="btn-outline">Сменить пароль</button>
+            <button id="deleteAccountBtn" type="button" class="btn-danger">Удалить аккаунт</button>
             <button id="logoutBtn" type="button" class="btn-outline">Выйти</button>
             <a class="btn-hero" href="/">На главную</a>
           </div>
@@ -83,5 +85,53 @@
       </div>
     </section>
   </main>
+
+  <!-- ===== Модалка: Смена пароля ===== -->
+  <div id="modalChangePass" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <h3 id="cpTitle" class="modal-title">Смена пароля</h3>
+      <p class="form-hint">Введите старый и новый пароль. Имя пользователя подставим автоматически.</p>
+      <form id="cpForm" class="modal-form">
+        <label class="form-field">
+          <span>Старый пароль</span>
+          <input id="cpOld" type="password" autocomplete="current-password" required />
+        </label>
+        <label class="form-field">
+          <span>Новый пароль</span>
+          <input id="cpNew" type="password" autocomplete="new-password" required minlength="6" />
+        </label>
+        <p id="cpMsg" class="form-hint" aria-live="polite"></p>
+        <div class="modal-actions">
+          <button type="submit" class="btn-hero" id="cpSubmit">Изменить</button>
+          <button type="button" class="btn-outline" id="cpCancel">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Модалка: Удаление аккаунта ===== -->
+  <div id="modalDelete" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <h3 id="delTitle" class="modal-title">Удаление аккаунта</h3>
+      <p class="danger-note">Действие безвозвратно. Будут удалены ваши данные и подписки. Подтвердите логином и паролем.</p>
+      <form id="delForm" class="modal-form">
+        <label class="form-field">
+          <span>Логин (e-mail)</span>
+          <input id="delUser" type="email" autocomplete="username" required />
+        </label>
+        <label class="form-field">
+          <span>Пароль</span>
+          <input id="delPass" type="password" autocomplete="current-password" required />
+        </label>
+        <p id="delMsg" class="form-hint" aria-live="polite"></p>
+        <div class="modal-actions">
+          <button type="submit" class="btn-danger" id="delSubmit">Удалить</button>
+          <button type="button" class="btn-outline" id="delCancel">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

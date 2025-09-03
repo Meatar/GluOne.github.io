@@ -1,4 +1,7 @@
-import { authMe, authLogout, authDevices, authRevokeDevice } from './api.js';
+import {
+  authMe, authLogout, authDevices, authRevokeDevice,
+  authChangePassword, authDeleteAccount
+} from './api.js';
 import { KEYS, load, del } from './storage.js';
 
 (() => {
@@ -33,6 +36,23 @@ import { KEYS, load, del } from './storage.js';
   const meDevicesEmpty   = el('meDevicesEmpty');
   const meDevicesList    = el('meDevices');
 
+  // ---- modal refs
+  const modalChangePass = el('modalChangePass');
+  const cpForm   = el('cpForm');
+  const cpOld    = el('cpOld');
+  const cpNew    = el('cpNew');
+  const cpMsg    = el('cpMsg');
+  const cpCancel = el('cpCancel');
+  const cpSubmit = el('cpSubmit');
+
+  const modalDelete = el('modalDelete');
+  const delForm   = el('delForm');
+  const delUser   = el('delUser');
+  const delPass   = el('delPass');
+  const delMsg    = el('delMsg');
+  const delCancel = el('delCancel');
+  const delSubmit = el('delSubmit');
+
   // ===== helpers
   const maskEmail = (em) => (em && typeof em === 'string') ? em : '—';
   const ageFrom = (dateStr) => {
@@ -50,12 +70,16 @@ import { KEYS, load, del } from './storage.js';
   const mapGender = (g) => ({ male:'Мужской', female:'Женский' })[g] || '—';
   const mapDia    = (t) => ({ type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный' })[t] || '—';
 
+  let currentUsername = null;
+
   // ===== profile
   async function loadMe(){
     meMsg.textContent = 'Загружаем профиль…';
     const { ok, status, data } = await authMe(token.access_token);
 
     if (ok) {
+      currentUsername = data?.username || data?.email || null;
+
       meUsername.textContent = data?.username || 'Без имени';
       meEmail.textContent    = data?.email ? maskEmail(data.email) : '—';
       meAvatar.textContent   = (data?.username || data?.email || 'U').trim()[0].toUpperCase();
@@ -72,7 +96,6 @@ import { KEYS, load, del } from './storage.js';
         meRoles.appendChild(chipEl);
       });
 
-      // Premium
       mePremium.hidden = !data?.is_premium;
       mePremiumNote.hidden = false;
       if (data?.is_premium){
@@ -151,7 +174,6 @@ import { KEYS, load, del } from './storage.js';
     const item  = document.createElement('section');
     item.className = 'device-item';
 
-    // header
     const head  = document.createElement('div');
     head.className = 'device-head';
 
@@ -185,10 +207,8 @@ import { KEYS, load, del } from './storage.js';
     head.appendChild(title);
     head.appendChild(right);
 
-    // attrs
     const attrs = document.createElement('dl');
     attrs.className = 'device-attrs';
-
     [
       ...attrRow('ОС', dev?.os),
       ...attrRow('Сборка', dev?.app_build),
@@ -234,7 +254,6 @@ import { KEYS, load, del } from './storage.js';
         return;
       }
 
-      // текущие — сверху, затем по активности
       arr.sort((a, b) => {
         if (a.current && !b.current) return -1;
         if (!a.current && b.current) return 1;
@@ -248,6 +267,145 @@ import { KEYS, load, del } from './storage.js';
       meDevicesEmpty.textContent = 'Ошибка сети при загрузке устройств.';
       console.error('Devices load error:', e);
     }
+  }
+
+  // ===== модалки
+  function openModal(modal){
+    modal.hidden = false; modal.setAttribute('aria-hidden','false');
+    const focusable = modal.querySelector('input,button,select,textarea,[href]');
+    if (focusable) focusable.focus();
+    // закрытие по фону
+    const close = (e) => {
+      if (e.target.classList.contains('modal-backdrop')) hide();
+    };
+    const hide = () => {
+      modal.hidden = true; modal.setAttribute('aria-hidden','true');
+      modal.removeEventListener('click', close);
+      document.removeEventListener('keydown', esc);
+    };
+    const esc = (e) => { if (e.key === 'Escape') hide(); };
+    modal.addEventListener('click', close);
+    document.addEventListener('keydown', esc);
+    return hide;
+  }
+
+  // ===== смена пароля
+  function setupChangePassword(){
+    const btn = el('changePassBtn');
+    if (!btn) return;
+
+    let closeModal = null;
+
+    btn.addEventListener('click', () => {
+      cpForm.reset();
+      cpMsg.textContent = '';
+      closeModal = openModal(modalChangePass);
+    });
+
+    cpCancel.addEventListener('click', () => closeModal && closeModal());
+
+    cpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      cpMsg.textContent = '';
+
+      const old_password = (cpOld.value || '').trim();
+      const new_password = (cpNew.value || '').trim();
+      if (!old_password || !new_password) {
+        cpMsg.textContent = 'Заполните оба поля.';
+        return;
+      }
+
+      cpSubmit.disabled = true;
+      cpSubmit.textContent = 'Сохраняем…';
+      try {
+        const res = await authChangePassword(currentUsername, old_password, new_password);
+        if (res.status === 204) {
+          cpMsg.textContent = 'Пароль успешно изменён.';
+          setTimeout(() => { closeModal && closeModal(); }, 800);
+        } else if (res.status === 401) {
+          cpMsg.textContent = 'Неверный старый пароль или учётные данные.';
+        } else if (res.status === 403) {
+          cpMsg.textContent = 'Пользователь неактивен.';
+        } else if (res.status === 422) {
+          const msg = Array.isArray(res.data?.detail)
+            ? res.data.detail.map(e => e?.msg).filter(Boolean).join('; ')
+            : 'Проверьте корректность полей.';
+          cpMsg.textContent = msg;
+        } else if (res.status === 429) {
+          cpMsg.textContent = 'Слишком много попыток. Попробуйте позже.';
+        } else {
+          cpMsg.textContent = `Ошибка: ${res.status}`;
+        }
+      } catch (err) {
+        cpMsg.textContent = 'Ошибка сети. Повторите попытку.';
+        console.error('change-password error', err);
+      } finally {
+        cpSubmit.disabled = false;
+        cpSubmit.textContent = 'Изменить';
+      }
+    });
+  }
+
+  // ===== удаление аккаунта
+  function setupDeleteAccount(){
+    const btn = el('deleteAccountBtn');
+    if (!btn) return;
+
+    let closeModal = null;
+
+    btn.addEventListener('click', () => {
+      delForm.reset();
+      delMsg.textContent = '';
+      delUser.value = currentUsername || '';
+      closeModal = openModal(modalDelete);
+    });
+
+    delCancel.addEventListener('click', () => closeModal && closeModal());
+
+    delForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      delMsg.textContent = '';
+
+      const username = (delUser.value || '').trim();
+      const password = (delPass.value || '').trim();
+      if (!username || !password) {
+        delMsg.textContent = 'Укажите логин и пароль.';
+        return;
+      }
+
+      delSubmit.disabled = true;
+      delSubmit.textContent = 'Удаляем…';
+      try {
+        const res = await authDeleteAccount(username, password);
+        if (res.status === 204) {
+          // подчистим локальное состояние
+          try {
+            del(KEYS.TOKEN); del(KEYS.STATE); del(KEYS.CHALLENGE); del(KEYS.RESEND_UNTIL);
+          } catch {}
+          window.location.href = '/';
+          return;
+        } else if (res.status === 401) {
+          delMsg.textContent = 'Неверный логин или пароль.';
+        } else if (res.status === 403) {
+          delMsg.textContent = 'Пользователь неактивен.';
+        } else if (res.status === 422) {
+          const msg = Array.isArray(res.data?.detail)
+            ? res.data.detail.map(e => e?.msg).filter(Boolean).join('; ')
+            : 'Проверьте корректность полей.';
+          delMsg.textContent = msg;
+        } else if (res.status === 429) {
+          delMsg.textContent = 'Слишком много попыток. Попробуйте позже.';
+        } else {
+          delMsg.textContent = `Ошибка: ${res.status}`;
+        }
+      } catch (err) {
+        delMsg.textContent = 'Ошибка сети. Повторите попытку.';
+        console.error('delete-account error', err);
+      } finally {
+        delSubmit.disabled = false;
+        delSubmit.textContent = 'Удалить';
+      }
+    });
   }
 
   // ===== logout
@@ -281,5 +439,7 @@ import { KEYS, load, del } from './storage.js';
   // init
   loadMe();
   try { loadDevices(); } catch (e) { console.error('loadDevices() failed:', e); }
+  setupChangePassword();
+  setupDeleteAccount();
   setupLogout();
 })();

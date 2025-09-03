@@ -69,27 +69,18 @@
 
 /* Actions */
 .me-actions{
-  display:flex; gap:12px; margin-top:14px;
+  display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;
 }
 .me-actions .btn-outline,
-.me-actions .btn-hero{ flex:1; min-width:0; }
+.me-actions .btn-hero,
+.me-actions .btn-danger{ flex:1; min-width:180px; }
 
 /* ===== Devices ===== */
-.devices-card{
-  padding: clamp(16px, 2vw, 24px);
-}
-.devices-head{
-  display:flex; align-items:baseline; gap:12px; margin-bottom:8px;
-}
-.devices-title{
-  font-size:20px;
-}
-.devices-empty{
-  color:#64748b; font-size:14px; padding:8px 0;
-}
-.devices-list{
-  display:flex; flex-direction:column;
-}
+.devices-card{ padding: clamp(16px, 2vw, 24px); }
+.devices-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:8px; }
+.devices-title{ font-size:20px; }
+.devices-empty{ color:#64748b; font-size:14px; padding:8px 0; }
+.devices-list{ display:flex; flex-direction:column; }
 
 /* один элемент списка устройств */
 .device-item{
@@ -102,14 +93,10 @@
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   margin-bottom:6px;
 }
-.device-title{
-  font-weight:700; color:var(--ink);
-}
+.device-title{ font-weight:700; color:var(--ink); }
 
 /* справа — бейджи + кнопка */
-.device-right{
-  display:flex; align-items:center; gap:10px; margin-left:auto;
-}
+.device-right{ display:flex; align-items:center; gap:10px; margin-left:auto; }
 .device-badges{ display:flex; gap:8px; flex-wrap:wrap; }
 .device-badges .chip{
   padding:4px 8px; font-size:12px; border-radius:9999px;
@@ -133,24 +120,60 @@
   align-items:start;
   font-size:14px;
 }
-.device-attrs dt{
-  color:#64748b;
-}
-.device-attrs dd{
-  margin:0;
-  color:var(--ink);
-  overflow-wrap:anywhere;
-}
+.device-attrs dt{ color:#64748b; }
+.device-attrs dd{ margin:0; color:var(--ink); overflow-wrap:anywhere; }
 
 /* компактней на мобильных */
 @media (max-width: 520px){
-  .device-attrs{
-    grid-template-columns: 1fr;
-  }
-  .device-attrs dt{
-    font-size:12px; opacity:.8;
-  }
-  .device-right{
-    gap:8px;
-  }
+  .device-attrs{ grid-template-columns: 1fr; }
+  .device-attrs dt{ font-size:12px; opacity:.8; }
+  .device-right{ gap:8px; }
+}
+
+/* ===== Кнопка опасного действия ===== */
+.btn-danger{
+  appearance:none;
+  border:1px solid color-mix(in oklab, #ef4444 60%, var(--divider));
+  background: color-mix(in oklab, #fee2e2 70%, transparent);
+  color:#991b1b;
+  font-weight:700;
+  border-radius:12px;
+  padding:10px 14px;
+  cursor:pointer;
+}
+.btn-danger:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* ===== Модалки ===== */
+.modal[hidden]{ display:none !important; }
+.modal{
+  position:fixed; inset:0; z-index:60; display:grid; place-items:center;
+}
+.modal-backdrop{
+  position:absolute; inset:0; background:color-mix(in oklab, #000 30%, transparent);
+  backdrop-filter: blur(2px);
+}
+.modal-card{
+  position:relative; z-index:1;
+  width:min(100%, 420px);
+  background: var(--surface, #fff);
+  color: var(--ink);
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius:16px;
+  padding:16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+.modal-title{ margin:0 0 8px; font:700 18px/1.2 Inter, system-ui, sans-serif; }
+.modal-form{ display:grid; gap:10px; }
+.form-field{ display:grid; gap:6px; }
+.form-field input{
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius:12px; padding:10px 12px; font: 500 14px/1.2 Inter, system-ui, sans-serif;
+  background: color-mix(in oklab, var(--divider) 7%, transparent);
+}
+.modal-actions{ display:flex; gap:10px; margin-top:6px; }
+.danger-note{
+  padding:10px 12px; border-radius:12px; margin:0 0 8px;
+  background: color-mix(in oklab, #fee2e2 60%, transparent);
+  border:1px solid color-mix(in oklab, #ef4444 50%, var(--divider));
+  color:#7f1d1d;
 }

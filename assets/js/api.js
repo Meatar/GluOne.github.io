@@ -142,3 +142,39 @@ export function authRevokeDevice(accessToken, deviceId) {
     body: JSON.stringify({ device_id: deviceId })
   });
 }
+
+/**
+ * Смена пароля (WEB)
+ * POST /auth/web/change-password
+ * Возвращает:
+ *  - 204 No Content — пароль сменён
+ *  - 401 Unauthorized — неверные учётные данные
+ *  - 403 Forbidden — пользователь неактивен
+ *  - 422 Unprocessable Entity — не прошла валидация
+ *  - 429 Too Many Requests — лимит запросов
+ */
+export function authChangePassword(username, old_password, new_password) {
+  return request('/auth/web/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ username, old_password, new_password })
+  });
+}
+
+/**
+ * Полное удаление аккаунта (WEB)
+ * POST /auth/web/delete
+ * Возвращает:
+ *  - 204 No Content — аккаунт удалён
+ *  - 401 Unauthorized — неверные учётные данные
+ *  - 403 Forbidden — пользователь неактивен
+ *  - 422 Unprocessable Entity — не прошла валидация
+ *  - 429 Too Many Requests — лимит запросов
+ */
+export function authDeleteAccount(username, password) {
+  return request('/auth/web/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ username, password })
+  });
+}
