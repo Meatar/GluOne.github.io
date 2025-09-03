@@ -310,3 +310,45 @@ body{
   border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
 }
 .note svg{ flex:0 0 auto; opacity:.9; }
+
+/* Карточка подтверждения — чуть выше и «воздушнее» */
+.auth-card--confirm{
+  padding: clamp(24px, 2.6vw, 36px);
+  min-height: 460px;                 /* растянули по высоте */
+  display: grid;
+  align-content: start;
+  row-gap: 8px;                      /* дополнительный вертикальный зазор */
+}
+
+/* Иконка письма — чуть дальше от верха */
+.circle-icon{ margin: 4px auto 14px; }
+
+/* Сетка под 4 ячейки */
+.otp-grid{ display:grid; gap:12px; width:100%; margin-inline:auto; }
+.otp-grid--4{
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 280px;                  /* гарантированно помещается в карточку */
+}
+
+/* Компактные, но читабельные инпуты */
+.otp-input{
+  height: 48px;
+  border-radius: 12px;
+  border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+  background: var(--bg);
+  text-align:center;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--ink);
+  transition:border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.otp-input:focus{
+  outline:none;
+  border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  background: var(--card);
+}
+
+/* Инфоблок — чуть просторнее на confirm */
+.note--confirm{ padding: 14px 16px; }
