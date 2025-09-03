@@ -52,8 +52,27 @@
   color: color-mix(in oklab, var(--ink) 85%, transparent);
 }
 
+/* ===== Actions (кнопки «Выйти» и «На главную») ===== */
 .me-actions{
   display:flex;
-  justify-content:flex-end;
+  gap:12px;
   margin-top:14px;
+}
+
+/* одинаковая ширина двух кнопок внутри блока действий */
+.me-actions .btn-outline,
+.me-actions .btn-hero{
+  flex:1;                 /* одинаковая ширина */
+  min-width: 0;           /* не раздвигать из-за длинного текста */
+}
+
+/* на узких экранах — в столбик */
+@media (max-width: 420px){
+  .me-actions{
+    flex-direction: column;
+  }
+  .me-actions .btn-outline,
+  .me-actions .btn-hero{
+    width: 100%;
+  }
 }

@@ -99,19 +99,40 @@ body{
 /* ===== Buttons: hero / primary / store ===== */
 .hero-buttons{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
 
-.btn-hero{
-  height:40px; padding:0 20px; border-radius:9999px;
+/* БАЗОВОЕ ВЫРАВНИВАНИЕ КНОПОК: одинаковые размеры и типографика */
+.btn-hero,
+.btn-outline {
+  height:40px;
+  padding:0 20px;       /* одинаковый горизонтальный отступ */
+  font-size:15px;       /* согласованный размер шрифта */
+  border-radius:9999px;
   display:inline-flex; align-items:center; justify-content:center;
-  font-weight:700; font-size:16px; line-height:1;
+  font-weight:700; line-height:1;
+  text-decoration:none;
+}
+
+/* Заливка (герой-кнопка) */
+.btn-hero{
   background: var(--ink); color:#fff;
   box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
   transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
-  text-decoration: none;
 }
 .btn-hero:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter: saturate(110%); }
 .btn-hero:active{ transform:translateY(0); }
 .btn-hero:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
 
+/* Кнопка-обводка */
+.btn-outline{
+  background: transparent;
+  border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
+  color: var(--ink);
+  gap:8px; cursor:pointer;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.btn-outline:hover{ transform:translateY(-1px); background: color-mix(in oklab, var(--divider) 12%, transparent); }
+.btn-outline:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 55%, transparent); }
+
+/* Кнопка стора — картинка ровно 40px высотой */
 .store-btn{ display:inline-block; height:40px; line-height:0; }
 .store-btn img, .store-btn svg{ display:block; height:40px; width:auto; }
 
@@ -294,16 +315,3 @@ body{
   transform: translateY(2px);
   border-color: color-mix(in oklab, var(--divider) 95%, transparent);
 }
-
-/* Кнопка-обводка (используем в кабинете для «Выйти») */
-.btn-outline{
-  height:40px; padding:0 16px; border-radius:9999px;
-  background: transparent;
-  border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
-  color: var(--ink);
-  font-weight:700; display:inline-flex; align-items:center; justify-content:center;
-  gap:8px; cursor:pointer; text-decoration:none;
-  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-}
-.btn-outline:hover{ transform:translateY(-1px); background: color-mix(in oklab, var(--divider) 12%, transparent); }
-.btn-outline:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 55%, transparent); }
