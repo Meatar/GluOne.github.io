@@ -75,14 +75,14 @@ import { KEYS, load, del } from './storage.js';
       // ---- Premium info (всегда показываем строку)
       mePremium.hidden = !data?.is_premium;
       mePremiumNote.hidden = false;
-      if (data?.is_premium){
-        const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
-        mePremiumNote.textContent = exp
-          ? `Подписка Premium активна до ${exp.toLocaleString('ru-RU',{year:'numeric',month:'long',day:'numeric'})}.`
-          : 'Подписка Premium активна.';
-      } else {
-        mePremiumNote.textContent = 'Premium не оплачен';
-      }
+        if (data?.is_premium){
+          const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
+          mePremiumNote.textContent = exp
+            ? `Premium до ${exp.toLocaleString('ru-RU',{year:'numeric',month:'long',day:'numeric'})}`
+            : 'Premium активен';
+        } else {
+          mePremiumNote.textContent = 'Premium не оплачен';
+        }
 
       meMsg.textContent = '';
       return;
