@@ -28,7 +28,11 @@
   }
 }
 
-body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+body{
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
 
 /* ===== Header (sticky, glassy) ===== */
 .site-header{
@@ -62,10 +66,12 @@ body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
   mix-blend-mode: overlay;
 }
 
+/* ===== Hero cards/images ===== */
 .hero-card{
   border-radius: 24px;
   box-shadow: var(--shadow-sm), var(--shadow-lg);
-  overflow: hidden; background: var(--card);
+  overflow: hidden;
+  background: var(--card);
   border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
   transition: box-shadow .25s ease, transform .25s ease;
 }
@@ -86,8 +92,9 @@ body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
 
 .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
 
-/* ===== Buttons: 40px uniform ===== */
+/* ===== Buttons: hero / primary / store ===== */
 .hero-buttons{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+
 .btn-hero{
   height:40px; padding:0 20px; border-radius:9999px;
   display:inline-flex; align-items:center; justify-content:center;
@@ -103,7 +110,7 @@ body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
 .store-btn{ display:inline-block; height:40px; line-height:0; }
 .store-btn img, .store-btn svg{ display:block; height:40px; width:auto; }
 
-/* Emoji chips */
+/* ===== Emoji chips ===== */
 .emo{
   inline-size:40px; block-size:40px; border-radius:9999px;
   background: rgba(241,245,249,.8);
@@ -115,19 +122,22 @@ body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
   .emo{ background: rgba(30,41,59,.8); }
 }
 
-/* Title accent */
+/* ===== Title accent ===== */
 .gradient-accent{
   background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-/* Tabs */
+/* ===== Tabs ===== */
 .feature-tab{
   transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
 }
 .feature-tab:hover{ transform: translateY(-1px); }
 .feature-tab:focus-visible{
-  outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent);
+  outline:none;
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent);
 }
 .feature-panel{
   opacity:0; transform: translateY(6px);
@@ -135,7 +145,7 @@ body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
 }
 .feature-panel[aria-hidden="false"]{ opacity:1; transform:none; }
 
-/* Feature cards */
+/* ===== Feature cards ===== */
 .feature-card{
   transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
   border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
@@ -146,111 +156,79 @@ body{ font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif
   border-color: color-mix(in oklab, var(--divider) 90%, transparent);
 }
 
-/* Motion reduce */
+/* ===== Motion reduce ===== */
 @media (prefers-reduced-motion: reduce){
   *{ animation:none !important; transition:none !important; }
 }
 
-/* ===== Auth form ===== */
-.form-card{
-  background: var(--card);
-  border-color: color-mix(in oklab, var(--divider) 70%, transparent);
-  box-shadow: var(--shadow-sm), var(--shadow-lg);
+/* ===== Auth layout ===== */
+.page-auth{
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 4vw, 40px);
+  background: var(--bg);
 }
+.container-sm{ width: min(100%, 28rem); margin-inline: auto; }
 
-.input-group{ position: relative; }
+.auth-card{ padding: clamp(20px, 2vw, 32px); }
+.auth-title{ font: 800 24px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing:-0.01em; color: var(--ink); margin:0; }
+.auth-sub{ margin:6px 0 0; color:#64748b; font-size:14px; }
+.logo-brand{ width:40px; height:40px; border-radius:12px; display:block; margin:0 auto 12px; }
 
-.input{
-  width: 100%;
-  height: 44px; /* близко к 40px, но с удобным кликом и фокусом */
-  border-radius: 12px;
-  border: 1px solid color-mix(in oklab, var(--divider) 75%, transparent);
-  background: color-mix(in oklab, var(--bg) 96%, transparent);
-  padding: 0 14px;
-  font-size: 16px;
-  color: var(--ink);
-  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
-}
-.input::placeholder{ color: color-mix(in oklab, var(--ink) 45%, transparent); }
-
-.input:focus{
-  outline: none;
-  border-color: color-mix(in oklab, var(--ring) 50%, var(--divider));
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
-  background: var(--card);
-}
-
-.input-icon{
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  height: 32px; min-width: 36px;
-  display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  font-size: 16px; line-height: 1;
-  transition: background-color .18s ease, border-color .18s ease, transform .18s ease;
-}
-.input-icon:hover{ background: color-mix(in oklab, var(--divider) 18%, transparent); }
-.input-icon:active{ transform: translateY(1px); }
-.input-icon:focus-visible{
-  outline: none;
-  border-color: color-mix(in oklab, var(--ring) 50%, var(--divider));
-}
-
-/* === Form primitives (общие для сайта) =============================== */
-.card {
+/* ===== Form primitives (общие) ===== */
+.card{
   background: var(--card);
   border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
   border-radius: 16px;
   box-shadow: var(--shadow-sm), var(--shadow-lg);
 }
 
-.field {
-  width: 100%;
-  height: 48px;
-  border-radius: 12px;
-  border: 1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+.input-wrap{ position: relative; }
+
+.field{
+  width:100%; height:48px; border-radius:12px;
+  border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
   background: var(--bg);
-  padding: 0 12px;
-  font-size: 16px; /* предотвращает зум на iOS */
-  color: var(--ink);
-  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+  padding:0 12px;
+  font-size:16px;
+  color:var(--ink);
+  transition:border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
 }
-.field::placeholder { color: color-mix(in oklab, var(--ink) 45%, transparent); }
-.field:focus {
-  outline: none;
+.field::placeholder{ color: color-mix(in oklab, var(--ink) 45%, transparent); }
+.field:focus{
+  outline:none;
   border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
   background: var(--card);
 }
 
-.input-wrap { position: relative; }
-.icon-btn {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  height: 34px; min-width: 36px; border-radius: 10px;
-  border: 1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+.icon-btn{
+  position:absolute; right:8px; top:50%; transform:translateY(-50%);
+  height:34px; min-width:36px; border-radius:10px;
+  border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
   background: var(--card);
-  display: inline-flex; align-items: center; justify-content: center;
+  display:inline-flex; align-items:center; justify-content:center;
 }
-.icon-btn:hover { background: color-mix(in oklab, var(--divider) 15%, transparent); }
-.icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent); }
+.icon-btn:hover{ background: color-mix(in oklab, var(--divider) 15%, transparent); }
+.icon-btn:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent); }
 
-/* Состояния для переключателя пароля */
-.icon-btn .i { display: none; }
-.icon-btn[data-state="hidden"]  .i-eye     { display: inline; }  /* пароль скрыт */
-.icon-btn[data-state="visible"] .i-eye-off { display: inline; }  /* пароль показан */
+.icon-btn .i{ display:none; }
+.icon-btn[data-state="hidden"]  .i-eye{ display:inline; }     /* пароль скрыт */
+.icon-btn[data-state="visible"] .i-eye-off{ display:inline; } /* пароль показан */
 
-.form-hint { color: #64748b; }     /* slate-500 */
-.form-error { color: #e11d48; }    /* rose-600 */
+.form-hint{ color:#64748b; font-size:14px; }
+.form-error{ color:#e11d48; font-size:14px; }
 
-.btn-primary {
-  height: 48px;
-  border-radius: 9999px;
+.btn-primary{
+  height:48px;
+  border-radius:9999px;
   background: var(--ink);
-  color: #fff;
-  font-weight: 700;
-  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
+  color:#fff;
+  font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:100%;
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
 }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(2,6,23,.12); filter: saturate(110%); }
-.btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+.btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
+.btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
