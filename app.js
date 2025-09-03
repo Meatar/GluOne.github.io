@@ -198,98 +198,172 @@
   const resendTimerEl = document.getElementById('resendTimer');
   const confirmBtn = document.getElementById('confirmBtn');
 
-  // Читаем контекст из sessionStorage
+  // ---- Контекст шага (берём из auth_web/login)
   let challenge = {};
   try { challenge = JSON.parse(sessionStorage.getItem('auth_challenge') || '{}'); } catch(_) {}
+  const challengeId = challenge?.challenge_id || null;
 
-  // Маскируем e-mail
+  // Маска e-mail
   const maskEmail = (em) => {
     if (!em || !em.includes('@')) return '***@***';
     const [u, d] = em.split('@');
-    const mu = u.length <= 2 ? u[0] + '*' : u.slice(0,2) + '****';
-    const md = d.length <= 2 ? '*' : d[0] + '****';
+    const mu = (u.length <= 2) ? (u[0] || '*') + '****' : u.slice(0,2) + '****';
+    const md = d ? d[0] + '****' : '****';
     return `${mu}@${md}…`;
   };
   if (challenge.email && masked) masked.textContent = maskEmail(challenge.email);
 
-  // «Код действует …» из expires_in (сек → минут, округление вверх)
+  // «Код действует …» из expires_in (сек → минут, ceil, min=1)
   const minutes = Math.max(1, Math.ceil((Number(challenge.expires_in) || 600) / 60));
   if (validT) validT.textContent = `${minutes} минут`;
 
-  // Вспомогалки
-  const setError = (text) => { codeE.textContent = text || ''; codeE.hidden = !text; };
-  const clearMsg = () => { msg.textContent = ''; msg.style.color = ''; };
+  // ---- UX helpers
+  const setError = (t) => { codeE.textContent = t || ''; codeE.hidden = !t; };
+  const setMsg   = (t, color='') => { msg.textContent = t || ''; msg.style.color = color; };
 
-  // Автопереход между ячейками + фильтр только цифры
-  inputs.forEach((el, idx) => {
-    el.addEventListener('input', (e) => {
+  // Инпуты: цифры, автофокус, paste 4 цифры, автосабмит при заполнении всех
+  inputs.forEach((el, i) => {
+    el.addEventListener('input', () => {
       el.value = el.value.replace(/\D/g, '').slice(0,1);
-      if (el.value && idx < inputs.length - 1) inputs[idx + 1].focus();
-      setError('');
-      clearMsg();
+      if (el.value && i < inputs.length - 1) inputs[i + 1].focus();
+      setError(''); setMsg('');
+      if (inputs.every(x => x.value && /^\d$/.test(x.value))) {
+        // все 4 введены — сабмитим форму
+        confirmBtn.click();
+      }
     });
     el.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !el.value && idx > 0) inputs[idx - 1].focus();
+      if (e.key === 'Backspace' && !el.value && i > 0) inputs[i - 1].focus();
     });
     el.addEventListener('paste', (e) => {
       const text = (e.clipboardData || window.clipboardData).getData('text') || '';
       if (!text) return;
       e.preventDefault();
       const digits = text.replace(/\D/g, '').slice(0, inputs.length).split('');
-      inputs.forEach((inp, i) => { inp.value = digits[i] || ''; });
+      inputs.forEach((inp, idx) => { inp.value = digits[idx] || ''; });
       (digits.length >= inputs.length ? confirmBtn : inputs[digits.length] || el).focus();
     });
   });
+  inputs[0]?.focus();
 
-  // 45-секундный таймер для «Отправить повторно»
-  const RESEND_COOLDOWN = 45; // сек
-  let resendLeft = RESEND_COOLDOWN;
-  let resendTimerId = null;
+  // ---- Кулдаун повторной отправки (45с) с сохранением
+  const RESEND_COOLDOWN_S = 45;
+  let   timerId = null;
 
-  function formatMMSS(s){
-    const m = Math.floor(s/60).toString().padStart(2,'0');
-    const sec = (s%60).toString().padStart(2,'0');
-    return `${m}:${sec}`;
-  }
-  function startResendTimer(){
+  const loadCooldownLeft = () => {
+    const until = Number(sessionStorage.getItem('resend_until_ts') || 0);
+    const left = Math.ceil((until - Date.now()) / 1000);
+    return Math.max(0, left);
+  };
+  const saveCooldown = (seconds) => {
+    const untilTs = Date.now() + seconds * 1000;
+    sessionStorage.setItem('resend_until_ts', String(untilTs));
+  };
+  const fmtMMSS = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+  function startCooldown(seconds){
+    clearInterval(timerId);
+    saveCooldown(seconds);
     resendBtn.disabled = true;
-    resendLeft = RESEND_COOLDOWN;
-    resendTimerEl.textContent = formatMMSS(resendLeft);
-    clearInterval(resendTimerId);
-    resendTimerId = setInterval(() => {
-      resendLeft -= 1;
-      resendTimerEl.textContent = formatMMSS(Math.max(0, resendLeft));
-      if (resendLeft <= 0){
-        clearInterval(resendTimerId);
+    let left = seconds;
+    resendTimerEl.textContent = fmtMMSS(left);
+    timerId = setInterval(() => {
+      left -= 1;
+      const l = Math.max(0, left);
+      resendTimerEl.textContent = fmtMMSS(l);
+      if (l <= 0) {
+        clearInterval(timerId);
         resendBtn.disabled = false;
         resendBtn.title = 'Отправить код ещё раз';
+        sessionStorage.removeItem('resend_until_ts');
       }
     }, 1000);
   }
-  startResendTimer();
 
-  // Сабмит подтверждения (логика API добавим позже по необходимости)
-  form.addEventListener('submit', (e) => {
+  // Инициализация кулдауна (если была перезагрузка)
+  const left0 = loadCooldownLeft();
+  if (left0 > 0) startCooldown(left0);
+  else { resendBtn.disabled = false; resendTimerEl.textContent = fmtMMSS(0); }
+
+  // ---- Повторная отправка: реальный вызов API
+  resendBtn.addEventListener('click', async () => {
+    if (resendBtn.disabled) return;
+    if (!challengeId) { setMsg('Нет идентификатора сессии подтверждения. Вернитесь на шаг входа.', '#e11d48'); return; }
+
+    resendBtn.disabled = true;
+    setMsg('Отправляем новый код…');
+
+    try {
+      const res = await fetch('https://api.gluone.ru/auth/web/login/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+        body: JSON.stringify({ challenge_id: challengeId })
+      });
+
+      if (res.status === 204) {
+        setMsg('Новый код отправлен. Проверьте почту.', '#059669');
+        startCooldown(RESEND_COOLDOWN_S);
+      } else if (res.status === 422) {
+        let data = null; try { data = await res.json(); } catch(_){}
+        const dmsg = data?.detail?.[0]?.msg || 'Некорректные данные запроса.';
+        setMsg('Не удалось отправить код: ' + dmsg, '#e11d48');
+        // даём попробовать ещё раз сразу
+        resendBtn.disabled = false;
+      } else {
+        setMsg('Ошибка отправки кода: ' + res.status, '#e11d48');
+        resendBtn.disabled = false;
+      }
+    } catch (e) {
+      setMsg('Сеть недоступна. Попробуйте позже.', '#e11d48');
+      resendBtn.disabled = false;
+    }
+  });
+
+  // ---- Проверка кода
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const code = inputs.map(i => i.value).join('');
-    if (code.length !== inputs.length){
-      setError('Введите полный код из письма.');
-      return;
+    if (code.length !== inputs.length){ setError('Введите полный код из письма.'); return; }
+    if (!challengeId){ setMsg('Сессия подтверждения не найдена. Вернитесь на шаг входа.', '#e11d48'); return; }
+
+    setMsg('Проверяем код…');
+
+    try {
+      const res = await fetch('https://api.gluone.ru/auth/web/login/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'include', // важен для HttpOnly cookie
+        body: JSON.stringify({ challenge_id: challengeId, code })
+      });
+
+      if (res.status === 200){
+        let data = null; try { data = await res.json(); } catch(_){}
+        // data: { access_token, token_type, is_premium, premium_expires_dt } — токен может дублироваться в cookie
+        try {
+          sessionStorage.setItem('auth_state', JSON.stringify({
+            is_premium: !!data?.is_premium,
+            premium_expires_dt: data?.premium_expires_dt || null,
+            ts: Date.now()
+          }));
+        } catch(_){}
+
+        setMsg('Готово! Входим…', '#059669');
+        // редирект на next или на главную/кабинет
+        const params = new URLSearchParams(location.search);
+        const next = params.get('next') || '/';
+        window.location.href = next;
+      }
+      else if (res.status === 422){
+        let data = null; try { data = await res.json(); } catch(_){}
+        const dmsg = data?.detail?.[0]?.msg || 'Некорректный код.';
+        setMsg(dmsg, '#e11d48');
+      }
+      else{
+        setMsg('Не удалось подтвердить код: ' + res.status, '#e11d48');
+      }
+    } catch (err) {
+      setMsg('Сеть недоступна. Попробуйте ещё раз.', '#e11d48');
+      console.error(err);
     }
-    // Здесь будет вызов /auth/web/login/verify
-    msg.textContent = 'Проверяем код…';
-    msg.style.color = '';
   });
-
-  // Клик «Отправить повторно» — только визуальный хук и перезапуск таймера
-  resendBtn.addEventListener('click', () => {
-    if (resendBtn.disabled) return;
-    // Здесь будет вызов /auth/web/login/resend
-    msg.textContent = 'Новый код отправлен. Проверьте почту.';
-    msg.style.color = '#059669';
-    startResendTimer();
-  });
-
-  // Фокус на первую ячейку
-  inputs[0]?.focus();
 })();
