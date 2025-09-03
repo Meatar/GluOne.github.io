@@ -9,22 +9,20 @@
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#0f172a" />
 
-  <!-- Favicons — как на главной -->
   <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
   <link rel="mask-icon" href="assets/logo-symbol.svg" color="#0f172a">
 
-  <!-- Общие стили и скрипты -->
   <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
 </head>
 <body>
   <main class="page-auth">
     <section class="container-sm">
       <div class="card auth-card">
         <div style="text-align:center;">
-          <!-- круглая пиктограмма письма -->
           <div class="circle-icon" aria-hidden="true">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
@@ -38,8 +36,7 @@
           </p>
         </div>
 
-        <form id="confirmForm" novalidate style="margin-top:24px;">
-          <!-- OTP поля -->
+        <form id="confirmForm" novalidate style="margin-top:20px;">
           <div class="otp-grid" aria-label="Поля ввода кода из письма">
             <input class="otp-input" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Первая цифра" />
             <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Вторая цифра" />
@@ -50,30 +47,31 @@
           </div>
           <p id="codeError" class="form-error" hidden style="margin-top:8px;"></p>
 
-          <button id="confirmBtn" type="submit" class="btn-primary" style="margin-top:20px;">
+          <button id="confirmBtn" type="submit" class="btn-primary" style="margin-top:16px;">
             Подтвердить
           </button>
 
-          <div class="resend-wrap" style="margin-top:14px; text-align:center;">
+          <div class="resend-wrap" style="margin-top:12px; text-align:center;">
             <span class="form-hint">Не получили код?</span>
             <button id="resendBtn" type="button" class="link-btn" disabled title="Повторная отправка временно недоступна">
               Отправить повторно
             </button>
             <div class="form-hint" style="margin-top:4px;">
-              Повторная отправка доступна через <span id="resendTimer">00:41</span>
+              Повторная отправка доступна через <span id="resendTimer">00:45</span>
             </div>
           </div>
 
-          <!-- инфоблок -->
-          <div class="note" role="note" style="margin-top:18px;">
+          <div class="note" role="note" style="margin-top:16px;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
               <path d="M12 8h.01M11 12h2v5h-2z" stroke="currentColor" stroke-width="2" />
             </svg>
-            <div>Код действует в течение <b>10 минут</b>. Если письмо не пришло, проверьте папку «Спам» или правильность адреса.</div>
+            <div>
+              Код действует в течение <b id="validityText">10 минут</b>. Если письмо не пришло,
+              проверьте папку «Спам» или правильность адреса.
+            </div>
           </div>
 
-          <!-- служебные подсказки/сообщения -->
           <p id="confirmMsg" class="form-hint" style="margin-top:10px;"></p>
         </form>
       </div>

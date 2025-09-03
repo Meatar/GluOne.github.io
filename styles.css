@@ -265,19 +265,23 @@ body{
   box-shadow: var(--shadow-sm);
 }
 
+/* компактная сетка — чтобы всё гарантированно помещалось в карточку */
 .otp-grid{
   display:grid;
   grid-template-columns: repeat(6, 1fr);
-  gap:12px;
+  gap:10px;
+  max-width: 360px;       /* ключ: ограничиваем общую ширину */
+  margin-inline:auto;     /* центрируем */
+  width:100%;
 }
 
 .otp-input{
-  height:52px;
+  height:46px;            /* компактнее */
   border-radius:12px;
   border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
   background: var(--bg);
   text-align:center;
-  font-size:24px;
+  font-size:20px;         /* компактнее */
   font-weight:700;
   letter-spacing: .02em;
   color:var(--ink);
