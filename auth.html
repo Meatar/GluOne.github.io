@@ -34,32 +34,42 @@
           <!-- ЛОГИН -->
           <label for="login" style="display:block; font-weight:600; color:var(--ink-2); font-size:14px;">Логин</label>
           <div class="input-wrap" style="margin-top:8px;">
-            <input id="login" name="login" type="text" inputmode="latin" autocomplete="username"
-                   placeholder="Введите логин" class="field" required />
+            <input id="login" name="login" type="text"
+                   autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                   placeholder="Введите логин"
+                   class="field"
+                   required minlength="3" maxlength="30"
+                   pattern="^[A-Za-z0-9._-]{3,30}$"
+                   aria-describedby="loginHint loginError" />
           </div>
-          <p class="form-hint" style="margin-top:6px;">Логин от 3 до 30 символов, только латиница, цифры, . _ -</p>
+          <p id="loginHint" class="form-hint" style="margin-top:6px;">Логин от 3 до 30 символов, только латиница, цифры, . _ -</p>
           <p id="loginError" class="form-error" hidden style="margin-top:6px;"></p>
 
           <!-- ПАРОЛЬ -->
           <label for="password" style="display:block; font-weight:600; color:var(--ink-2); font-size:14px; margin-top:16px;">Пароль</label>
           <div class="input-wrap" style="margin-top:8px;">
-              <input id="password" name="password" type="password" autocomplete="current-password"
-                     placeholder="Введите пароль" class="field field--with-icon" required />
+            <input id="password" name="password" type="password"
+                   autocomplete="current-password"
+                   placeholder="Введите пароль"
+                   class="field field--with-icon"
+                   required minlength="12" maxlength="72"
+                   pattern="^(?=.{12,72}$)(?!.*\s)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s])[\x21-\x7E]+$"
+                   aria-describedby="passwordHint passwordError" />
             <button type="button" id="togglePass" class="icon-btn" aria-label="Показать пароль" title="Показать пароль" data-state="hidden">
               <!-- глаз -->
-              <svg class="i i-eye" width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg class="i i-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
               </svg>
               <!-- перечёркнутый глаз -->
-              <svg class="i i-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <svg class="i i-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M2 12s3.5-7 10-7c2.2 0 4 .6 5.6 1.5M22 12s-3.5 7-10 7c-2.2 0-4-.6-5.6-1.5" stroke="currentColor" stroke-width="2"/>
                 <path d="M3 3l18 18" stroke="currentColor" stroke-width="2"/>
                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
               </svg>
             </button>
           </div>
-          <p class="form-hint" style="margin-top:6px;">Пароль от 12 символов, без пробелов, содержит буквы разного регистра, цифры и спецсимвол</p>
+          <p id="passwordHint" class="form-hint" style="margin-top:6px;">Пароль от 12 символов, без пробелов, содержит буквы разного регистра, цифры и спецсимвол</p>
           <p id="passwordError" class="form-error" hidden style="margin-top:6px;"></p>
 
           <div style="display:flex; justify-content:flex-end; margin-top:8px;">
