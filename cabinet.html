@@ -22,66 +22,64 @@
 </head>
 <body>
   <main class="page-auth">
-    <section class="container-sm">
-      <div class="card auth-card" id="meCard" aria-busy="true">
-        <!-- Header -->
-        <div class="me-head">
-          <div class="me-avatar" id="meAvatar" aria-hidden="true">U</div>
-          <div class="me-titles">
-            <h1 class="auth-title" id="meUsername">Загрузка…</h1>
-            <div class="me-email" id="meEmail">…</div>
-          </div>
-          <div class="me-badge" id="mePremium" hidden>Premium</div>
-        </div>
-
-        <!-- Profile fields -->
-        <div class="me-body">
-          <div class="me-row">
-            <span class="me-label">Статус</span>
-            <span class="me-value" id="meActive">—</span>
-          </div>
-          <div class="me-row">
-            <span class="me-label">Роль</span>
-            <div class="me-chips" id="meRoles"></div>
-          </div>
-          <div class="me-row">
-            <span class="me-label">Пол</span>
-            <span class="me-value" id="meGender">—</span>
-          </div>
-          <div class="me-row">
-            <span class="me-label">Дата рождения</span>
-            <span class="me-value" id="meBirth">—</span>
-          </div>
-          <div class="me-row">
-            <span class="me-label">Тип диабета</span>
-            <span class="me-value" id="meDiabetes">—</span>
+    <section class="container-lg">
+      <div class="cards-grid">
+        <!-- === Профиль === -->
+        <article class="card auth-card" id="meCard" aria-busy="true">
+          <div class="me-head">
+            <div class="me-avatar" id="meAvatar" aria-hidden="true">U</div>
+            <div class="me-titles">
+              <h1 class="auth-title" id="meUsername">Загрузка…</h1>
+              <div class="me-email" id="meEmail">…</div>
+            </div>
+            <div class="me-badge" id="mePremium" hidden>Premium</div>
           </div>
 
-          <div class="me-note" id="mePremiumNote" hidden></div>
-          <p id="meMsg" class="form-hint" style="margin-top:8px;"></p>
-        </div>
+          <div class="me-body">
+            <div class="me-row">
+              <span class="me-label">Статус</span>
+              <span class="me-value" id="meActive">—</span>
+            </div>
+            <div class="me-row">
+              <span class="me-label">Роль</span>
+              <div class="me-chips" id="meRoles"></div>
+            </div>
+            <div class="me-row">
+              <span class="me-label">Пол</span>
+              <span class="me-value" id="meGender">—</span>
+            </div>
+            <div class="me-row">
+              <span class="me-label">Дата рождения</span>
+              <span class="me-value" id="meBirth">—</span>
+            </div>
+            <div class="me-row">
+              <span class="me-label">Тип диабета</span>
+              <span class="me-value" id="meDiabetes">—</span>
+            </div>
 
-        <!-- Devices section -->
-        <div id="meDevicesSection" hidden>
-          <h2 class="auth-title" style="font-size:18px; margin:14px 0 6px;">Устройства</h2>
+            <div class="me-note" id="mePremiumNote" hidden></div>
+            <p id="meMsg" class="form-hint" style="margin-top:8px;"></p>
+          </div>
 
-          <!-- спиннер/статус -->
-          <p id="meDevicesStatus" class="form-hint" style="margin:6px 0;" hidden>Загрузка устройств…</p>
+          <div class="me-actions">
+            <button id="logoutBtn" type="button" class="btn-outline">Выйти</button>
+            <a class="btn-hero" href="/">На главную</a>
+          </div>
+        </article>
 
-          <!-- пустое состояние -->
-          <div id="meDevicesEmpty" class="form-hint" style="margin:6px 0;" hidden>
+        <!-- === Устройства === -->
+        <article class="card devices-card" id="meDevicesSection" hidden>
+          <header class="devices-head">
+            <h2 class="auth-title devices-title">Устройства</h2>
+            <p id="meDevicesStatus" class="form-hint" hidden>Загрузка устройств…</p>
+          </header>
+
+          <div id="meDevicesEmpty" class="devices-empty" hidden>
             Пока нет данных об устройствах.
           </div>
 
-          <!-- список устройств -->
-          <div id="meDevices" role="list" aria-live="polite"></div>
-        </div>
-
-        <!-- Actions -->
-        <div class="me-actions">
-          <button id="logoutBtn" type="button" class="btn-outline">Выйти</button>
-          <a class="btn-hero" href="/">На главную</a>
-        </div>
+          <div id="meDevices" class="devices-list" role="list" aria-live="polite"></div>
+        </article>
       </div>
     </section>
   </main>
