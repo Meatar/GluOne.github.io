@@ -253,3 +253,56 @@ body{
 }
 .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
 .btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+
+/* ===== Confirm (OTP) ===== */
+.circle-icon{
+  width:56px; height:56px; margin:0 auto 12px;
+  display:grid; place-items:center;
+  color:#6366f1;
+  background: color-mix(in oklab, var(--divider) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.otp-grid{
+  display:grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap:12px;
+}
+
+.otp-input{
+  height:52px;
+  border-radius:12px;
+  border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+  background: var(--bg);
+  text-align:center;
+  font-size:24px;
+  font-weight:700;
+  letter-spacing: .02em;
+  color:var(--ink);
+  transition:border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.otp-input:focus{
+  outline:none;
+  border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  background: var(--card);
+}
+
+/* ссылка-кнопка для «Отправить повторно» */
+.link-btn{
+  margin-left:8px;
+  background:none; border:0; padding:0;
+  color:#6366f1; font: inherit; cursor:pointer;
+}
+.link-btn[disabled]{ opacity:.45; cursor: default; }
+
+.note{
+  display:flex; gap:10px; align-items:flex-start;
+  padding:12px 14px; border-radius:12px;
+  background: color-mix(in oklab, #60a5fa 10%, transparent);
+  color: color-mix(in oklab, var(--ink) 85%, transparent);
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+}
+.note svg{ flex:0 0 auto; opacity:.9; }

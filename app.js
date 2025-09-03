@@ -81,6 +81,19 @@
   loginI.addEventListener('input', () => clearError(loginI, loginE));
   passI .addEventListener('input', () => clearError(passI,  passE));
 
+  // Небольшой helper для таймаута fetch (чтобы UI не «висел» бесконечно)
+  async function fetchWithTimeout(resource, options = {}) {
+    const { timeout = 15000, ...rest } = options;
+    const ctrl = new AbortController();
+    const id = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const res = await fetch(resource, { ...rest, signal: ctrl.signal });
+      return res;
+    } finally {
+      clearTimeout(id);
+    }
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -93,27 +106,85 @@
     if (!passI.checkValidity())  { showError(passI,  passE,  explainPass(passI));   invalid = true; }
     if (invalid) return;
 
-    const payload = { login: loginI.value.trim(), password: passI.value };
+    // ⚠️ Бэкенд ожидает поля username, а не login
+    const payload = { username: loginI.value.trim(), password: passI.value };
 
     submit.disabled = true; submit.style.opacity = .7;
     try {
-      // Пример интеграции с бэкендом:
-      // const res = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(payload)
-      // });
-      // if (!res.ok) throw new Error(res.status === 401 ? 'Неверный логин или пароль' : 'Ошибка авторизации');
-      // const data = await res.json();
+      const res = await fetchWithTimeout('https://api.gluone.ru/auth/web/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+        timeout: 15000
+      });
 
-      // Заглушка успеха
-      await new Promise(r => setTimeout(r, 500));
-      formMsg.textContent = 'Успешный вход. Перенаправляем…';
-      formMsg.style.color = '#059669';
-      // window.location.href = (new URLSearchParams(location.search)).get('next') || '/';
+      // Разбираем ответы согласно спецификации
+      if (res.status === 200) {
+        let data = {};
+        try { data = await res.json(); } catch(_) {}
+        // data: { challenge_id, expires_in, email }
+        // Сохраняем challenge для второго шага
+        try {
+          sessionStorage.setItem('auth_challenge', JSON.stringify({
+            challenge_id: data?.challenge_id ?? null,
+            email: data?.email ?? null,
+            expires_in: data?.expires_in ?? null,
+            ts: Date.now()
+          }));
+        } catch(_) {}
+
+        formMsg.textContent = data?.email
+          ? `Код отправлен на ${data.email}. Введите его для подтверждения.`
+          : 'Код подтверждения отправлен. Проверьте почту.';
+
+        formMsg.style.color = '#059669';
+
+        // Если есть страница подтверждения — переходим
+        // (попробуем мягко: сначала HEAD-запрос; если нельзя — просто редиректнемся)
+        const next = '/confirm.html';
+        try {
+          fetch(next, { method: 'HEAD' }).then(r => {
+            if (r.ok) window.location.href = next;
+          }).catch(() => { /* молча игнорируем */ });
+        } catch(_) {}
+      }
+      else if (res.status === 400) {
+        formMsg.textContent = 'У вашего аккаунта не указан e-mail. Невозможно отправить код.';
+        formMsg.style.color = '#e11d48';
+      }
+      else if (res.status === 401) {
+        formMsg.textContent = 'Неверный логин или пароль.';
+        formMsg.style.color = '#e11d48';
+      }
+      else if (res.status === 403) {
+        formMsg.textContent = 'Аккаунт заблокирован или неактивен.';
+        formMsg.style.color = '#e11d48';
+      }
+      else if (res.status === 429) {
+        formMsg.textContent = 'Слишком много попыток. Попробуйте позже.';
+        formMsg.style.color = '#e11d48';
+      }
+      else if (res.status === 500) {
+        formMsg.textContent = 'Ошибка при отправке письма. Попробуйте позже.';
+        formMsg.style.color = '#e11d48';
+      }
+      else if (res.status === 422) {
+        let err;
+        try { err = await res.json(); } catch(_) {}
+        const msg = (err && err.detail && err.detail[0] && err.detail[0].msg) ? err.detail[0].msg : 'Проверьте введённые данные.';
+        formMsg.textContent = 'Некорректные данные: ' + msg;
+        formMsg.style.color = '#e11d48';
+      }
+      else {
+        formMsg.textContent = 'Неизвестная ошибка: ' + res.status;
+        formMsg.style.color = '#e11d48';
+      }
     } catch (err) {
-      formMsg.textContent = err.message || 'Не удалось войти. Повторите попытку.';
+      formMsg.textContent = (err?.name === 'AbortError')
+        ? 'Истекло время ожидания ответа сервера.'
+        : 'Не удалось соединиться с сервером. Повторите попытку.';
       formMsg.style.color = '#e11d48';
+      console.error(err);
     } finally {
       submit.disabled = false; submit.style.opacity = 1;
     }
