@@ -257,3 +257,53 @@ body{
 }
 .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
 .btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+
+/* Общая util, т.к. Tailwind тут нет */
+.hidden{ display:none !important; }
+
+/* Пилюли-переключатели в секции с контентом главной */
+.feature-tab{
+  appearance:none; border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 7%, transparent);
+  color: var(--ink);
+  padding: 10px 14px; border-radius: 9999px;
+  font-weight: 700; font-size: 14px; line-height:1;
+  cursor: pointer; user-select: none;
+  transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.feature-tab:hover{
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--divider) 90%, transparent);
+}
+.feature-tab.is-active,
+.feature-tab[aria-selected="true"]{
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+/* Карточки фич-листа — видимая рамка всегда + усиление на hover */
+.feature-card{
+  border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
+  border-radius: 14px;
+  background: var(--card);
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+}
+.feature-card:hover{
+  box-shadow: var(--shadow-sm);
+  transform: translateY(2px);
+  border-color: color-mix(in oklab, var(--divider) 95%, transparent);
+}
+
+/* Кнопка-обводка (используем в кабинете для «Выйти») */
+.btn-outline{
+  height:40px; padding:0 16px; border-radius:9999px;
+  background: transparent;
+  border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
+  color: var(--ink);
+  font-weight:700; display:inline-flex; align-items:center; justify-content:center;
+  gap:8px; cursor:pointer; text-decoration:none;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.btn-outline:hover{ transform:translateY(-1px); background: color-mix(in oklab, var(--divider) 12%, transparent); }
+.btn-outline:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 55%, transparent); }

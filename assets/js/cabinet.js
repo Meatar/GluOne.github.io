@@ -1,22 +1,22 @@
-import { authMe } from './api.js';
-import { KEYS, load } from './storage.js';
+import { authMe, authLogout } from './api.js';
+import { KEYS, load, del } from './storage.js';
 
 (() => {
   const card = document.getElementById('meCard');
   if (!card) return;
 
   const el = (id) => document.getElementById(id);
-  const meUsername = el('meUsername');
-  const meEmail    = el('meEmail');
-  const meAvatar   = el('meAvatar');
-  const mePremium  = el('mePremium');
+  const meUsername    = el('meUsername');
+  const meEmail       = el('meEmail');
+  const meAvatar      = el('meAvatar');
+  const mePremium     = el('mePremium');
   const mePremiumNote = el('mePremiumNote');
-  const meActive   = el('meActive');
-  const meRoles    = el('meRoles');
-  const meGender   = el('meGender');
-  const meBirth    = el('meBirth');
-  const meDiabetes = el('meDiabetes');
-  const meMsg      = el('meMsg');
+  const meActive      = el('meActive');
+  const meRoles       = el('meRoles');
+  const meGender      = el('meGender');
+  const meBirth       = el('meBirth');
+  const meDiabetes    = el('meDiabetes');
+  const meMsg         = el('meMsg');
 
   const token = load(KEYS.TOKEN, null);
   if (!token?.access_token) {
@@ -24,6 +24,7 @@ import { KEYS, load } from './storage.js';
     return;
   }
 
+  // ===== helpers
   const maskEmail = (em) => {
     if (!em || !em.includes('@')) return '***@***';
     const [u, d] = em.split('@');
@@ -41,17 +42,13 @@ import { KEYS, load } from './storage.js';
     if (m < 0 || (m === 0 && n.getUTCDate() < d.getUTCDate())) age--;
     return age;
   };
-  const fmtDate = (iso) => {
-    if (!iso) return '—';
-    try { return new Date(iso).toLocaleString('ru-RU', {year:'numeric', month:'long', day:'numeric'}); }
-    catch { return iso; }
-  };
-  const mapGender = (g) => ({male:'Мужской', female:'Женский'})[g] || '—';
-  const mapDia    = (t) => ({type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный'})[t] || '—';
+  const fmtDate   = (iso) => { try { return new Date(iso).toLocaleString('ru-RU', {year:'numeric', month:'long', day:'numeric'}); } catch { return iso || '—'; } };
+  const mapGender = (g) => ({ male:'Мужской', female:'Женский' })[g] || '—';
+  const mapDia    = (t) => ({ type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный' })[t] || '—';
 
+  // ===== load profile
   async function loadMe(){
     meMsg.textContent = 'Загружаем профиль…';
-
     const { ok, status, data } = await authMe(token.access_token);
 
     if (ok) {
@@ -94,5 +91,38 @@ import { KEYS, load } from './storage.js';
     }
   }
 
+  // ===== logout
+  function setupLogout(){
+    const btn = document.getElementById('logoutBtn');
+    if (!btn) return;
+
+    // Если csrf_token доступен в невидимом cookie (не HttpOnly), прочитаем
+    function getCookie(name){
+      const m = document.cookie.match(new RegExp('(^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1') + '=([^;]*)'));
+      return m ? decodeURIComponent(m[2]) : null;
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      try {
+        const csrf = getCookie('csrf_token'); // может быть null
+        await authLogout(csrf);               // сервер сам читает refresh/csrf из cookie
+      } catch(_) { /* игнорируем — выходим локально */ }
+
+      // чистим состояние на фронте
+      try {
+        del(KEYS.TOKEN);
+        del(KEYS.STATE);
+        del(KEYS.CHALLENGE);
+        del(KEYS.RESEND_UNTIL);
+      } catch {}
+
+      window.location.href = '/auth.html';
+    });
+  }
+
+  // init
   loadMe();
+  setupLogout();
 })();
+

@@ -51,3 +51,24 @@ export function authMe(accessToken) {
     }
   });
 }
+
+export async function authLogout(csrfToken) {
+  const headers = { 'Accept': '*/*' };
+  if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+  const ctrl = new AbortController();
+  const tId = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const res = await fetch(`${API}/auth/web/logout`, {
+      method: 'POST',
+      headers,
+      credentials: 'include',   // <-- важно, чтобы ушли refresh_token / csrf_token
+      signal: ctrl.signal
+    });
+    const isJson = res.headers.get('content-type')?.includes('application/json');
+    const data = isJson ? await res.json().catch(() => null) : null;
+    return { ok: res.ok, status: res.status, data };
+  } finally {
+    clearTimeout(tId);
+  }
+}
