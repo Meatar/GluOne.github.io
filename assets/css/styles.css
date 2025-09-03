@@ -99,21 +99,33 @@ body{
 /* ===== Buttons: hero / primary / store ===== */
 .hero-buttons{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
 
-/* БАЗОВОЕ ВЫРАВНИВАНИЕ КНОПОК: одинаковые размеры и типографика */
+/* Сброс нативного вида и устойчивое поведение на iOS */
+button, .btn-hero, .btn-outline {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* БАЗОВОЕ ВЫРАВНИВАНИЕ КНОПОК: одинаковые размеры и типографика
+   (используем display:flex + min-height — надёжнее в мобильном Safari) */
 .btn-hero,
 .btn-outline {
-  height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;          /* минимальный tap-target */
+  min-height:44px;
   padding:0 20px;       /* одинаковый горизонтальный отступ */
   font-size:15px;       /* согласованный размер шрифта */
   border-radius:9999px;
-  display:inline-flex; align-items:center; justify-content:center;
-  font-weight:700; line-height:1;
+  font-weight:700;
+  line-height:1;
   text-decoration:none;
 }
 
 /* Заливка (герой-кнопка) */
 .btn-hero{
-  background: var(--ink); color:#fff;
+  background: var(--ink);
+  color:#fff;
   box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
   transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
 }
@@ -126,11 +138,17 @@ body{
   background: transparent;
   border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
   color: var(--ink);
-  gap:8px; cursor:pointer;
+  gap:8px;
+  cursor:pointer;
   transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 .btn-outline:hover{ transform:translateY(-1px); background: color-mix(in oklab, var(--divider) 12%, transparent); }
 .btn-outline:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 55%, transparent); }
+
+/* Точечный фикс для WebKit (по желанию — чуть больше высота на iOS) */
+@supports (-webkit-touch-callout: none) {
+  .btn-hero, .btn-outline { height:48px; min-height:48px; }
+}
 
 /* Кнопка стора — картинка ровно 40px высотой */
 .store-btn{ display:inline-block; height:40px; line-height:0; }
@@ -210,7 +228,7 @@ body{
 
 .auth-title{ font: 800 24px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing:-0.01em; color: var(--ink); margin:0; }
 .auth-sub{ margin:6px 0 0; color:#64748b; font-size:14px; }
-.logo-brand{ width:40px; height:40px; border-radius:12px; display:block; margin:0 auto 12px; }
+.logo-brand{ width:40px; height:40px; border-radius:12px; display:block; margin:0 авто 12px; }
 
 /* ===== Form primitives ===== */
 .input-wrap{ position: relative; max-width: 100%; }

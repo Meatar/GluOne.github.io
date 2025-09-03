@@ -62,17 +62,13 @@
 /* одинаковая ширина двух кнопок внутри блока действий */
 .me-actions .btn-outline,
 .me-actions .btn-hero{
-  flex:1;                 /* одинаковая ширина */
-  min-width: 0;           /* не раздвигать из-за длинного текста */
+  flex:1;         /* одинаковая ширина */
+  min-width:0;
 }
 
 /* на узких экранах — в столбик */
-@media (max-width: 420px){
-  .me-actions{
-    flex-direction: column;
-  }
+@media (max-width:420px){
+  .me-actions{ flex-direction:column; }
   .me-actions .btn-outline,
-  .me-actions .btn-hero{
-    width: 100%;
-  }
+  .me-actions .btn-hero{ width:100%; }
 }
