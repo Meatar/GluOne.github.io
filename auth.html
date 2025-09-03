@@ -5,33 +5,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GluOne — вход</title>
 
-  <meta name="description" content="Авторизация в личном кабинете GluOne">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+  <meta name="description" content="Авторизация в личном кабинете GluOne" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0f172a" />
 
-  <!-- Tailwind (как и на главной) -->
+  <!-- Favicons — как на главной -->
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
+  <link rel="mask-icon" href="assets/logo-symbol.svg" color="#0f172a">
+
+  <!-- Tailwind (для верстки) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Твои общие стили -->
-  <link rel="stylesheet" href="styles.css">
+
+  <!-- Локальные штрихи: карточка, поля, переключатель пароля -->
   <style>
-    /* Небольшие локальные штрихи под форму */
-    .card {
-      background: var(--card, #ffffff);
-      border: 1px solid color-mix(in oklab, var(--divider, #e5e7eb) 70%, transparent);
+    /* Карточка */
+    .auth-card{
+      background: var(--card, #fff);
+      border: 1px solid color-mix(in oklab, var(--divider,#e5e7eb) 70%, transparent);
+      border-radius: 16px;
       box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.05)), var(--shadow-lg, 0 10px 30px rgba(2,6,23,.06));
     }
-    .field { height: 48px; border-radius: 12px; }
-    .field:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring,#6366f1) 35%, transparent); border-color: color-mix(in oklab, var(--ring,#6366f1) 50%, var(--divider,#e5e7eb)); }
-    .eye-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); height:34px; min-width:36px; border-radius:10px; }
-    .eye-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring,#6366f1) 35%, transparent); }
-    .btn-primary { height:48px; border-radius:9999px; }
+    /* Поле */
+    .field{
+      height: 48px;
+      border-radius: 12px;
+      border: 1px solid color-mix(in oklab, var(--divider,#e5e7eb) 80%, transparent);
+      background: var(--bg, #fff);
+      width: 100%;
+      padding: 0 12px;
+      font-size: 16px; /* отключает зум на iOS */
+      color: var(--ink, #0f172a);
+      transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+    }
+    .field::placeholder{ color: color-mix(in oklab, var(--ink,#0f172a) 45%, transparent); }
+    .field:focus{
+      outline: none;
+      border-color: color-mix(in oklab, var(--ring,#6366f1) 55%, var(--divider,#e5e7eb));
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring,#6366f1) 35%, transparent);
+      background: var(--card, #fff);
+    }
+    /* Кнопка-глаз */
+    .eye-btn{
+      position:absolute; right:8px; top:50%; transform:translateY(-50%);
+      height:34px; min-width:36px; border-radius:10px;
+      border:1px solid color-mix(in oklab, var(--divider,#e5e7eb) 80%, transparent);
+      background: #fff; display:inline-flex; align-items:center; justify-content:center;
+    }
+    .eye-btn:hover{ background: color-mix(in oklab, var(--divider,#e5e7eb) 15%, transparent); }
+    .eye-btn:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring,#6366f1) 35%, transparent); }
+    /* Иконки состояния */
+    .eye-btn .i{ display:none; }
+    .eye-btn[data-state="hidden"]  .i-eye{ display:inline; }   /* пароль скрыт */
+    .eye-btn[data-state="visible"] .i-eye-off{ display:inline; } /* пароль показан */
   </style>
 </head>
 <body class="bg-white text-slate-900 antialiased">
   <main class="min-h-screen grid place-items-center px-4 py-10">
     <section class="w-full max-w-md">
-      <div class="card rounded-2xl p-6 sm:p-8">
+      <div class="auth-card p-6 sm:p-8">
         <div class="flex flex-col items-center text-center">
           <img src="assets/logo.png" alt="GluOne" class="h-10 w-10 rounded-xl mb-3">
           <h1 class="text-2xl font-extrabold tracking-tight">Вход</h1>
@@ -49,7 +83,7 @@
               inputmode="latin"
               autocomplete="username"
               placeholder="Например, alex_kiselev"
-              class="field w-full px-3 border text-[16px] bg-white"
+              class="field"
               required minlength="3" maxlength="64"
               pattern="^[A-Za-z0-9._-]+$"
               title="Только латинские буквы, цифры, точки, дефисы и подчёркивания">
@@ -65,11 +99,27 @@
               type="password"
               autocomplete="current-password"
               placeholder="Ваш пароль"
-              class="field w-full pr-12 px-3 border text-[16px] bg-white"
+              class="field pr-12"
               required minlength="8" maxlength="72"
               pattern="^[\x21-\x7E]+$"
               title="Минимум 8 символов, только английские символы, без пробелов">
-            <button type="button" id="togglePass" class="eye-btn px-2 border hover:bg-slate-50" aria-label="Показать пароль">👁️</button>
+            <button
+              type="button" id="togglePass"
+              aria-label="Показать пароль" title="Показать пароль"
+              class="eye-btn"
+              data-state="hidden">
+              <!-- глаз -->
+              <svg class="i i-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <!-- перечёркнутый глаз -->
+              <svg class="i i-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7c2.2 0 4 .6 5.6 1.5M22 12s-3.5 7-10 7c-2.2 0-4-.6-5.6-1.5" stroke="currentColor" stroke-width="2"/>
+                <path d="M3 3l18 18" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
           </div>
           <p id="passwordError" class="mt-1 text-sm text-rose-600 hidden"></p>
 
@@ -77,7 +127,12 @@
             <a href="/forgot" class="text-sm text-indigo-600 hover:underline">Забыли пароль?</a>
           </div>
 
-          <button id="submitBtn" type="submit" class="btn-hero btn-primary w-full mt-5">Войти</button>
+          <button id="submitBtn" type="submit"
+                  class="w-full mt-5 inline-flex justify-center items-center h-12 rounded-full
+                         bg-slate-900 text-white font-semibold hover:bg-slate-800
+                         transition focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300">
+            Войти
+          </button>
 
           <p id="formMsg" class="mt-4 text-sm"></p>
         </form>
@@ -86,60 +141,64 @@
   </main>
 
   <script>
-    // Показ/скрытие пароля
+    // Переключатель видимости пароля
     const pass   = document.getElementById('password');
     const toggle = document.getElementById('togglePass');
+
+    // старт: пароль скрыт
+    pass.type = 'password';
+    toggle.dataset.state = 'hidden';
+    toggle.setAttribute('aria-label', 'Показать пароль');
+    toggle.setAttribute('title', 'Показать пароль');
+
     toggle.addEventListener('click', () => {
-      const isPw = pass.type === 'password';
-      pass.type = isPw ? 'text' : 'password';
-      toggle.setAttribute('aria-label', isPw ? 'Скрыть пароль' : 'Показать пароль');
+      const nowHidden = pass.type === 'password';
+      pass.type = nowHidden ? 'text' : 'password';
+      toggle.dataset.state = nowHidden ? 'visible' : 'hidden';
+      toggle.setAttribute('aria-label', nowHidden ? 'Скрыть пароль' : 'Показать пароль');
+      toggle.setAttribute('title',      nowHidden ? 'Скрыть пароль' : 'Показать пароль');
     });
 
-    // Простая клиентская валидация с подсветкой ошибок
+    // Простая клиентская валидация с подсветкой
     const form   = document.getElementById('authForm');
     const btn    = document.getElementById('submitBtn');
     const msg    = document.getElementById('formMsg');
+    const loginI = document.getElementById('login');
+    const passI  = document.getElementById('password');
     const loginE = document.getElementById('loginError');
     const passE  = document.getElementById('passwordError');
 
-    function showError(el, errEl){
+    const showError = (el, errEl) => {
       errEl.textContent = el.validationMessage || 'Проверьте корректность поля.';
       errEl.classList.remove('hidden');
-      el.setAttribute('aria-invalid','true');
-    }
-    function clearError(el, errEl){
+      el.setAttribute('aria-invalid', 'true');
+    };
+    const clearError = (el, errEl) => {
       errEl.textContent = '';
       errEl.classList.add('hidden');
       el.removeAttribute('aria-invalid');
-    }
+    };
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.textContent = ''; msg.className = 'mt-4 text-sm';
 
-      // Сброс ошибок
-      clearError(login, loginE);
-      clearError(password, passE);
+      clearError(loginI, loginE);
+      clearError(passI,  passE);
 
-      // Проверка нативных правил
-      if(!login.checkValidity()){ showError(login, loginE); return; }
-      if(!password.checkValidity()){ showError(password, passE); return; }
+      if(!loginI.checkValidity()){ showError(loginI, loginE); return; }
+      if(!passI.checkValidity()){  showError(passI,  passE);  return; }
 
-      // Готовим данные
-      const payload = {
-        login: login.value.trim(),
-        password: password.value
-      };
+      const payload = { login: loginI.value.trim(), password: passI.value };
 
-      // Сабмит
       btn.disabled = true; btn.style.opacity = .7;
       try {
-        // Вставь свой реальный эндпоинт:
+        // Вставь реальный API:
         // const res = await fetch('/api/auth/login', {
         //   method:'POST', headers:{'Content-Type':'application/json'},
         //   body: JSON.stringify(payload)
         // });
-        // if(!res.ok) throw new Error('Неверный логин или пароль');
+        // if(!res.ok) throw new Error(res.status === 401 ? 'Неверный логин или пароль' : 'Ошибка авторизации');
         // const data = await res.json();
 
         // Заглушка успеха:
