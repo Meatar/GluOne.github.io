@@ -1,0 +1,70 @@
+/* ===== OTP: фиксированные квадраты и центрирование ===== */
+:root{
+  --otp-size: 56px;
+  --otp-gap: 12px;
+}
+@media (max-width: 380px){
+  :root{ --otp-size: 48px; --otp-gap: 10px; }
+}
+
+/* карточка повыше и с «воздухом» */
+.auth-card--confirm{
+  padding: clamp(24px, 2.6vw, 36px);
+  min-height: 460px;
+  display: grid;
+  align-content: start;
+  row-gap: 8px;
+}
+
+.circle-icon{
+  width:56px; height:56px; margin:4px auto 14px;
+  display:grid; place-items:center;
+  color:#6366f1;
+  background: color-mix(in oklab, var(--divider) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+
+.otp-grid{
+  display: grid;
+  justify-content: center;
+  gap: var(--otp-gap);
+  width: 100%;
+  margin-inline: auto;
+}
+.otp-grid--4{
+  grid-template-columns: repeat(4, var(--otp-size));
+}
+
+.otp-input{
+  width: var(--otp-size);
+  height: var(--otp-size);
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+  background: var(--bg);
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+  -webkit-appearance: none; appearance: none;
+}
+.otp-input:focus{
+  outline: none;
+  border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  background: var(--card);
+}
+
+/* ссылка-кнопка */
+.link-btn{
+  margin-left:8px;
+  background:none; border:0; padding:0;
+  color:#6366f1; font: inherit; cursor:pointer;
+}
+.link-btn[disabled]{ opacity:.45; cursor: default; }
+
+.note--confirm{ padding: 14px 16px; }
