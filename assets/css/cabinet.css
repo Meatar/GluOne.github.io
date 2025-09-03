@@ -13,7 +13,12 @@
   background: linear-gradient(135deg, #6366f1, #06b6d4);
   box-shadow: var(--shadow-sm);
 }
-.me-titles .me-email{ color:#64748b; font-size:14px; margin-top:4px; }
+.me-titles .me-email{
+  color:#64748b;
+  font-size:14px;
+  margin-top:4px;
+  overflow-wrap:anywhere; /* перенос длинных e-mail */
+}
 
 .me-badge{
   padding:6px 10px; border-radius:9999px;
@@ -25,7 +30,8 @@
 .me-body{ padding-top:6px; }
 .me-row{
   display:flex; justify-content:space-between; align-items:center;
-  padding:10px 0; border-bottom:1px dashed color-mix(in oklab, var(--divider) 70%, transparent);
+  padding:10px 0;
+  border-bottom:1px dashed color-mix(in oklab, var(--divider) 70%, transparent);
 }
 .me-row:last-child{ border-bottom:0; }
 .me-label{ color:#64748b; font-size:14px; }
@@ -46,4 +52,8 @@
   color: color-mix(in oklab, var(--ink) 85%, transparent);
 }
 
-.me-actions{ display:flex; justify-content:flex-end; margin-top:14px; }
+.me-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:14px;
+}
