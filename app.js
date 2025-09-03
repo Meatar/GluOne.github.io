@@ -317,21 +317,31 @@
       const res = await fetch('https://api.gluone.ru/auth/web/login/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        credentials: 'include', // получаем HttpOnly cookie
+        credentials: 'include',
         body: JSON.stringify({ challenge_id: challengeId, code })
       });
 
       if (res.status === 200){
         let data = null; try { data = await res.json(); } catch(_){}
         // { access_token, token_type, is_premium, premium_expires_at }
-        // ВАЖНО: access_token НЕ сохраняем в JS-хранилища
+        // Сохраняем токен ТОЛЬКО в sessionStorage (на время вкладки)
         try {
+          if (data?.access_token) {
+            sessionStorage.setItem('auth_token', JSON.stringify({
+              access_token: data.access_token,
+              token_type: data.token_type || 'bearer',
+              received_at: Date.now()
+            }));
+          }
           sessionStorage.setItem('auth_state', JSON.stringify({
             is_premium: !!data?.is_premium,
             premium_expires_at: data?.premium_expires_at || null,
             ts: Date.now()
           }));
         } catch(_){}
+        // очищаем challenge
+        try { sessionStorage.removeItem('auth_challenge'); } catch(_){}
+
         setMsg('Готово! Входим…', '#059669');
         const params = new URLSearchParams(location.search);
         const next = params.get('next') || '/cabinet.html';
@@ -394,13 +404,30 @@
   const mapGender = (g) => ({male:'Мужской', female:'Женский'})[g] || '—';
   const mapDia    = (t) => ({type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный'})[t] || '—';
 
+  function getAuthHeader(){
+    try {
+      const raw = sessionStorage.getItem('auth_token');
+      if (!raw) return null;
+      const tok = JSON.parse(raw);
+      const scheme = (tok?.token_type || 'bearer').toString().toLowerCase() === 'bearer' ? 'Bearer' : (tok?.token_type || 'Bearer');
+      if (!tok?.access_token) return null;
+      return `${scheme} ${tok.access_token}`;
+    } catch { return null; }
+  }
+
   async function loadMe(){
+    const authHeader = getAuthHeader();
+    if (!authHeader){
+      // нет токена — уводим на вход
+      window.location.href = '/auth.html?next=%2Fcabinet.html';
+      return;
+    }
+
     meMsg.textContent = 'Загружаем профиль…';
     try {
       const res = await fetch('https://api.gluone.ru/auth/web/me', {
         method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include'
+        headers: { 'Accept': 'application/json', 'Authorization': authHeader }
       });
 
       if (res.status === 200){
@@ -440,7 +467,7 @@
         meMsg.textContent = '';
       }
       else if (res.status === 401){
-        // неавторизован — уводим на вход
+        // токен не подошёл/протух — уводим на вход
         window.location.href = '/auth.html?next=%2Fcabinet.html';
       }
       else {
