@@ -1,3 +1,4 @@
+// assets/js/cabinet.js
 import { authMe, authLogout } from './api.js';
 import { KEYS, load, del } from './storage.js';
 
@@ -18,13 +19,14 @@ import { KEYS, load, del } from './storage.js';
   const meDiabetes    = el('meDiabetes');
   const meMsg         = el('meMsg');
 
+  // ===== token/redirect
   const token = load(KEYS.TOKEN, null);
   if (!token?.access_token) {
     window.location.href = '/auth.html?next=%2Fcabinet.html';
     return;
   }
 
-  // ===== helpers (maskEmail удалён)
+  // ===== helpers
   const ageFrom = (dateStr) => {
     if (!dateStr) return null;
     const d = new Date(dateStr + 'T00:00:00Z');
@@ -39,23 +41,44 @@ import { KEYS, load, del } from './storage.js';
   const mapGender = (g) => ({ male:'Мужской', female:'Женский' })[g] || '—';
   const mapDia    = (t) => ({ type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный' })[t] || '—';
 
+  const setBusy = (v) => v ? card.setAttribute('aria-busy','true') : card.removeAttribute('aria-busy');
+
   // ===== load profile
   async function loadMe(){
+    setBusy(true);
     meMsg.textContent = 'Загружаем профиль…';
-    const { ok, status, data } = await authMe(token.access_token);
 
-    if (ok) {
-      meUsername.textContent = data?.username || 'Без имени';
+    try {
+      const { ok, status, data } = await authMe(token.access_token);
 
-      // Показываем полный e-mail
-      const email = data?.email || '—';
-      meEmail.textContent = email;
-      meEmail.title = email; // на случай, если где-то сработает усечение
+      if (!ok) {
+        // авторизация истекла — уходим на логин
+        if (status === 401 || status === 403) {
+          window.location.href = '/auth.html?next=%2Fcabinet.html';
+          return;
+        }
+        meMsg.textContent = 'Ошибка загрузки профиля: ' + (status ?? 'неизвестно');
+        console.error('[cabinet] authMe not ok', { status });
+        return;
+      }
 
-      meAvatar.textContent   = (data?.username || data?.email || 'U').trim()[0].toUpperCase();
+      // --- success
+      const username = (data?.username || '').trim();
+      const email    = (data?.email || '').trim();
+
+      meUsername.textContent = username || 'Без имени';
+
+      meEmail.textContent = email || '—';
+      meEmail.title = email || '';
+
+      const avatarSource = username || email || 'U';
+      meAvatar.textContent = (avatarSource.trim()[0] || 'U').toUpperCase();
+
       meActive.textContent   = data?.is_active ? 'Активен' : 'Неактивен';
       meGender.textContent   = mapGender(data?.gender);
-      meBirth.textContent    = data?.birth_date ? `${fmtDate(data.birth_date)}${ageFrom(data.birth_date) ? ` · ${ageFrom(data.birth_date)} лет` : ''}` : '—';
+      meBirth.textContent    = data?.birth_date
+        ? `${fmtDate(data.birth_date)}${ageFrom(data.birth_date) ? ` · ${ageFrom(data.birth_date)} лет` : ''}`
+        : '—';
       meDiabetes.textContent = mapDia(data?.diabetes_type);
 
       meRoles.innerHTML = '';
@@ -79,13 +102,11 @@ import { KEYS, load, del } from './storage.js';
       }
 
       meMsg.textContent = '';
-      return;
-    }
-
-    if (status === 401) {
-      window.location.href = '/auth.html?next=%2Fcabinet.html';
-    } else {
-      meMsg.textContent = 'Ошибка загрузки профиля: ' + status;
+    } catch (err) {
+      console.error('[cabinet] authMe error', err);
+      meMsg.textContent = 'Не удалось загрузить профиль. Проверьте соединение и попробуйте ещё раз.';
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -104,15 +125,12 @@ import { KEYS, load, del } from './storage.js';
       try {
         const csrf = getCookie('csrf_token');
         await authLogout(csrf);
-      } catch(_) { /* ignore */ }
-
+      } catch(err) {
+        console.warn('[cabinet] logout error (ignored)', err);
+      }
       try {
-        del(KEYS.TOKEN);
-        del(KEYS.STATE);
-        del(KEYS.CHALLENGE);
-        del(KEYS.RESEND_UNTIL);
+        del(KEYS.TOKEN); del(KEYS.STATE); del(KEYS.CHALLENGE); del(KEYS.RESEND_UNTIL);
       } catch {}
-
       window.location.href = '/auth.html';
     });
   }
