@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GluOne — личный кабинет</title>
+
+  <meta name="description" content="Личный кабинет пользователя GluOne" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
+  <link rel="mask-icon" href="assets/logo-symbol.svg" color="#0f172a">
+
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <main class="page-auth">
+    <section class="container-sm">
+      <div class="card auth-card" id="meCard" aria-busy="true">
+        <div class="me-head">
+          <div class="me-avatar" id="meAvatar" aria-hidden="true">U</div>
+          <div class="me-titles">
+            <h1 class="auth-title" id="meUsername">Загрузка…</h1>
+            <div class="me-email" id="meEmail">…</div>
+          </div>
+          <div class="me-badge" id="mePremium" hidden>Premium</div>
+        </div>
+
+        <div class="me-body">
+          <div class="me-row">
+            <span class="me-label">Статус</span>
+            <span class="me-value" id="meActive">—</span>
+          </div>
+          <div class="me-row">
+            <span class="me-label">Роль</span>
+            <div class="me-chips" id="meRoles"></div>
+          </div>
+          <div class="me-row">
+            <span class="me-label">Пол</span>
+            <span class="me-value" id="meGender">—</span>
+          </div>
+          <div class="me-row">
+            <span class="me-label">Дата рождения</span>
+            <span class="me-value" id="meBirth">—</span>
+          </div>
+          <div class="me-row">
+            <span class="me-label">Тип диабета</span>
+            <span class="me-value" id="meDiabetes">—</span>
+          </div>
+          <div class="me-note" id="mePremiumNote" hidden></div>
+          <p id="meMsg" class="form-hint" style="margin-top:8px;"></p>
+        </div>
+
+        <div class="me-actions">
+          <a class="btn-hero" href="/">На главную</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -198,7 +198,7 @@
   const resendTimerEl = document.getElementById('resendTimer');
   const confirmBtn = document.getElementById('confirmBtn');
 
-  // ---- Контекст шага (берём из auth_web/login)
+  // ---- Контекст шага
   let challenge = {};
   try { challenge = JSON.parse(sessionStorage.getItem('auth_challenge') || '{}'); } catch(_) {}
   const challengeId = challenge?.challenge_id || null;
@@ -213,7 +213,7 @@
   };
   if (challenge.email && masked) masked.textContent = maskEmail(challenge.email);
 
-  // «Код действует …» из expires_in (сек → минут, ceil, min=1)
+  // «Код действует …» из expires_in
   const minutes = Math.max(1, Math.ceil((Number(challenge.expires_in) || 600) / 60));
   if (validT) validT.textContent = `${minutes} минут`;
 
@@ -221,16 +221,14 @@
   const setError = (t) => { codeE.textContent = t || ''; codeE.hidden = !t; };
   const setMsg   = (t, color='') => { msg.textContent = t || ''; msg.style.color = color; };
 
-  // Инпуты: цифры, автофокус, paste 4 цифры, автосабмит при заполнении всех
+  // Инпуты
   inputs.forEach((el, i) => {
+    el.value = '';
     el.addEventListener('input', () => {
       el.value = el.value.replace(/\D/g, '').slice(0,1);
       if (el.value && i < inputs.length - 1) inputs[i + 1].focus();
       setError(''); setMsg('');
-      if (inputs.every(x => x.value && /^\d$/.test(x.value))) {
-        // все 4 введены — сабмитим форму
-        confirmBtn.click();
-      }
+      if (inputs.every(x => x.value && /^\d$/.test(x.value))) confirmBtn.click();
     });
     el.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace' && !el.value && i > 0) inputs[i - 1].focus();
@@ -249,18 +247,13 @@
   // ---- Кулдаун повторной отправки (45с) с сохранением
   const RESEND_COOLDOWN_S = 45;
   let   timerId = null;
-
   const loadCooldownLeft = () => {
     const until = Number(sessionStorage.getItem('resend_until_ts') || 0);
     const left = Math.ceil((until - Date.now()) / 1000);
     return Math.max(0, left);
   };
-  const saveCooldown = (seconds) => {
-    const untilTs = Date.now() + seconds * 1000;
-    sessionStorage.setItem('resend_until_ts', String(untilTs));
-  };
+  const saveCooldown = (s) => sessionStorage.setItem('resend_until_ts', String(Date.now() + s*1000));
   const fmtMMSS = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-
   function startCooldown(seconds){
     clearInterval(timerId);
     saveCooldown(seconds);
@@ -279,41 +272,34 @@
       }
     }, 1000);
   }
-
-  // Инициализация кулдауна (если была перезагрузка)
   const left0 = loadCooldownLeft();
   if (left0 > 0) startCooldown(left0);
   else { resendBtn.disabled = false; resendTimerEl.textContent = fmtMMSS(0); }
 
-  // ---- Повторная отправка: реальный вызов API
+  // ---- Повторная отправка
   resendBtn.addEventListener('click', async () => {
     if (resendBtn.disabled) return;
     if (!challengeId) { setMsg('Нет идентификатора сессии подтверждения. Вернитесь на шаг входа.', '#e11d48'); return; }
-
     resendBtn.disabled = true;
     setMsg('Отправляем новый код…');
-
     try {
       const res = await fetch('https://api.gluone.ru/auth/web/login/resend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
         body: JSON.stringify({ challenge_id: challengeId })
       });
-
       if (res.status === 204) {
         setMsg('Новый код отправлен. Проверьте почту.', '#059669');
         startCooldown(RESEND_COOLDOWN_S);
       } else if (res.status === 422) {
         let data = null; try { data = await res.json(); } catch(_){}
-        const dmsg = data?.detail?.[0]?.msg || 'Некорректные данные запроса.';
-        setMsg('Не удалось отправить код: ' + dmsg, '#e11d48');
-        // даём попробовать ещё раз сразу
+        setMsg('Не удалось отправить код: ' + (data?.detail?.[0]?.msg || 'ошибка запроса'), '#e11d48');
         resendBtn.disabled = false;
       } else {
         setMsg('Ошибка отправки кода: ' + res.status, '#e11d48');
         resendBtn.disabled = false;
       }
-    } catch (e) {
+    } catch (_) {
       setMsg('Сеть недоступна. Попробуйте позже.', '#e11d48');
       resendBtn.disabled = false;
     }
@@ -327,36 +313,33 @@
     if (!challengeId){ setMsg('Сессия подтверждения не найдена. Вернитесь на шаг входа.', '#e11d48'); return; }
 
     setMsg('Проверяем код…');
-
     try {
       const res = await fetch('https://api.gluone.ru/auth/web/login/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        credentials: 'include', // важен для HttpOnly cookie
+        credentials: 'include', // получаем HttpOnly cookie
         body: JSON.stringify({ challenge_id: challengeId, code })
       });
 
       if (res.status === 200){
         let data = null; try { data = await res.json(); } catch(_){}
-        // data: { access_token, token_type, is_premium, premium_expires_dt } — токен может дублироваться в cookie
+        // { access_token, token_type, is_premium, premium_expires_at }
+        // ВАЖНО: access_token НЕ сохраняем в JS-хранилища
         try {
           sessionStorage.setItem('auth_state', JSON.stringify({
             is_premium: !!data?.is_premium,
-            premium_expires_dt: data?.premium_expires_dt || null,
+            premium_expires_at: data?.premium_expires_at || null,
             ts: Date.now()
           }));
         } catch(_){}
-
         setMsg('Готово! Входим…', '#059669');
-        // редирект на next или на главную/кабинет
         const params = new URLSearchParams(location.search);
-        const next = params.get('next') || '/';
+        const next = params.get('next') || '/cabinet.html';
         window.location.href = next;
       }
       else if (res.status === 422){
         let data = null; try { data = await res.json(); } catch(_){}
-        const dmsg = data?.detail?.[0]?.msg || 'Некорректный код.';
-        setMsg(dmsg, '#e11d48');
+        setMsg(data?.detail?.[0]?.msg || 'Некорректный код.', '#e11d48');
       }
       else{
         setMsg('Не удалось подтвердить код: ' + res.status, '#e11d48');
@@ -366,4 +349,110 @@
       console.error(err);
     }
   });
+})();
+
+// ===== Cabinet module (страница личного кабинета) =====================
+(function () {
+  const card = document.getElementById('meCard');
+  if (!card) return;
+
+  const el = (id) => document.getElementById(id);
+  const meUsername = el('meUsername');
+  const meEmail    = el('meEmail');
+  const meAvatar   = el('meAvatar');
+  const mePremium  = el('mePremium');
+  const mePremiumNote = el('mePremiumNote');
+  const meActive   = el('meActive');
+  const meRoles    = el('meRoles');
+  const meGender   = el('meGender');
+  const meBirth    = el('meBirth');
+  const meDiabetes = el('meDiabetes');
+  const meMsg      = el('meMsg');
+
+  const maskEmail = (em) => {
+    if (!em || !em.includes('@')) return '***@***';
+    const [u, d] = em.split('@');
+    const mu = (u.length <= 2) ? (u[0] || '*') + '****' : u.slice(0,2) + '****';
+    const md = d ? d[0] + '****' : '****';
+    return `${mu}@${md}…`;
+  };
+  const ageFrom = (dateStr) => {
+    if (!dateStr) return null;
+    const d = new Date(dateStr + 'T00:00:00Z');
+    if (isNaN(d)) return null;
+    const n = new Date();
+    let age = n.getUTCFullYear() - d.getUTCFullYear();
+    const m = n.getUTCMonth() - d.getUTCMonth();
+    if (m < 0 || (m === 0 && n.getUTCDate() < d.getUTCDate())) age--;
+    return age;
+  };
+  const fmtDate = (iso) => {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleString('ru-RU', {year:'numeric', month:'long', day:'numeric'}); }
+    catch { return iso; }
+  };
+  const mapGender = (g) => ({male:'Мужской', female:'Женский'})[g] || '—';
+  const mapDia    = (t) => ({type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный'})[t] || '—';
+
+  async function loadMe(){
+    meMsg.textContent = 'Загружаем профиль…';
+    try {
+      const res = await fetch('https://api.gluone.ru/auth/web/me', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'include'
+      });
+
+      if (res.status === 200){
+        const data = await res.json();
+        // Заполняем
+        meUsername.textContent = data?.username || 'Без имени';
+        meEmail.textContent    = data?.email ? maskEmail(data.email) : '—';
+        meAvatar.textContent   = (data?.username || data?.email || 'U').trim()[0].toUpperCase();
+        meActive.textContent   = data?.is_active ? 'Активен' : 'Неактивен';
+        meGender.textContent   = mapGender(data?.gender);
+        meBirth.textContent    = data?.birth_date ? `${fmtDate(data.birth_date)}${ageFrom(data.birth_date) ? ` · ${ageFrom(data.birth_date)} лет` : ''}` : '—';
+        meDiabetes.textContent = mapDia(data?.diabetes_type);
+
+        // Роли — чипами
+        meRoles.innerHTML = '';
+        (Array.isArray(data?.roles) ? data.roles : []).forEach(r => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = r;
+          meRoles.appendChild(chip);
+        });
+
+        // Премиум
+        const premium = !!data?.is_premium;
+        if (premium){
+          mePremium.hidden = false;
+          const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
+          mePremiumNote.hidden = false;
+          mePremiumNote.textContent = exp
+            ? `Подписка Premium активна до ${exp.toLocaleString('ru-RU', { year:'numeric', month:'long', day:'numeric' })}.`
+            : 'Подписка Premium активна.';
+        } else {
+          mePremium.hidden = true;
+          mePremiumNote.hidden = true;
+        }
+
+        meMsg.textContent = '';
+      }
+      else if (res.status === 401){
+        // неавторизован — уводим на вход
+        window.location.href = '/auth.html?next=%2Fcabinet.html';
+      }
+      else {
+        meMsg.textContent = 'Ошибка загрузки профиля: ' + res.status;
+      }
+    } catch (e) {
+      meMsg.textContent = 'Сеть недоступна. Обновите страницу.';
+      console.error(e);
+    } finally {
+      card.removeAttribute('aria-busy');
+    }
+  }
+
+  loadMe();
 })();
