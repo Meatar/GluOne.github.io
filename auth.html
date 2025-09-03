@@ -3,189 +3,153 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GluOne — авторизация</title>
+  <title>GluOne — вход</title>
 
-  <meta name="description" content="Войдите в личный кабинет GluOne.">
+  <meta name="description" content="Авторизация в личном кабинете GluOne">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
 
-  <!-- Favicons -->
-  <link rel="icon" href="assets/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
-  <link rel="icon" type="image/png" sizes="180x180" href="assets/favicon-180.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
-  <link rel="icon" type="image/png" sizes="256x256" href="assets/favicon-256.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="assets/favicon-512.png">
-  <link rel="mask-icon" href="assets/logo-symbol.png" color="#0f172a">
-
-  <!-- Fonts / Tailwind -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind (как и на главной) -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Custom styles -->
+  <!-- Твои общие стили -->
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Небольшие локальные штрихи под форму */
+    .card {
+      background: var(--card, #ffffff);
+      border: 1px solid color-mix(in oklab, var(--divider, #e5e7eb) 70%, transparent);
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(0,0,0,.05)), var(--shadow-lg, 0 10px 30px rgba(2,6,23,.06));
+    }
+    .field { height: 48px; border-radius: 12px; }
+    .field:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring,#6366f1) 35%, transparent); border-color: color-mix(in oklab, var(--ring,#6366f1) 50%, var(--divider,#e5e7eb)); }
+    .eye-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); height:34px; min-width:36px; border-radius:10px; }
+    .eye-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring,#6366f1) 35%, transparent); }
+    .btn-primary { height:48px; border-radius:9999px; }
+  </style>
 </head>
-<body class="bg-white text-slate-900">
-
-  <!-- Header -->
-  <header class="site-header">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <a class="flex items-center gap-3" href="/">
-        <img src="assets/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne">
-        <span class="font-semibold tracking-tight">GluOne</span>
-      </a>
-      <a href="/auth" class="btn-hero">Авторизация</a>
-    </div>
-  </header>
-
-  <!-- Auth hero -->
-  <main class="hero-bg">
-    <div class="max-w-6xl mx-auto px-4 py-10 lg:py-14">
-      <div class="grid grid-cols-1 lg:grid-cols-[1.05fr_1px_1fr] gap-8 lg:gap-10 items-center">
-
-        <!-- Иллюстрация -->
-        <div class="hero-card">
-          <div class="hero-mask">
-            <img
-              src="assets/hero.jpg"
-              srcset="assets/hero.jpg 800w, assets/hero.jpg 1200w, assets/hero.jpg 1600w"
-              sizes="(min-width:1024px) 560px, 100vw"
-              width="1600" height="1200"
-              class="hero-img"
-              loading="eager" decoding="async"
-              alt="Диабет: приборы и принадлежности">
-          </div>
+<body class="bg-white text-slate-900 antialiased">
+  <main class="min-h-screen grid place-items-center px-4 py-10">
+    <section class="w-full max-w-md">
+      <div class="card rounded-2xl p-6 sm:p-8">
+        <div class="flex flex-col items-center text-center">
+          <img src="assets/logo.png" alt="GluOne" class="h-10 w-10 rounded-xl mb-3">
+          <h1 class="text-2xl font-extrabold tracking-tight">Вход</h1>
+          <p class="mt-1 text-slate-600 text-sm">Введите логин и пароль, чтобы продолжить.</p>
         </div>
 
-        <div class="v-divider hidden lg:block"></div>
+        <form id="authForm" class="mt-6" novalidate>
+          <!-- Логин -->
+          <label for="login" class="block text-sm font-semibold text-slate-700">Логин</label>
+          <div class="relative mt-2">
+            <input
+              id="login"
+              name="login"
+              type="text"
+              inputmode="latin"
+              autocomplete="username"
+              placeholder="Например, alex_kiselev"
+              class="field w-full px-3 border text-[16px] bg-white"
+              required minlength="3" maxlength="64"
+              pattern="^[A-Za-z0-9._-]+$"
+              title="Только латинские буквы, цифры, точки, дефисы и подчёркивания">
+          </div>
+          <p id="loginError" class="mt-1 text-sm text-rose-600 hidden"></p>
 
-        <!-- Форма -->
-        <section class="lg:pl-4">
-          <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
-            Вход в <span class="gradient-accent">личный кабинет</span>
-          </h1>
-          <p class="mt-3 text-slate-700 max-w-xl">
-            Введите логин и пароль, чтобы продолжить. Логин — только латиница; в пароле пробелы не допускаются.
-          </p>
+          <!-- Пароль -->
+          <label for="password" class="block text-sm font-semibold text-slate-700 mt-4">Пароль</label>
+          <div class="relative mt-2">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Ваш пароль"
+              class="field w-full pr-12 px-3 border text-[16px] bg-white"
+              required minlength="8" maxlength="72"
+              pattern="^[\x21-\x7E]+$"
+              title="Минимум 8 символов, только английские символы, без пробелов">
+            <button type="button" id="togglePass" class="eye-btn px-2 border hover:bg-slate-50" aria-label="Показать пароль">👁️</button>
+          </div>
+          <p id="passwordError" class="mt-1 text-sm text-rose-600 hidden"></p>
 
-          <form id="authForm" class="form-card mt-6 p-6 rounded-2xl border" novalidate>
-            <!-- Логин -->
-            <label class="block text-sm font-semibold text-slate-700 mb-2" for="login">Логин</label>
-            <div class="input-group mb-4">
-              <input
-                id="login"
-                name="login"
-                type="text"
-                inputmode="latin"
-                autocomplete="username"
-                class="input"
-                placeholder="Например, alex_kiselev"
-                required
-                minlength="3"
-                maxlength="64"
-                pattern="^[A-Za-z0-9._-]+$"
-                title="Только латинские буквы, цифры, точки, дефисы и подчёркивания">
-            </div>
+          <div class="flex justify-end mt-2">
+            <a href="/forgot" class="text-sm text-indigo-600 hover:underline">Забыли пароль?</a>
+          </div>
 
-            <!-- Пароль -->
-            <label class="block text-sm font-semibold text-slate-700 mb-2" for="password">Пароль</label>
-            <div class="input-group mb-4">
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autocomplete="current-password"
-                class="input pr-12"
-                placeholder="Ваш пароль"
-                required
-                minlength="8"
-                maxlength="72"
-                pattern="^[\x21-\x7E]+$"
-                title="Минимум 8 символов, только английские символы, без пробелов">
-              <button type="button" id="togglePass" class="input-icon" aria-label="Показать пароль">👁️</button>
-            </div>
+          <button id="submitBtn" type="submit" class="btn-hero btn-primary w-full mt-5">Войти</button>
 
-            <div class="flex items-center justify-between mb-5">
-              <label class="inline-flex items-center gap-2 text-sm text-slate-600 select-none">
-                <input type="checkbox" id="remember" class="accent-indigo-500">
-                Запомнить меня
-              </label>
-              <a href="#" class="text-sm text-indigo-600 hover:underline">Забыли пароль?</a>
-            </div>
-
-            <button type="submit" class="btn-hero w-full" id="submitBtn">Войти</button>
-
-            <!-- Сообщения об ошибке/успехе -->
-            <p id="formMsg" class="mt-4 text-sm"></p>
-          </form>
-
-          <p class="mt-4 text-sm text-slate-600">
-            Нет аккаунта? <a href="#" class="text-indigo-600 hover:underline">Зарегистрироваться</a>
-          </p>
-        </section>
+          <p id="formMsg" class="mt-4 text-sm"></p>
+        </form>
       </div>
-    </div>
+    </section>
   </main>
 
-  <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
-    © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
-  </footer>
-
-  <!-- Небольшая логика формы: валидация, показ/скрытие пароля, заглушка submit -->
   <script>
-    // год в футере
-    document.getElementById('y').textContent = new Date().getFullYear();
-
-    // показать/скрыть пароль
-    const pass = document.getElementById('password');
+    // Показ/скрытие пароля
+    const pass   = document.getElementById('password');
     const toggle = document.getElementById('togglePass');
     toggle.addEventListener('click', () => {
-      pass.type = pass.type === 'password' ? 'text' : 'password';
-      toggle.setAttribute('aria-label', pass.type === 'password' ? 'Показать пароль' : 'Скрыть пароль');
+      const isPw = pass.type === 'password';
+      pass.type = isPw ? 'text' : 'password';
+      toggle.setAttribute('aria-label', isPw ? 'Скрыть пароль' : 'Показать пароль');
     });
 
-    // валидация + сабмит
-    const form = document.getElementById('authForm');
-    const msg  = document.getElementById('formMsg');
-    const btn  = document.getElementById('submitBtn');
+    // Простая клиентская валидация с подсветкой ошибок
+    const form   = document.getElementById('authForm');
+    const btn    = document.getElementById('submitBtn');
+    const msg    = document.getElementById('formMsg');
+    const loginE = document.getElementById('loginError');
+    const passE  = document.getElementById('passwordError');
+
+    function showError(el, errEl){
+      errEl.textContent = el.validationMessage || 'Проверьте корректность поля.';
+      errEl.classList.remove('hidden');
+      el.setAttribute('aria-invalid','true');
+    }
+    function clearError(el, errEl){
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+      el.removeAttribute('aria-invalid');
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      msg.textContent = '';
-      msg.className = 'mt-4 text-sm';
+      msg.textContent = ''; msg.className = 'mt-4 text-sm';
 
-      if (!form.reportValidity()) return;
+      // Сброс ошибок
+      clearError(login, loginE);
+      clearError(password, passE);
 
-      btn.disabled = true; btn.style.opacity = .7;
+      // Проверка нативных правил
+      if(!login.checkValidity()){ showError(login, loginE); return; }
+      if(!password.checkValidity()){ showError(password, passE); return; }
 
-      // TODO: подставь свой эндпоинт
+      // Готовим данные
       const payload = {
-        login: form.login.value.trim(),
-        password: form.password.value,
-        remember: document.getElementById('remember').checked
+        login: login.value.trim(),
+        password: password.value
       };
 
+      // Сабмит
+      btn.disabled = true; btn.style.opacity = .7;
       try {
-        // Пример: POST на /api/auth/login
+        // Вставь свой реальный эндпоинт:
         // const res = await fetch('/api/auth/login', {
-        //   method: 'POST', headers: {'Content-Type':'application/json'},
+        //   method:'POST', headers:{'Content-Type':'application/json'},
         //   body: JSON.stringify(payload)
         // });
-        // if (!res.ok) throw new Error('Ошибка авторизации');
+        // if(!res.ok) throw new Error('Неверный логин или пароль');
         // const data = await res.json();
 
         // Заглушка успеха:
         await new Promise(r => setTimeout(r, 500));
         msg.textContent = 'Успешный вход. Перенаправляем…';
-        msg.className += ' text-emerald-600';
+        msg.classList.add('text-emerald-600');
         // window.location.href = (new URLSearchParams(location.search)).get('next') || '/';
-      } catch (err) {
-        msg.textContent = err.message || 'Не удалось войти. Проверьте данные и попробуйте снова.';
-        msg.className += ' text-rose-600';
+      } catch (err){
+        msg.textContent = err.message || 'Не удалось войти. Повторите попытку.';
+        msg.classList.add('text-rose-600');
       } finally {
         btn.disabled = false; btn.style.opacity = 1;
       }
@@ -193,4 +157,3 @@
   </script>
 </body>
 </html>
-
