@@ -24,14 +24,7 @@ import { KEYS, load, del } from './storage.js';
     return;
   }
 
-  // ===== helpers
-  const maskEmail = (em) => {
-    if (!em || !em.includes('@')) return '***@***';
-    const [u, d] = em.split('@');
-    const mu = (u.length <= 2) ? (u[0] || '*') + '****' : u.slice(0,2) + '****';
-    const md = d ? d[0] + '****' : '****';
-    return `${mu}@${md}…`;
-  };
+  // ===== helpers (maskEmail удалён)
   const ageFrom = (dateStr) => {
     if (!dateStr) return null;
     const d = new Date(dateStr + 'T00:00:00Z');
@@ -53,7 +46,12 @@ import { KEYS, load, del } from './storage.js';
 
     if (ok) {
       meUsername.textContent = data?.username || 'Без имени';
-      meEmail.textContent    = data?.email ? maskEmail(data.email) : '—';
+
+      // Показываем полный e-mail
+      const email = data?.email || '—';
+      meEmail.textContent = email;
+      meEmail.title = email; // на случай, если где-то сработает усечение
+
       meAvatar.textContent   = (data?.username || data?.email || 'U').trim()[0].toUpperCase();
       meActive.textContent   = data?.is_active ? 'Активен' : 'Неактивен';
       meGender.textContent   = mapGender(data?.gender);
@@ -96,20 +94,18 @@ import { KEYS, load, del } from './storage.js';
     const btn = document.getElementById('logoutBtn');
     if (!btn) return;
 
-    // Если csrf_token доступен в невидимом cookie (не HttpOnly), прочитаем
     function getCookie(name){
-      const m = document.cookie.match(new RegExp('(^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1') + '=([^;]*)'));
+      const m = document.cookie.match(new RegExp('(^|; )' + name.replace(/([.$?*|{}()[\\]\\\\/+^])/g,'\\\\$1') + '=([^;]*)'));
       return m ? decodeURIComponent(m[2]) : null;
     }
 
     btn.addEventListener('click', async () => {
       btn.disabled = true;
       try {
-        const csrf = getCookie('csrf_token'); // может быть null
-        await authLogout(csrf);               // сервер сам читает refresh/csrf из cookie
-      } catch(_) { /* игнорируем — выходим локально */ }
+        const csrf = getCookie('csrf_token');
+        await authLogout(csrf);
+      } catch(_) { /* ignore */ }
 
-      // чистим состояние на фронте
       try {
         del(KEYS.TOKEN);
         del(KEYS.STATE);
@@ -125,4 +121,3 @@ import { KEYS, load, del } from './storage.js';
   loadMe();
   setupLogout();
 })();
-
