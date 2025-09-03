@@ -28,6 +28,9 @@
   }
 }
 
+/* layout baseline */
+*, *::before, *::after { box-sizing: border-box; }
+
 body{
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   background: var(--bg);
@@ -171,23 +174,29 @@ body{
 }
 .container-sm{ width: min(100%, 28rem); margin-inline: auto; }
 
-.auth-card{ padding: clamp(20px, 2vw, 32px); }
-.auth-title{ font: 800 24px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing:-0.01em; color: var(--ink); margin:0; }
-.auth-sub{ margin:6px 0 0; color:#64748b; font-size:14px; }
-.logo-brand{ width:40px; height:40px; border-radius:12px; display:block; margin:0 auto 12px; }
-
-/* ===== Form primitives (общие) ===== */
 .card{
   background: var(--card);
   border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
   border-radius: 16px;
   box-shadow: var(--shadow-sm), var(--shadow-lg);
 }
+.auth-card{
+  padding: clamp(20px, 2vw, 32px);
+  overflow: hidden; /* обводка инпута не выйдет за край */
+}
 
-.input-wrap{ position: relative; }
+.auth-title{ font: 800 24px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing:-0.01em; color: var(--ink); margin:0; }
+.auth-sub{ margin:6px 0 0; color:#64748b; font-size:14px; }
+.logo-brand{ width:40px; height:40px; border-radius:12px; display:block; margin:0 auto 12px; }
+
+/* ===== Form primitives (общие) ===== */
+.input-wrap{ position: relative; max-width: 100%; }
 
 .field{
-  width:100%; height:48px; border-radius:12px;
+  width:100%;
+  display:block;
+  height:46px; /* финальная высота */
+  border-radius:12px;
   border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
   background: var(--bg);
   padding:0 12px;
@@ -203,28 +212,26 @@ body{
   background: var(--card);
 }
 
-.field--with-icon{ padding-right: 48px; }
+/* поле с иконкой справа */
+.field--with-icon{ padding-right: 52px; }
 
+/* встроенная кнопка-иконка в правой части поля */
 .icon-btn{
   position: absolute;
-  top: 0; bottom: 0;           /* растягиваем по высоте поля */
-  right: 6px;                  /* ближе к правому краю */
-  transform: none;             /* никаких translate */
-  min-width: 40px;             /* комфортная зона клика */
-  border: 0;                   /* убираем рамку – будет «встроенной» */
-  background: transparent;     /* без отдельной «пилюли» */
+  top: 4px;
+  bottom: 4px;
+  right: 10px;
+  transform: none;
+  min-width: 38px;
+  border: 0;
+  background: transparent;
   border-radius: 8px;
   display: inline-flex; align-items: center; justify-content: center;
   color: color-mix(in oklab, var(--ink) 75%, transparent);
   cursor: pointer;
 }
-.icon-btn:hover{
-  background: color-mix(in oklab, var(--divider) 14%, transparent); /* лёгкий hover внутри поля */
-}
-.icon-btn:focus-visible{
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
-}
+.icon-btn:hover{ background: color-mix(in oklab, var(--divider) 14%, transparent); }
+.icon-btn:focus-visible{ outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent); }
 
 .icon-btn .i{ display:none; }
 .icon-btn[data-state="hidden"]  .i-eye{ display:inline; }     /* пароль скрыт */
@@ -235,6 +242,7 @@ body{
 
 .btn-primary{
   height:48px;
+  border:0;                    /* убрали тёмную окантовку */
   border-radius:9999px;
   background: var(--ink);
   color:#fff;
@@ -245,6 +253,3 @@ body{
 }
 .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
 .btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
-
-.field{ height: 46px; }
-.btn-primary{ border: 0; }
