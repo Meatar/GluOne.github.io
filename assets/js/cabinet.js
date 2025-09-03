@@ -1,4 +1,4 @@
-import { authMe, authLogout, authDevices } from './api.js';
+import { authMe, authLogout, authDevices, authRevokeDevice } from './api.js';
 import { KEYS, load, del } from './storage.js';
 
 (() => {
@@ -72,17 +72,17 @@ import { KEYS, load, del } from './storage.js';
         meRoles.appendChild(chipEl);
       });
 
-      // ---- Premium info (всегда показываем строку)
+      // Premium
       mePremium.hidden = !data?.is_premium;
       mePremiumNote.hidden = false;
-        if (data?.is_premium){
-          const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
-          mePremiumNote.textContent = exp
-            ? `Premium до ${exp.toLocaleString('ru-RU',{year:'numeric',month:'long',day:'numeric'})}`
-            : 'Premium активен';
-        } else {
-          mePremiumNote.textContent = 'Premium не оплачен';
-        }
+      if (data?.is_premium){
+        const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
+        mePremiumNote.textContent = exp
+          ? `Premium до ${exp.toLocaleString('ru-RU',{year:'numeric',month:'long',day:'numeric'})}`
+          : 'Premium активен';
+      } else {
+        mePremiumNote.textContent = 'Premium не оплачен';
+      }
 
       meMsg.textContent = '';
       return;
@@ -109,6 +109,46 @@ import { KEYS, load, del } from './storage.js';
     return [dte, dde];
   }
 
+  async function onRevoke(deviceId, btn){
+    if (!deviceId) return;
+
+    // простая защита от дабл-клика
+    const prevText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Выходим…';
+
+    try {
+      const { ok, status, data } = await authRevokeDevice(token.access_token, deviceId);
+
+      if (ok || status === 200) {
+        // перезагрузим список устройств
+        await loadDevices();
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = 'Устройство разлогинено.';
+        setTimeout(() => { meDevicesStatus.hidden = true; }, 2000);
+      } else if (status === 401) {
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = 'Сессия истекла. Войдите заново.';
+      } else if (status === 422) {
+        const msg = Array.isArray(data?.detail)
+          ? data.detail.map(e => e?.msg).filter(Boolean).join('; ')
+          : 'Некорректные данные';
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = `Ошибка: ${msg}`;
+      } else {
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = `Ошибка: ${status}`;
+      }
+    } catch (e) {
+      console.error('revoke error', e);
+      meDevicesStatus.hidden = false;
+      meDevicesStatus.textContent = 'Ошибка сети при выходе с устройства.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = prevText;
+    }
+  }
+
   function renderDevice(dev){
     const item  = document.createElement('section');
     item.className = 'device-item';
@@ -121,13 +161,33 @@ import { KEYS, load, del } from './storage.js';
     title.className = 'device-title';
     title.textContent = dev?.model || 'Неизвестное устройство';
 
+    const right = document.createElement('div');
+    right.className = 'device-right';
+
     const badges = document.createElement('div');
     badges.className = 'device-badges';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
 
+    // кнопка «Выйти с устройства»
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-outline device-revoke';
+    btn.textContent = dev?.current ? 'Выйти здесь' : 'Выйти с устройства';
+    btn.disabled = !!dev?.revoked;
+
+    btn.addEventListener('click', async () => {
+      // можно спросить подтверждение
+      const ok = confirm(`Выйти с устройства "${dev?.model || dev?.device_id}"?`);
+      if (!ok) return;
+      await onRevoke(dev?.device_id, btn);
+    });
+
+    right.appendChild(badges);
+    right.appendChild(btn);
+
     head.appendChild(title);
-    head.appendChild(badges);
+    head.appendChild(right);
 
     // attrs
     const attrs = document.createElement('dl');
@@ -150,18 +210,17 @@ import { KEYS, load, del } from './storage.js';
   async function loadDevices(){
     if (!meDevicesSection) return;
 
-    // показываем секцию сразу (чтобы пользователь видел статус)
     meDevicesSection.hidden = false;
     meDevicesStatus.hidden = false;
+    meDevicesStatus.textContent = 'Загрузка устройств…';
     meDevicesEmpty.hidden = true;
     meDevicesList.innerHTML = '';
 
     try {
       const { ok, status, data } = await authDevices(token.access_token);
 
-      meDevicesStatus.hidden = true;
-
       if (!ok) {
+        meDevicesStatus.hidden = true;
         meDevicesEmpty.hidden = false;
         meDevicesEmpty.textContent =
           (status === 401 || status === 403)
@@ -171,6 +230,8 @@ import { KEYS, load, del } from './storage.js';
       }
 
       const arr = Array.isArray(data) ? data : [];
+      meDevicesStatus.hidden = true;
+
       if (!arr.length) {
         meDevicesEmpty.hidden = false;
         meDevicesEmpty.textContent = 'Пока нет данных об устройствах.';
@@ -221,9 +282,8 @@ import { KEYS, load, del } from './storage.js';
     });
   }
 
-  // init — вызываем все безопасно
+  // init
   loadMe();
-  // чтобы ошибка в блоке устройств не «роняла» скрипт — оборачиваем
   try { loadDevices(); } catch (e) { console.error('loadDevices() failed:', e); }
   setupLogout();
 })();

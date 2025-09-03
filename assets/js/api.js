@@ -119,3 +119,26 @@ export function authDevices(accessToken) {
     }
   });
 }
+
+/**
+ * Отозвать (разлогинить) конкретное устройство пользователя
+ * POST /auth/web/devices/revoke
+ * @param {string} accessToken - Bearer токен
+ * @param {string} deviceId    - ID устройства, которое нужно разлогинить
+ * @returns {Promise<{ok: boolean, status: number, data: any}>}
+ *
+ * Успех: 204 No Content (res.ok === true, data === null)
+ * Ошибки:
+ *  - 422 Validation Error (например, пустой/невалидный device_id), data.detail с описанием
+ */
+export function authRevokeDevice(accessToken, deviceId) {
+  return request('/auth/web/devices/revoke', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({ device_id: deviceId })
+  });
+}

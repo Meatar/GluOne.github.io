@@ -105,11 +105,24 @@
 .device-title{
   font-weight:700; color:var(--ink);
 }
+
+/* справа — бейджи + кнопка */
+.device-right{
+  display:flex; align-items:center; gap:10px; margin-left:auto;
+}
 .device-badges{ display:flex; gap:8px; flex-wrap:wrap; }
 .device-badges .chip{
   padding:4px 8px; font-size:12px; border-radius:9999px;
   border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
   background: color-mix(in oklab, var(--divider) 10%, transparent);
+}
+
+/* компактная кнопка выхода */
+.device-revoke{
+  padding:6px 10px;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
 }
 
 /* атрибуты — читаемая двухколоночная таблица */
@@ -136,5 +149,8 @@
   }
   .device-attrs dt{
     font-size:12px; opacity:.8;
+  }
+  .device-right{
+    gap:8px;
   }
 }
