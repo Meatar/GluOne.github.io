@@ -352,3 +352,53 @@ body{
 
 /* Инфоблок — чуть просторнее на confirm */
 .note--confirm{ padding: 14px 16px; }
+
+/* ===== OTP: фиксированные квадраты и центрирование ===== */
+:root{
+  --otp-size: 56px;      /* базовый размер квадрата */
+  --otp-gap: 12px;       /* расстояние между ячейками */
+}
+
+@media (max-width: 380px){
+  :root{
+    --otp-size: 48px;    /* на очень узких экранах делаем компактнее */
+    --otp-gap: 10px;
+  }
+}
+
+/* сетка не тянется, а строится из 4 фиксированных колонок и центрируется */
+.otp-grid{
+  display: grid;
+  justify-content: center;                 /* центрируем всю группу */
+  gap: var(--otp-gap);
+  width: 100%;
+  margin-inline: auto;
+}
+
+.otp-grid--4{
+  grid-template-columns: repeat(4, var(--otp-size));
+}
+
+/* сами поля — идеальные квадраты */
+.otp-input{
+  width: var(--otp-size);
+  height: var(--otp-size);
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+  background: var(--bg);
+  text-align: center;
+  font-size: 22px;        /* как в макете */
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+  -webkit-appearance: none; appearance: none;
+}
+
+.otp-input:focus{
+  outline: none;
+  border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  background: var(--card);
+}
