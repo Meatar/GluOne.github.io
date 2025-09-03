@@ -203,15 +203,28 @@ body{
   background: var(--card);
 }
 
+.field--with-icon{ padding-right: 48px; }
+
 .icon-btn{
-  position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  height:34px; min-width:36px; border-radius:10px;
-  border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
-  background: var(--card);
-  display:inline-flex; align-items:center; justify-content:center;
+  position: absolute;
+  top: 0; bottom: 0;           /* растягиваем по высоте поля */
+  right: 6px;                  /* ближе к правому краю */
+  transform: none;             /* никаких translate */
+  min-width: 40px;             /* комфортная зона клика */
+  border: 0;                   /* убираем рамку – будет «встроенной» */
+  background: transparent;     /* без отдельной «пилюли» */
+  border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: color-mix(in oklab, var(--ink) 75%, transparent);
+  cursor: pointer;
 }
-.icon-btn:hover{ background: color-mix(in oklab, var(--divider) 15%, transparent); }
-.icon-btn:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent); }
+.icon-btn:hover{
+  background: color-mix(in oklab, var(--divider) 14%, transparent); /* лёгкий hover внутри поля */
+}
+.icon-btn:focus-visible{
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+}
 
 .icon-btn .i{ display:none; }
 .icon-btn[data-state="hidden"]  .i-eye{ display:inline; }     /* пароль скрыт */
@@ -232,3 +245,6 @@ body{
 }
 .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
 .btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+
+.field{ height: 46px; }
+.btn-primary{ border: 0; }
