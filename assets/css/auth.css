@@ -7,17 +7,34 @@
   --rec-backdrop: rgba(2,6,23,.45);   /* затемнение фона */
   --rec-shadow: 0 20px 60px rgba(2,6,23,.25);
   --rec-radius: 20px;
-
-  --rec-btn-primary-bg: #0b1220;      /* тёмная кнопка */
-  --rec-btn-primary-ink: #ffffff;
-  --rec-btn-primary-shadow: inset 0 -4px 0 rgba(255,255,255,.06);
-
   --rec-btn-ghost-bg: #ffffff;        /* светлая кнопка */
   --rec-btn-ghost-ink: #0b1220;
   --rec-btn-ghost-border: #e5e7eb;
 
+  --rec-input-bg: #f8fafc;            /* фон инпута */
+  --rec-placeholder: #9aa4b2;         /* цвет плейсхолдера */
+
   --rec-card-w: 420px;   /* ширина карточки */
   --rec-btn-w: 170px;    /* одинаковая ширина кнопок */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rec-surface: #0f172a;
+    --rec-ink: #e5e7eb;
+    --rec-ink-sub: #cbd5e1;
+    --rec-line: rgba(148,163,184,.35);
+    --rec-focus: #6366f1;
+    --rec-backdrop: rgba(0,0,0,.6);
+    --rec-shadow: 0 20px 60px rgba(0,0,0,.6);
+
+    --rec-btn-ghost-bg: #1e293b;
+    --rec-btn-ghost-ink: #e5e7eb;
+    --rec-btn-ghost-border: rgba(148,163,184,.35);
+
+    --rec-input-bg: #1e293b;
+    --rec-placeholder: #94a3b8;
+  }
 }
 
 .rec-backdrop {
@@ -61,15 +78,15 @@
 .rec-label {
   display: block;
   font-weight: 600;
-  color: #111827;
+  color: var(--rec-ink);
   font-size: 14px;
 }
 
 .rec-input {
   width: 100%;
   margin-top: 8px;
-  background: #f8fafc;
-  color: #0b1220;
+  background: var(--rec-input-bg);
+  color: var(--rec-ink);
   border: 1px solid var(--rec-line);
   border-radius: 14px;
   padding: 14px 16px;
@@ -79,13 +96,13 @@
 }
 
 .rec-input::placeholder {
-  color: #9aa4b2;
+  color: var(--rec-placeholder);
 }
 
 .rec-input:focus {
   border-color: var(--rec-focus);
-  box-shadow: 0 0 0 3px rgba(31,41,55,.15);
-  background: #ffffff;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--rec-focus) 35%, transparent);
+  background: var(--rec-surface);
 }
 
 .rec-error {
@@ -96,7 +113,7 @@
 
 .rec-hint {
   margin-top: 10px;
-  color: #334155;
+  color: var(--rec-ink-sub);
   font-size: 13px;
 }
 
@@ -108,12 +125,16 @@
 }
 
 .rec-btn {
-  border-radius: 18px;
-  padding: 14px 18px;
+  height: 48px;
+  border: 0;
+  border-radius: 9999px;
+  padding: 0 24px;
   font-weight: 700;
-  border: 1px solid transparent;
   cursor: pointer;
-  transition: transform .04s ease, filter .12s ease, background .12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
   min-width: var(--rec-btn-w);
   text-align: center;
   flex: 0 0 auto;
@@ -124,18 +145,20 @@
   cursor: default;
 }
 
-.rec-btn:active {
-  transform: translateY(1px);
-}
-
 .rec-btn-primary {
-  background: var(--rec-btn-primary-bg);
-  color: var(--rec-btn-primary-ink);
-  box-shadow: var(--rec-btn-primary-shadow);
+  background: var(--accent);
+  color: #fff;
 }
 
 .rec-btn-primary:hover {
-  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2,6,23,.12);
+  filter: saturate(110%);
+}
+
+.rec-btn-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent);
 }
 
 .rec-btn-ghost {
