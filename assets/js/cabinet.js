@@ -289,10 +289,13 @@ import { KEYS, load, del } from './storage.js';
   // Кнопка-глаз для password-поля (как в авторизации)
   function installPasswordToggle(inputEl) {
     if (!inputEl) return;
-    const host = inputEl.closest('.form-field') || inputEl.parentElement;
-    if (!host || host.querySelector('.toggle-pass')) return;
+    const label = inputEl.closest('.form-field');
+    if (!label || label.querySelector('.toggle-pass')) return;
 
-    host.classList.add('has-toggle');
+    const wrap = document.createElement('div');
+    wrap.className = 'field-wrap';
+    label.replaceChild(wrap, inputEl);
+    wrap.appendChild(inputEl);
 
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -323,7 +326,7 @@ import { KEYS, load, del } from './storage.js';
       const v = inputEl.value; inputEl.setSelectionRange(v.length, v.length);
     });
 
-    host.appendChild(btn);
+    wrap.appendChild(btn);
   }
 
   // ===== смена пароля
