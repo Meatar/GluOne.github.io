@@ -197,3 +197,21 @@ export function authRecoverPassword(email) {
     body: JSON.stringify({ email })
   });
 }
+
+/**
+ * Полное удаление записи об устройстве пользователя
+ * POST /auth/web/devices/delete
+ * Успех: 204 No Content (res.ok === true, data === null)
+ * Ошибки: 401/403/422/429 — как обычно
+ */
+export function authDeleteDevice(accessToken, deviceId) {
+  return request('/auth/web/devices/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({ device_id: deviceId })
+  });
+}

@@ -1,6 +1,6 @@
 import {
   authMe, authLogout, authDevices, authRevokeDevice,
-  authChangePassword, authDeleteAccount
+  authChangePassword, authDeleteAccount, authDeleteDevice
 } from './api.js';
 import { KEYS, load, del } from './storage.js';
 
@@ -170,6 +170,44 @@ import { KEYS, load, del } from './storage.js';
     }
   }
 
+  async function onDelete(deviceId, btn){
+    if (!deviceId) return;
+
+    const prevText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Удаляем…';
+
+    try {
+      const { ok, status, data } = await authDeleteDevice(token.access_token, deviceId);
+
+      if (ok || status === 204 || status === 200) {
+        await loadDevices();
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = 'Запись об устройстве удалена.';
+        setTimeout(() => { meDevicesStatus.hidden = true; }, 2000);
+      } else if (status === 401) {
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = 'Сессия истекла. Войдите заново.';
+      } else if (status === 422) {
+        const msg = Array.isArray(data?.detail)
+          ? data.detail.map(e => e?.msg).filter(Boolean).join('; ')
+          : 'Некорректные данные';
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = `Ошибка: ${msg}`;
+      } else {
+        meDevicesStatus.hidden = false;
+        meDevicesStatus.textContent = `Ошибка: ${status}`;
+      }
+    } catch (e) {
+      console.error('delete device error', e);
+      meDevicesStatus.hidden = false;
+      meDevicesStatus.textContent = 'Ошибка сети при удалении устройства.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = prevText;
+    }
+  }
+
   function renderDevice(dev){
     const item  = document.createElement('section');
     item.className = 'device-item';
@@ -189,7 +227,7 @@ import { KEYS, load, del } from './storage.js';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
 
-    // Кнопка «Выйти с устройства» — только если не revoked
+    // Если устройство НЕ отозвано — показываем «Выйти ...»
     if (!dev?.revoked) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -201,6 +239,18 @@ import { KEYS, load, del } from './storage.js';
         await onRevoke(dev?.device_id, btn);
       });
       right.appendChild(btn);
+    } else {
+      // Если устройство уже отозвано — даём удалить запись
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn-danger device-delete';
+      delBtn.textContent = 'Удалить';
+      delBtn.addEventListener('click', async () => {
+        const ok = confirm(`Удалить запись об устройстве "${dev?.model || dev?.device_id}"?`);
+        if (!ok) return;
+        await onDelete(dev?.device_id, delBtn);
+      });
+      right.appendChild(delBtn);
     }
 
     right.appendChild(badges);
@@ -304,7 +354,6 @@ import { KEYS, load, del } from './storage.js';
     btn.setAttribute('aria-label', 'Показать пароль');
     btn.setAttribute('title', 'Показать пароль');
 
-    // SVG и поведение — как на auth.html
     btn.innerHTML = `
       <svg class="i i-eye" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2"/>
@@ -489,3 +538,4 @@ import { KEYS, load, del } from './storage.js';
   setupDeleteAccount();
   setupLogout();
 })();
+

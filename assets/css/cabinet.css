@@ -130,6 +130,14 @@
   white-space:nowrap;
 }
 
+/* компактная кнопка удаления записи об устройстве (рядом с бейджами) */
+.device-delete{
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 /* атрибуты — таблица */
 .device-attrs{
   display:grid;
@@ -259,3 +267,4 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
