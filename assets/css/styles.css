@@ -134,6 +134,12 @@ button, .btn-hero, .btn-outline {
 .btn-hero:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter: saturate(110%); }
 .btn-hero:active{ transform:translateY(0); }
 .btn-hero:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+@media (prefers-color-scheme: dark){
+  .btn-hero{
+    background:#fff;
+    color:var(--bg);
+  }
+}
 
 /* Кнопка-обводка */
 .btn-outline{
