@@ -209,8 +209,16 @@
 }
 
 /* ==== Показ/скрытие пароля (как в auth.html) ==== */
-.form-field .field-wrap{ position: relative; }
-.form-field .field-wrap input{ padding-right: 44px; }
+.form-field .field-wrap{
+  position: relative;
+  display: block;                /* важно */
+}
+
+.form-field .field-wrap input{
+  width: 100%;                   /* ключевой фикс */
+  box-sizing: border-box;        /* на всякий */
+  padding-right: 44px;           /* место под кнопку */
+}
 
 .toggle-pass{
   position: absolute;
