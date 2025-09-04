@@ -15,22 +15,29 @@
   --rec-btn-ghost-bg: #ffffff;        /* светлая кнопка */
   --rec-btn-ghost-ink: #0b1220;
   --rec-btn-ghost-border: #e5e7eb;
+
+  --rec-card-w: 420px;   /* ширина карточки */
+  --rec-btn-w: 170px;    /* одинаковая ширина кнопок */
 }
 
 .rec-backdrop {
-  position: fixed; inset: 0; z-index: 1000;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
   background: var(--rec-backdrop);
   backdrop-filter: blur(2px) saturate(110%);
 }
 
 .rec-wrap {
-  position: fixed; inset: 0;
-  display: grid; place-items: center;
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
   z-index: 1001;
 }
 
 .rec-card {
-  width: min(560px, 92vw);
+  width: min(var(--rec-card-w), 92vw);
   background: var(--rec-surface);
   color: var(--rec-ink);
   border-radius: var(--rec-radius);
@@ -39,9 +46,12 @@
 }
 
 .rec-title {
-  margin: 0; font-size: 24px;
-  font-weight: 700; line-height: 1.2;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
 }
+
 .rec-sub {
   margin: 6px 0 16px;
   color: var(--rec-ink-sub);
@@ -54,8 +64,10 @@
   color: #111827;
   font-size: 14px;
 }
+
 .rec-input {
-  width: 100%; margin-top: 8px;
+  width: 100%;
+  margin-top: 8px;
   background: #f8fafc;
   color: #0b1220;
   border: 1px solid var(--rec-line);
@@ -65,9 +77,11 @@
   outline: none;
   transition: border-color .15s, box-shadow .15s, background .2s;
 }
+
 .rec-input::placeholder {
   color: #9aa4b2;
 }
+
 .rec-input:focus {
   border-color: var(--rec-focus);
   box-shadow: 0 0 0 3px rgba(31,41,55,.15);
@@ -79,6 +93,7 @@
   color: #dc2626;
   font-size: 13px;
 }
+
 .rec-hint {
   margin-top: 10px;
   color: #334155;
@@ -89,7 +104,9 @@
   display: flex;
   gap: 12px;
   margin-top: 18px;
+  justify-content: flex-end;
 }
+
 .rec-btn {
   border-radius: 18px;
   padding: 14px 18px;
@@ -97,27 +114,36 @@
   border: 1px solid transparent;
   cursor: pointer;
   transition: transform .04s ease, filter .12s ease, background .12s ease;
+  min-width: var(--rec-btn-w);
+  text-align: center;
+  flex: 0 0 auto;
 }
+
 .rec-btn:disabled {
   opacity: .6;
   cursor: default;
 }
+
 .rec-btn:active {
   transform: translateY(1px);
 }
 
 .rec-btn-primary {
-  flex: 1;
   background: var(--rec-btn-primary-bg);
   color: var(--rec-btn-primary-ink);
   box-shadow: var(--rec-btn-primary-shadow);
 }
-.rec-btn-primary:hover { filter: brightness(1.05); }
+
+.rec-btn-primary:hover {
+  filter: brightness(1.05);
+}
 
 .rec-btn-ghost {
-  min-width: 140px;
   background: var(--rec-btn-ghost-bg);
   color: var(--rec-btn-ghost-ink);
-  border-color: var(--rec-btn-ghost-border);
+  border: 1px solid var(--rec-btn-ghost-border);
 }
-.rec-btn-ghost:hover { filter: brightness(.98); }
+
+.rec-btn-ghost:hover {
+  filter: brightness(.98);
+}
