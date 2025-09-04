@@ -28,7 +28,7 @@ import { KEYS, save } from './storage.js';
         <div class="rec-card">
           <h2 id="recoverTitle" class="rec-title">Сброс пароля</h2>
           <p id="recoverDesc" class="rec-sub">
-            Укажите e-mail, привязанный к аккаунту. Мы отправим ссылку для восстановления.
+            Укажите e-mail, привязанный к аккаунту. Мы отправим на него новый пароль.
           </p>
 
           <form id="recoverForm" novalidate>
