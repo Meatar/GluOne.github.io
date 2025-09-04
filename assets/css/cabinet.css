@@ -178,8 +178,8 @@
 }
 
 /* ==== Показ/скрытие пароля (иконка как в логине) ==== */
-.form-field.has-toggle { position: relative; }
-.form-field.has-toggle input { padding-right: 44px; }
+.form-field .field-wrap{ position:relative; }
+.form-field .field-wrap input{ padding-right:44px; }
 
 .toggle-pass{
   position:absolute;
