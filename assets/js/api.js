@@ -178,3 +178,22 @@ export function authDeleteAccount(username, password) {
     body: JSON.stringify({ username, password })
   });
 }
+
+/**
+ * Восстановление пароля (WEB)
+ * POST /auth/web/recover-password
+ * @param {string} email
+ * @returns {Promise<{ok: boolean, status: number, data: any}>}
+ *
+ * Возможные ответы:
+ *  - 204 No Content — письмо отправлено (data === null)
+ *  - 404 Not Found — пользователь с указанным адресом не найден
+ *  - 422 Unprocessable Entity — ошибка валидации (например, пустой/некорректный e-mail)
+ */
+export function authRecoverPassword(email) {
+  return request('/auth/web/recover-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ email })
+  });
+}

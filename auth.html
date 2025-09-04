@@ -70,7 +70,7 @@
           <p id="passwordError" class="form-error" hidden style="margin-top:6px;"></p>
 
           <div style="display:flex; justify-content:flex-end; margin-top:8px;">
-            <a href="/forgot" style="font-size:14px; color:#6366f1; text-decoration:none;">Забыли пароль?</a>
+            <a id="forgotLink" href="#" style="font-size:14px; color:#6366f1; text-decoration:none;">Забыли пароль?</a>
           </div>
 
           <button id="submitBtn" type="submit" class="btn-primary" style="margin-top:20px;">Войти</button>
@@ -79,5 +79,37 @@
       </div>
     </section>
   </main>
+
+  <!-- Бэкдроп модального окна -->
+  <div id="recoverBackdrop" class="modal-backdrop" hidden
+       style="position:fixed; inset:0; background:rgba(2,6,23,.6); backdrop-filter:saturate(120%) blur(2px); z-index:1000;"></div>
+
+  <!-- Модальное окно восстановления пароля -->
+  <div id="recoverModal" role="dialog" aria-modal="true" aria-labelledby="recoverTitle" aria-describedby="recoverDesc" hidden
+       style="position:fixed; inset:0; display:grid; place-items:center; z-index:1001;">
+    <div class="card" style="width:min(520px, 92vw); padding:20px 20px 16px; background:var(--surface, #0b1220); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35);">
+      <h2 id="recoverTitle" style="margin:0; font-size:20px;">Восстановление пароля</h2>
+      <p id="recoverDesc" class="auth-sub" style="margin:8px 0 12px;">
+        Укажите e-mail, привязанный к вашему аккаунту. Мы отправим ссылку для сброса пароля.
+      </p>
+
+      <form id="recoverForm" novalidate>
+        <label for="recoverEmail" style="display:block; font-weight:600; color:var(--ink-2); font-size:14px;">E-mail</label>
+        <div class="input-wrap" style="margin-top:8px;">
+          <input id="recoverEmail" name="email" type="email"
+                 class="field" placeholder="you@example.com"
+                 autocomplete="email" required inputmode="email" />
+        </div>
+        <p id="recoverEmailError" class="form-error" hidden style="margin-top:6px;"></p>
+
+        <p id="recoverMsg" class="form-hint" style="margin-top:10px;"></p>
+
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button type="button" id="recoverCancel" class="btn-secondary">Отмена</button>
+          <button type="submit" id="recoverSubmit" class="btn-primary">Отправить</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>
