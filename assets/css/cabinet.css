@@ -1,3 +1,22 @@
+/* ===== Design tokens for cabinet (light/dark) ===== */
+:root{
+  --badge-bg: #bbf7d0;
+  --badge-text: #0c2a1a;
+  --badge-border: #86efac;
+  --danger-bg: color-mix(in oklab, #fee2e2 70%, transparent);
+  --danger-text: #991b1b;
+  --danger-border: color-mix(in oklab, #ef4444 60%, var(--divider));
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --badge-bg: color-mix(in oklab, #bbf7d0 80%, transparent);
+    --badge-text: #064e3b;
+    --badge-border: color-mix(in oklab, #86efac 80%, transparent);
+    --danger-bg: color-mix(in oklab, #7f1d1d 40%, transparent);
+    --danger-text: #fecaca;
+  }
+}
+
 /* ===== Layout for cabinet ===== */
 .container-lg{
   width: min(100%, 1040px);
@@ -40,7 +59,7 @@
 .me-badge{
   padding:6px 10px; border-radius:9999px;
   font-weight:700; font-size:12px; line-height:1;
-  color:#0c2a1a; background:#bbf7d0; border:1px solid #86efac;
+  color:var(--badge-text); background:var(--badge-bg); border:1px solid var(--badge-border);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
 }
 .me-body{ padding-top:6px; }
@@ -132,9 +151,9 @@
 /* ===== Кнопка опасного действия ===== */
 .btn-danger{
   appearance:none;
-  border:1px solid color-mix(in oklab, #ef4444 60%, var(--divider));
-  background: color-mix(in oklab, #fee2e2 70%, transparent);
-  color:#991b1b;
+  border:1px solid var(--danger-border);
+  background: var(--danger-bg);
+  color:var(--danger-text);
   font-weight:700;
   border-radius:12px;
   padding:10px 14px;
@@ -154,12 +173,12 @@
 .modal-card{
   position:relative; z-index:1;
   width:min(100%, 420px);
-  background: var(--surface, #fff);
+  background: var(--card);
   color: var(--ink);
   border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
   border-radius:16px;
   padding:16px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
 }
 .modal-title{ margin:0 0 8px; font:700 18px/1.2 Inter, system-ui, sans-serif; }
 .modal-form{ display:grid; gap:10px; }
@@ -172,9 +191,9 @@
 .modal-actions{ display:flex; gap:10px; margin-top:6px; }
 .danger-note{
   padding:10px 12px; border-radius:12px; margin:0 0 8px;
-  background: color-mix(in oklab, #fee2e2 60%, transparent);
-  border:1px solid color-mix(in oklab, #ef4444 50%, var(--divider));
-  color:#7f1d1d;
+  background: var(--danger-bg);
+  border:1px solid var(--danger-border);
+  color:var(--danger-text);
 }
 
 /* ==== Показ/скрытие пароля (иконка как в логине) ==== */
