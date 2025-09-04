@@ -1,4 +1,3 @@
-// ДОБАВЬ: импорт метода восстановления
 import { authLogin, authRecoverPassword } from './api.js';
 import { KEYS, save } from './storage.js';
 
@@ -6,7 +5,7 @@ import { KEYS, save } from './storage.js';
   const form = document.getElementById('authForm');
   if (!form) return;
 
-  // --- существующие элементы ---
+  // -------- элементы формы входа --------
   const loginI  = document.getElementById('login');
   const passI   = document.getElementById('password');
   const toggle  = document.getElementById('togglePass');
@@ -14,82 +13,99 @@ import { KEYS, save } from './storage.js';
   const loginE  = document.getElementById('loginError');
   const passE   = document.getElementById('passwordError');
   const formMsg = document.getElementById('formMsg');
+  const forgotLink = document.getElementById('forgotLink');
 
-  // --- элементы модалки восстановления ---
-  const forgotLink    = document.getElementById('forgotLink');
-  const modal         = document.getElementById('recoverModal');
-  const backdrop      = document.getElementById('recoverBackdrop');
-  const recoverForm   = document.getElementById('recoverForm');
-  const recoverEmail  = document.getElementById('recoverEmail');
-  const recoverEmailE = document.getElementById('recoverEmailError');
-  const recoverMsg    = document.getElementById('recoverMsg');
-  const recoverCancel = document.getElementById('recoverCancel');
-  const recoverSubmit = document.getElementById('recoverSubmit');
+  // -------- модалка восстановления (создаём по клику) --------
+  let modalRoot = null;      // контейнер модалки
+  let lastFocused = null;    // для возврата фокуса
 
-  // ===== UX: показать/скрыть модалку =====
-  let lastFocused = null;
+  function buildRecoverModal() {
+    // корневой контейнер
+    modalRoot = document.createElement('div');
+    modalRoot.id = 'recoverMount';
+    modalRoot.innerHTML = `
+      <div id="recoverBackdrop" style="
+          position:fixed; inset:0; background:rgba(2,6,23,.55);
+          backdrop-filter:saturate(120%) blur(2px); z-index:1000;"></div>
 
-  const showRecover = () => {
-    lastFocused = document.activeElement;
-    recoverForm.reset();
-    recoverMsg.textContent = '';
-    recoverMsg.style.color = '';
-    recoverEmailE.textContent = '';
-    recoverEmailE.hidden = true;
-    recoverEmail.removeAttribute('aria-invalid');
+      <div id="recoverModal" role="dialog" aria-modal="true"
+           aria-labelledby="recoverTitle" aria-describedby="recoverDesc"
+           style="position:fixed; inset:0; display:grid; place-items:center; z-index:1001;">
+        <div class="card" style="
+            width:min(440px, 92vw); border-radius:16px; padding:20px 20px 16px;
+            background:var(--surface, #0b1220); color:var(--ink, #e5e7eb);
+            box-shadow:0 18px 45px rgba(0,0,0,.45);">
+          <h2 id="recoverTitle" style="margin:0 0 6px; font-size:20px; line-height:1.2;">Сброс пароля</h2>
+          <p id="recoverDesc" style="margin:0 0 14px; opacity:.85; font-size:14px;">
+            Укажите e-mail, привязанный к аккаунту. Мы вышлем на него логин и пароль.
+          </p>
 
-    backdrop.hidden = false;
-    modal.hidden = false;
+          <form id="recoverForm" novalidate>
+            <label for="recoverEmail" style="display:block; font-weight:600; font-size:14px;">E-mail</label>
+            <div class="input-wrap" style="margin-top:8px;">
+              <input id="recoverEmail" name="email" type="email" class="field"
+                     placeholder="you@example.com" autocomplete="email" required inputmode="email"
+                     style="width:100%;">
+            </div>
+            <p id="recoverEmailError" class="form-error" hidden style="margin-top:6px;"></p>
 
-    // Фокус на поле
-    setTimeout(() => recoverEmail.focus(), 0);
+            <p id="recoverMsg" class="form-hint" style="margin-top:10px;"></p>
 
-    // Блокировка скролла страницы
-    document.documentElement.style.overflow = 'hidden';
-  };
+            <div style="display:flex; gap:10px; margin-top:16px;">
+              <button type="button" id="recoverCancel" class="btn-secondary" style="min-width:110px;">Отмена</button>
+              <button type="submit" id="recoverSubmit" class="btn-primary" style="flex:1;">Отправить</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modalRoot);
 
-  const hideRecover = () => {
-    backdrop.hidden = true;
-    modal.hidden = true;
-    document.documentElement.style.overflow = '';
-    if (lastFocused && typeof lastFocused.focus === 'function') {
-      lastFocused.focus();
-    }
-  };
+    // фокус после монтирования
+    setTimeout(() => {
+      modalRoot.querySelector('#recoverEmail')?.focus();
+    }, 0);
 
-  // Открыть по ссылке «Забыли пароль?»
-  if (forgotLink) {
-    forgotLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      showRecover();
+    // события
+    const backdrop      = modalRoot.querySelector('#recoverBackdrop');
+    const modal         = modalRoot.querySelector('#recoverModal');
+    const recoverForm   = modalRoot.querySelector('#recoverForm');
+    const recoverEmail  = modalRoot.querySelector('#recoverEmail');
+    const recoverEmailE = modalRoot.querySelector('#recoverEmailError');
+    const recoverMsg    = modalRoot.querySelector('#recoverMsg');
+    const recoverCancel = modalRoot.querySelector('#recoverCancel');
+    const recoverSubmit = modalRoot.querySelector('#recoverSubmit');
+
+    // trap focus (простая версия)
+    const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const firstEl = focusables[0], lastEl = focusables[focusables.length - 1];
+    modal.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstEl) { lastEl.focus(); e.preventDefault(); }
+        else if (!e.shiftKey && document.activeElement === lastEl) { firstEl.focus(); e.preventDefault(); }
+      } else if (e.key === 'Escape') {
+        destroyRecoverModal();
+      }
     });
-  }
 
-  // Закрытия: фон, кнопка «Отмена», Esc
-  if (backdrop) backdrop.addEventListener('click', hideRecover);
-  if (recoverCancel) recoverCancel.addEventListener('click', hideRecover);
-  document.addEventListener('keydown', (e) => {
-    if (!modal.hidden && e.key === 'Escape') hideRecover();
-  });
+    function showFieldError(el, errEl, text) {
+      errEl.textContent = text || '';
+      errEl.hidden = !text;
+      if (text) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
+    }
+    const explainEmail = (el) =>
+      el.validity.valueMissing ? 'Введите e-mail.' :
+      (!el.checkValidity() ? 'Некорректный e-mail.' : '');
 
-  // Простая валидация e-mail
-  const explainEmail = (el) =>
-    el.validity.valueMissing ? 'Введите e-mail.' :
-    (!el.checkValidity() ? 'Некорректный e-mail.' : '');
+    recoverEmail.addEventListener('input', () => showFieldError(recoverEmail, recoverEmailE, ''));
 
-  const showFieldError = (el, errEl, text) => {
-    errEl.textContent = text;
-    errEl.hidden = !text;
-    if (text) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
-  };
+    // закрытия
+    backdrop.addEventListener('click', destroyRecoverModal);
+    recoverCancel.addEventListener('click', destroyRecoverModal);
 
-  recoverEmail.addEventListener('input', () => showFieldError(recoverEmail, recoverEmailE, ''));
-
-  // Сабмит формы восстановления
-  if (recoverForm) {
+    // отправка
     recoverForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       recoverMsg.textContent = '';
       recoverMsg.style.color = '';
 
@@ -98,45 +114,33 @@ import { KEYS, save } from './storage.js';
         return;
       }
 
-      // loading state
-      recoverSubmit.disabled = true;
-      recoverSubmit.style.opacity = .7;
-
-      const email = recoverEmail.value.trim();
-      let res;
+      recoverSubmit.disabled = true; recoverSubmit.style.opacity = .7;
+      let resp;
       try {
-        res = await authRecoverPassword(email);
-      } catch (err) {
-        // Сетевые ошибки/таймаут
-        recoverSubmit.disabled = false;
-        recoverSubmit.style.opacity = 1;
-        recoverMsg.textContent = 'Не удалось отправить запрос. Проверьте соединение и попробуйте снова.';
+        resp = await authRecoverPassword(recoverEmail.value.trim());
+      } catch {
+        recoverSubmit.disabled = false; recoverSubmit.style.opacity = 1;
+        recoverMsg.textContent = 'Не удалось отправить запрос. Проверьте соединение и повторите.';
         recoverMsg.style.color = '#e11d48';
         return;
       }
+      recoverSubmit.disabled = false; recoverSubmit.style.opacity = 1;
 
-      recoverSubmit.disabled = false;
-      recoverSubmit.style.opacity = 1;
-
-      const { ok, status, data } = res || {};
+      const { ok, status, data } = resp || {};
       const errDetail = data?.detail?.[0]?.msg ?? data?.detail;
 
       if (ok && status === 204) {
-        // Успех: закрываем модалку и показываем зелёный тост под основной формой
-        hideRecover();
+        destroyRecoverModal();
         formMsg.textContent = 'Письмо для восстановления отправлено. Проверьте почту.';
         formMsg.style.color = '#059669';
         formMsg.className = 'form-hint';
         return;
       }
-
-      // Ошибки API
       if (status === 404) {
         recoverMsg.textContent = 'Пользователь с таким e-mail не найден.';
         recoverMsg.style.color = '#e11d48';
       } else if (status === 422) {
-        // Валидация на беке: подсветим поле и покажем причину
-        const t = typeof errDetail === 'string' && errDetail ? errDetail : 'Некорректный e-mail. Исправьте и попробуйте снова.';
+        const t = (typeof errDetail === 'string' && errDetail) ? errDetail : 'Некорректный e-mail.';
         showFieldError(recoverEmail, recoverEmailE, t);
         recoverMsg.textContent = '';
       } else if (status === 429) {
@@ -152,7 +156,30 @@ import { KEYS, save } from './storage.js';
     });
   }
 
-  // ===== существующая логика видимости пароля и логина (без изменений) =====
+  function showRecoverModal() {
+    if (modalRoot) return; // уже открыта
+    lastFocused = document.activeElement;
+    // блокируем скролл страницы
+    document.documentElement.style.overflow = 'hidden';
+    buildRecoverModal();
+  }
+
+  function destroyRecoverModal() {
+    if (!modalRoot) return;
+    modalRoot.remove();
+    modalRoot = null;
+    document.documentElement.style.overflow = '';
+    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+  }
+
+  if (forgotLink) {
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      showRecoverModal();
+    });
+  }
+
+  // -------- существующий UX пароля --------
   passI.type = 'password';
   if (toggle) {
     toggle.dataset.state = 'hidden';
@@ -165,6 +192,7 @@ import { KEYS, save } from './storage.js';
     });
   }
 
+  // -------- валидация и сабмит логина (как было) --------
   const explainLogin = (el) => el.validity.valueMissing ? 'Введите логин.' : (!el.checkValidity() ? 'Некорректный логин.' : '');
   const explainPass  = (el) => el.validity.valueMissing ? 'Введите пароль.' : (!el.checkValidity() ? 'Некорректный пароль.' : '');
   const showError    = (el, errEl, text) => { errEl.textContent = text; errEl.hidden = !text; el.setAttribute('aria-invalid','true'); };
