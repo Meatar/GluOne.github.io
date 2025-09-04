@@ -10,8 +10,6 @@ import { KEYS, save } from './storage.js';
   const passI   = document.getElementById('password');
   const toggle  = document.getElementById('togglePass');
   const submit  = document.getElementById('submitBtn');
-  const loginE  = document.getElementById('loginError');
-  const passE   = document.getElementById('passwordError');
   const formMsg = document.getElementById('formMsg');
   const forgotLink = document.getElementById('forgotLink');
 
@@ -182,13 +180,7 @@ import { KEYS, save } from './storage.js';
     });
   }
 
-  const explainLogin = (el) => el.validity.valueMissing ? 'Введите логин.' : (!el.checkValidity() ? 'Некорректный логин.' : '');
-  const explainPass  = (el) => el.validity.valueMissing ? 'Введите пароль.' : (!el.checkValidity() ? 'Некорректный пароль.' : '');
-  const showError    = (el, errEl, text) => { errEl.textContent = text; errEl.hidden = !text; el.setAttribute('aria-invalid','true'); };
-  const clearError   = (el, errEl) => { errEl.textContent = ''; errEl.hidden = true; el.removeAttribute('aria-invalid'); };
-
-  loginI.addEventListener('input', () => clearError(loginI, loginE));
-  passI .addEventListener('input', () => clearError(passI, passE));
+  // валидация логина и пароля выполняется на сервере
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -196,11 +188,6 @@ import { KEYS, save } from './storage.js';
     formMsg.textContent = '';
     formMsg.className   = 'form-hint';
     formMsg.style.color = '';
-
-    let invalid = false;
-    if (!loginI.checkValidity()) { showError(loginI, loginE, explainLogin(loginI)); invalid = true; }
-    if (!passI.checkValidity())  { showError(passI,  passE,  explainPass(passI));   invalid = true; }
-    if (invalid) return;
 
     submit.disabled = true; submit.style.opacity = .7;
     const { ok, status, data } = await authLogin(loginI.value.trim(), passI.value);
