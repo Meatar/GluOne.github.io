@@ -19,7 +19,7 @@
 .circle-icon{
   width:56px; height:56px; margin:4px auto 14px;
   display:grid; place-items:center;
-  color:#6366f1;
+  color:var(--accent);
   background: color-mix(in oklab, var(--divider) 12%, transparent);
   border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
   border-radius: 50%;
@@ -63,7 +63,7 @@
 .link-btn{
   margin-left:8px;
   background:none; border:0; padding:0;
-  color:#6366f1; font: inherit; cursor:pointer;
+  color:var(--accent); font: inherit; cursor:pointer;
 }
 .link-btn[disabled]{ opacity:.45; cursor: default; }
 

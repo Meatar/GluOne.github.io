@@ -111,14 +111,19 @@ import { KEYS, load, save, del } from './storage.js';
   }
 
   // Инпуты
+  const maybeVerify = () => {
+    setError(''); setMsg('');
+    if (inputs.every(x => x.value && /^\d$/.test(x.value))) attemptVerify();
+  };
+
   inputs.forEach((el, i) => {
     el.value = '';
-    el.addEventListener('input', () => {
+    const handleInput = () => {
       el.value = el.value.replace(/\D/g, '').slice(0,1);
       if (el.value && i < inputs.length - 1) inputs[i + 1].focus();
-      setError(''); setMsg('');
-      if (inputs.every(x => x.value && /^\d$/.test(x.value))) attemptVerify();
-    });
+      maybeVerify();
+    };
+    ['input','keyup','change'].forEach(evt => el.addEventListener(evt, handleInput));
     el.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace' && !el.value && i > 0) inputs[i - 1].focus();
       if (e.key === 'Enter') e.preventDefault(); // Enter не нужен — у нас автопроверка
@@ -153,7 +158,7 @@ import { KEYS, load, save, del } from './storage.js';
     }, 1000);
   }
   const left0 = cooldownLeft();
-  if (left0 > 0) startCooldown(left0); else { resendBtn.disabled = false; resendTimerEl.textContent = fmt(0); }
+  startCooldown(left0 > 0 ? left0 : RESEND_COOLDOWN_S);
 
   resendBtn.addEventListener('click', async () => {
     if (resendBtn.disabled) return;
