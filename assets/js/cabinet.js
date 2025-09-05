@@ -1,3 +1,4 @@
+// cabinet.js
 import {
   authMe, authLogout, authDevices, authRevokeDevice,
   authChangePassword, authDeleteAccount, authDeleteDevice
@@ -71,6 +72,7 @@ import { KEYS, load, del } from './storage.js';
   const mapDia    = (t) => ({ type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный' })[t] || '—';
 
   let currentUsername = null;
+  let profileLoaded = false;
 
   // ===== profile
   async function loadMe(){
@@ -78,6 +80,7 @@ import { KEYS, load, del } from './storage.js';
     const { ok, status, data } = await authMe(token.access_token);
 
     if (ok) {
+      profileLoaded = true;
       currentUsername = data?.username || data?.email || null;
 
       meUsername.textContent = data?.username || 'Без имени';
@@ -111,7 +114,7 @@ import { KEYS, load, del } from './storage.js';
       return;
     }
 
-    if (status === 401) {
+    if (status === 401 || status === 404) {
       window.location.href = '/auth.html?next=%2Fcabinet.html';
     } else {
       meMsg.textContent = 'Ошибка загрузки профиля: ' + status;
@@ -119,9 +122,9 @@ import { KEYS, load, del } from './storage.js';
   }
 
   // ===== devices
-  const chip = (text) => {
+  const chip = (text, cls = '') => {
     const c = document.createElement('span');
-    c.className = 'chip';
+    c.className = 'chip' + (cls ? ` ${cls}` : '');
     c.textContent = text;
     return c;
   };
@@ -142,7 +145,7 @@ import { KEYS, load, del } from './storage.js';
     try {
       const { ok, status, data } = await authRevokeDevice(token.access_token, deviceId);
 
-      if (ok || status === 200) {
+      if (ok || status === 204) {
         await loadDevices();
         meDevicesStatus.hidden = false;
         meDevicesStatus.textContent = 'Устройство разлогинено.';
@@ -150,15 +153,13 @@ import { KEYS, load, del } from './storage.js';
       } else if (status === 401) {
         meDevicesStatus.hidden = false;
         meDevicesStatus.textContent = 'Сессия истекла. Войдите заново.';
-      } else if (status === 422) {
+      } else {
+        // 422/прочее
         const msg = Array.isArray(data?.detail)
           ? data.detail.map(e => e?.msg).filter(Boolean).join('; ')
-          : 'Некорректные данные';
+          : `Ошибка: ${status}`;
         meDevicesStatus.hidden = false;
-        meDevicesStatus.textContent = `Ошибка: ${msg}`;
-      } else {
-        meDevicesStatus.hidden = false;
-        meDevicesStatus.textContent = `Ошибка: ${status}`;
+        meDevicesStatus.textContent = msg;
       }
     } catch (e) {
       console.error('revoke error', e);
@@ -180,7 +181,7 @@ import { KEYS, load, del } from './storage.js';
     try {
       const { ok, status, data } = await authDeleteDevice(token.access_token, deviceId);
 
-      if (ok || status === 204 || status === 200) {
+      if (ok || status === 204) {
         await loadDevices();
         meDevicesStatus.hidden = false;
         meDevicesStatus.textContent = 'Запись об устройстве удалена.';
@@ -188,15 +189,12 @@ import { KEYS, load, del } from './storage.js';
       } else if (status === 401) {
         meDevicesStatus.hidden = false;
         meDevicesStatus.textContent = 'Сессия истекла. Войдите заново.';
-      } else if (status === 422) {
+      } else {
         const msg = Array.isArray(data?.detail)
           ? data.detail.map(e => e?.msg).filter(Boolean).join('; ')
-          : 'Некорректные данные';
+          : `Ошибка: ${status}`;
         meDevicesStatus.hidden = false;
-        meDevicesStatus.textContent = `Ошибка: ${msg}`;
-      } else {
-        meDevicesStatus.hidden = false;
-        meDevicesStatus.textContent = `Ошибка: ${status}`;
+        meDevicesStatus.textContent = msg;
       }
     } catch (e) {
       console.error('delete device error', e);
@@ -226,6 +224,7 @@ import { KEYS, load, del } from './storage.js';
     badges.className = 'device-badges';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
+    if (dev?.is_premium) badges.appendChild(chip('Premium', 'chip-premium')); // новый бейдж
 
     // Если устройство НЕ отозвано — показываем «Выйти ...»
     if (!dev?.revoked) {
@@ -266,6 +265,7 @@ import { KEYS, load, del } from './storage.js';
       ...attrRow('Создано', dev?.created_at ? fmtDate(dev.created_at) : null),
       ...attrRow('IP', dev?.last_ip),
       ...attrRow('ID устройства', dev?.device_id),
+      ...(dev?.premium_expires_at ? attrRow('Premium до', fmtDate(dev.premium_expires_at)) : []),
     ].forEach(n => attrs.appendChild(n));
 
     item.appendChild(head);
@@ -388,6 +388,10 @@ import { KEYS, load, del } from './storage.js';
     let closeModal = null;
 
     btn.addEventListener('click', () => {
+      if (!profileLoaded || !currentUsername) {
+        alert('Профиль ещё не загружен. Повторите попытку через пару секунд.');
+        return;
+      }
       cpForm.reset();
       cpMsg.textContent = '';
       closeModal = openModal(modalChangePass);
@@ -397,6 +401,11 @@ import { KEYS, load, del } from './storage.js';
 
     cpForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!profileLoaded || !currentUsername) {
+        cpMsg.textContent = 'Профиль не загружен. Повторите попытку позже.';
+        return;
+      }
+
       cpMsg.textContent = '';
 
       const old_password = (cpOld.value || '').trim();
@@ -508,6 +517,9 @@ import { KEYS, load, del } from './storage.js';
     const btn = document.getElementById('logoutBtn');
     if (!btn) return;
 
+    // Имя CSRF-куки — вынесено в константу для гибкости
+    const CSRF_COOKIE_NAME = 'csrf_token';
+
     function getCookie(name){
       const m = document.cookie.match(new RegExp('(^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1') + '=([^;]*)'));
       return m ? decodeURIComponent(m[2]) : null;
@@ -516,7 +528,7 @@ import { KEYS, load, del } from './storage.js';
     btn.addEventListener('click', async () => {
       btn.disabled = true;
       try {
-        const csrf = getCookie('csrf_token');
+        const csrf = getCookie(CSRF_COOKIE_NAME);
         await authLogout(csrf);
       } catch(_) {}
 
@@ -538,4 +550,3 @@ import { KEYS, load, del } from './storage.js';
   setupDeleteAccount();
   setupLogout();
 })();
-

@@ -41,22 +41,39 @@
         <form id="confirmForm" novalidate style="margin-top:24px;">
           <!-- 4 ячейки -->
           <div class="otp-grid otp-grid--4" aria-label="Поля ввода кода из письма">
-            <input class="otp-input" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Первая цифра" />
-            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Вторая цифра" />
-            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Третья цифра" />
-            <input class="otp-input" inputmode="numeric" maxlength="1" aria-label="Четвёртая цифра" />
+            <input class="otp-input"
+                   inputmode="numeric" pattern="\d*" maxlength="1"
+                   autocomplete="one-time-code"
+                   aria-label="Первая цифра" aria-describedby="codeError confirmMsg"
+                   enterkeyhint="next" autofocus />
+            <input class="otp-input"
+                   inputmode="numeric" pattern="\d*" maxlength="1"
+                   aria-label="Вторая цифра" aria-describedby="codeError confirmMsg"
+                   enterkeyhint="next" />
+            <input class="otp-input"
+                   inputmode="numeric" pattern="\d*" maxlength="1"
+                   aria-label="Третья цифра" aria-describedby="codeError confirmMsg"
+                   enterkeyhint="next" />
+            <input class="otp-input"
+                   inputmode="numeric" pattern="\d*" maxlength="1"
+                   aria-label="Четвёртая цифра" aria-describedby="codeError confirmMsg"
+                   enterkeyhint="done" />
           </div>
-          <p id="codeError" class="form-error" hidden style="margin-top:10px;"></p>
+
+          <p id="codeError" class="form-error" hidden style="margin-top:10px;"
+             role="status" aria-live="assertive"></p>
 
           <!-- кнопки нет: автопроверка при вводе всех цифр -->
 
           <div class="resend-wrap" style="margin-top:14px; text-align:center;">
             <span class="form-hint">Не получили код?</span>
-            <button id="resendBtn" type="button" class="link-btn" disabled title="Повторная отправка временно недоступна">
+            <button id="resendBtn" type="button" class="link-btn" disabled
+                    title="Повторная отправка временно недоступна">
               Отправить повторно
             </button>
             <div class="form-hint" style="margin-top:6px;">
-              Повторная отправка доступна через <span id="resendTimer">00:45</span>
+              Повторная отправка доступна через
+              <span id="resendTimer" aria-live="polite" role="status">00:45</span>
             </div>
           </div>
 
@@ -71,8 +88,15 @@
             </div>
           </div>
 
-          <p id="confirmMsg" class="form-hint" style="margin-top:10px;"></p>
+          <p id="confirmMsg" class="form-hint" style="margin-top:10px;"
+             role="status" aria-live="polite"></p>
         </form>
+
+        <noscript>
+          <p class="form-hint" style="margin-top:12px; text-align:center;">
+            Для подтверждения требуется JavaScript. Пожалуйста, включите его в настройках браузера.
+          </p>
+        </noscript>
       </div>
     </section>
   </main>

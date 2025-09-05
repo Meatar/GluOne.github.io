@@ -347,3 +347,91 @@ button, .btn-hero, .btn-outline {
   transform: translateY(2px);
   border-color: color-mix(in oklab, var(--divider) 95%, transparent);
 }
+
+/* ===== Patches & a11y hardening ===== */
+
+/* 1) color-mix fallbacks (старые браузеры) */
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .site-header{
+    background: var(--bg);
+    border-bottom: 1px solid var(--divider);
+  }
+  .hero-bg::before{
+    background:
+      linear-gradient(transparent 31px, var(--divider) 32px),
+      linear-gradient(90deg, transparent 31px, var(--divider) 32px);
+  }
+  .hero-card,
+  .card,
+  .feature-card{
+    border-color: var(--divider);
+  }
+  .feature-tab{
+    background: rgba(127,127,127,.06);
+    border-color: var(--divider);
+  }
+  .v-divider{
+    background: linear-gradient(transparent, var(--divider) 40%, transparent);
+  }
+}
+
+/* 2) Кнопки: :disabled, и узнаваемый фокус в dark */
+.btn-hero:disabled,
+.btn-outline:disabled,
+.btn-primary:disabled{
+  opacity:.6;
+  cursor: not-allowed;
+  transform:none;
+  filter:none;
+  box-shadow:none;
+}
+@media (prefers-color-scheme: dark){
+  .btn-outline:focus-visible,
+  .btn-primary:focus-visible,
+  .btn-hero:focus-visible{
+    box-shadow: 0 0 0 3px rgba(99,102,241,.5); /* заметнее в dark */
+  }
+}
+
+/* 3) Поля форм: aria-invalid, autofill, focus-visible */
+.field[aria-invalid="true"]{
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px color-mix(in oklab, #ef4444 25%, transparent);
+  background: color-mix(in oklab, #ef4444 6%, var(--bg));
+}
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .field[aria-invalid="true"]{
+    box-shadow: 0 0 0 3px rgba(239,68,68,.25);
+    background: rgba(239,68,68,.06);
+  }
+}
+.field:focus-visible{ outline: none; }
+.field:-webkit-autofill{
+  -webkit-text-fill-color: var(--ink);
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* 4) Кнопки-иконки в полях: hit area + фокус */
+.icon-btn{ -webkit-tap-highlight-color: transparent; }
+.icon-btn:disabled{ opacity:.5; cursor: default; }
+.icon-btn:active{ transform: translateY(1px); }
+
+/* 5) Hero-карточки: немного «подушки» на мобилках */
+@media (max-width: 520px){
+  .hero-card{ border-radius: 20px; }
+}
+
+/* 6) Контраст табов при активном состоянии: текст всегда читаемый */
+.feature-tab.is-active,
+.feature-tab[aria-selected="true"]{
+  color: #fff;
+}
+
+/* 7) Мелочь: указываем system tap/hover улучшалки */
+button, .btn-hero, .btn-outline, .btn-primary{
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 8) Если захочется более «брендового» акцента — можно переопределить здесь:
+:root{ --accent: #4f46e5; }  @media (prefers-color-scheme: dark){ :root{ --accent:#6366f1; } }
+*/

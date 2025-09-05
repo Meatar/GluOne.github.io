@@ -9,14 +9,16 @@
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#0f172a" />
 
-  <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
-  <link rel="mask-icon" href="assets/logo-symbol.svg" color="#0f172a">
+  <!-- Favicons: выровнено с auth.html -->
+  <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/image/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/image/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/image/favicon-180.png">
+  <link rel="mask-icon" href="assets/image/logo-symbol.svg" color="#0f172a">
 
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/cabinet.css">
+
   <script type="module" src="assets/js/core.js"></script>
   <script type="module" src="assets/js/cabinet.js"></script>
 </head>
@@ -58,7 +60,7 @@
             </div>
 
             <div class="me-note" id="mePremiumNote" hidden></div>
-            <p id="meMsg" class="form-hint" style="margin-top:8px;"></p>
+            <p id="meMsg" class="form-hint" style="margin-top:8px;" role="status" aria-live="polite"></p>
           </div>
 
           <div class="me-actions">
@@ -73,7 +75,7 @@
         <article class="card devices-card" id="meDevicesSection" hidden>
           <header class="devices-head">
             <h2 class="auth-title devices-title">Устройства</h2>
-            <p id="meDevicesStatus" class="form-hint" hidden>Загрузка устройств…</p>
+            <p id="meDevicesStatus" class="form-hint" hidden role="status" aria-live="polite">Загрузка устройств…</p>
           </header>
 
           <div id="meDevicesEmpty" class="devices-empty" hidden>
@@ -91,16 +93,16 @@
     <div class="modal-backdrop"></div>
     <div class="modal-card">
       <h3 id="cpTitle" class="modal-title">Смена пароля</h3>
-      <form id="cpForm" class="modal-form">
+      <form id="cpForm" class="modal-form" novalidate>
         <label class="form-field">
           <span>Старый пароль</span>
-          <input id="cpOld" type="password" autocomplete="current-password" required />
+          <input id="cpOld" type="password" autocomplete="current-password" enterkeyhint="next" required aria-describedby="cpMsg" />
         </label>
         <label class="form-field">
           <span>Новый пароль</span>
-          <input id="cpNew" type="password" autocomplete="new-password" required minlength="6" />
+          <input id="cpNew" type="password" autocomplete="new-password" enterkeyhint="done" required minlength="6" aria-describedby="cpMsg" />
         </label>
-        <p id="cpMsg" class="form-hint" aria-live="polite"></p>
+        <p id="cpMsg" class="form-hint" aria-live="polite" role="status"></p>
         <div class="modal-actions">
           <button type="submit" class="btn-hero" id="cpSubmit">Изменить</button>
           <button type="button" class="btn-outline" id="cpCancel">Отмена</button>
@@ -115,16 +117,16 @@
     <div class="modal-card">
       <h3 id="delTitle" class="modal-title">Удаление аккаунта</h3>
       <p class="danger-note">Действие безвозвратно. Будут удалены ваши данные и подписки. Подтвердите логином и паролем.</p>
-      <form id="delForm" class="modal-form">
+      <form id="delForm" class="modal-form" novalidate>
         <label class="form-field">
           <span>Логин</span>
-          <input id="delUser" type="text" autocomplete="username" required />
+          <input id="delUser" type="text" autocomplete="username" enterkeyhint="next" required aria-describedby="delMsg" />
         </label>
         <label class="form-field">
           <span>Пароль</span>
-          <input id="delPass" type="password" autocomplete="current-password" required />
+          <input id="delPass" type="password" autocomplete="current-password" enterkeyhint="done" required aria-describedby="delMsg" />
         </label>
-        <p id="delMsg" class="form-hint" aria-live="polite"></p>
+        <p id="delMsg" class="form-hint" aria-live="polite" role="status"></p>
         <div class="modal-actions">
           <button type="submit" class="btn-danger" id="delSubmit">Удалить</button>
           <button type="button" class="btn-outline" id="delCancel">Отмена</button>
@@ -132,5 +134,11 @@
       </form>
     </div>
   </div>
+
+  <noscript>
+    <p class="form-hint" style="text-align:center; padding:12px;">
+      Для работы личного кабинета требуется JavaScript. Пожалуйста, включите его в настройках браузера.
+    </p>
+  </noscript>
 </body>
 </html>

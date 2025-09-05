@@ -29,6 +29,52 @@ async function request(path, { method = 'GET', headers = {}, body, timeout = 150
   }
 }
 
+/* ======================== helpers ======================== */
+
+/**
+ * Грубая идентификация браузера для X-Device-Id.
+ * Наша цель — стабильная короткая строка по сессии/браузеру, а не уникальный отпечаток.
+ */
+function getBrowserDeviceId() {
+  try {
+    // UA-CH (современные браузеры)
+    const nav = navigator;
+    if (nav.userAgentData?.brands?.length) {
+      const brands = nav.userAgentData.brands
+        .filter(b => !/Not.?A.?Brand/i.test(b.brand))
+        .map(b => `${b.brand} ${b.version}`.trim())
+        .join('; ');
+      const mobile = nav.userAgentData.mobile ? ' Mobile' : '';
+      return `Web (${brands})${mobile}`.slice(0, 120);
+    }
+    // Fallback на userAgent
+    const ua = (nav.userAgent || '').toLowerCase();
+    const isChrome = /chrome|crios|crmo/.test(ua) && !/edg|opr\//.test(ua);
+    const isEdge   = /edg\//.test(ua);
+    const isFirefox= /firefox|fxios/.test(ua);
+    const isSafari = /safari/.test(ua) && !/chrome|crios|crmo|android/.test(ua);
+    let name = isEdge ? 'Edge'
+             : isChrome ? 'Chrome'
+             : isFirefox ? 'Firefox'
+             : isSafari  ? 'Safari'
+             : 'Browser';
+    // вытащим примерную версию
+    let version = '';
+    const m =
+      (isEdge && ua.match(/edg\/([\d.]+)/)) ||
+      (isChrome && ua.match(/(?:chrome|crios)\/([\d.]+)/)) ||
+      (isFirefox && ua.match(/(?:firefox|fxios)\/([\d.]+)/)) ||
+      (isSafari && ua.match(/version\/([\d.]+)/));
+    if (m) version = m[1];
+    const platform = nav.platform || nav.userAgent || '';
+    return `Web ${name}${version ? ' ' + version : ''} (${platform})`.slice(0, 120);
+  } catch {
+    return 'Web Browser';
+  }
+}
+
+/* ======================== auth: login/verify/resend ======================== */
+
 /**
  * Логин (этап 1)
  */
@@ -62,17 +108,20 @@ export function authResend(challenge_id) {
   });
 }
 
+/* ======================== profile/me/logout ======================== */
+
 /**
- * Данные профиля текущего пользователя
+ * Данные профиля текущего пользователя.
+ * Автоматически добавляет X-Device-Id = "название браузера", в котором запущена сессия.
+ * Можно переопределить передав deviceId вторым аргументом.
  */
-export function authMe(accessToken) {
-  return request('/auth/web/me', {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
-    }
-  });
+export function authMe(accessToken, { deviceId } = {}) {
+  const headers = {
+    'Accept': 'application/json',
+    'Authorization': `Bearer ${accessToken}`,
+    'X-Device-Id': (deviceId || getBrowserDeviceId())
+  };
+  return request('/auth/web/me', { method: 'GET', headers });
 }
 
 /**
@@ -90,6 +139,8 @@ export async function authLogout(csrfToken) {
   });
 }
 
+/* ======================== devices ======================== */
+
 /**
  * Тип устройства (JSDoc для удобства)
  * @typedef {Object} AuthDevice
@@ -102,6 +153,8 @@ export async function authLogout(csrfToken) {
  * @property {string} last_ip
  * @property {boolean} revoked
  * @property {boolean} current
+ * @property {boolean} [is_premium]
+ * @property {string|null} [premium_expires_at]
  */
 
 /**
@@ -123,13 +176,8 @@ export function authDevices(accessToken) {
 /**
  * Отозвать (разлогинить) конкретное устройство пользователя
  * POST /auth/web/devices/revoke
- * @param {string} accessToken - Bearer токен
- * @param {string} deviceId    - ID устройства, которое нужно разлогинить
- * @returns {Promise<{ok: boolean, status: number, data: any}>}
- *
  * Успех: 204 No Content (res.ok === true, data === null)
- * Ошибки:
- *  - 422 Validation Error (например, пустой/невалидный device_id), data.detail с описанием
+ * Ошибки: 422 Validation Error и пр.
  */
 export function authRevokeDevice(accessToken, deviceId) {
   return request('/auth/web/devices/revoke', {
@@ -144,14 +192,27 @@ export function authRevokeDevice(accessToken, deviceId) {
 }
 
 /**
+ * Полное удаление записи об устройстве пользователя
+ * POST /auth/web/devices/delete
+ * Успех: 204 No Content
+ */
+export function authDeleteDevice(accessToken, deviceId) {
+  return request('/auth/web/devices/delete', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': '*/*',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({ device_id: deviceId })
+  });
+}
+
+/* ======================== password & account ======================== */
+
+/**
  * Смена пароля (WEB)
  * POST /auth/web/change-password
- * Возвращает:
- *  - 204 No Content — пароль сменён
- *  - 401 Unauthorized — неверные учётные данные
- *  - 403 Forbidden — пользователь неактивен
- *  - 422 Unprocessable Entity — не прошла валидация
- *  - 429 Too Many Requests — лимит запросов
  */
 export function authChangePassword(username, old_password, new_password) {
   return request('/auth/web/change-password', {
@@ -164,12 +225,6 @@ export function authChangePassword(username, old_password, new_password) {
 /**
  * Полное удаление аккаунта (WEB)
  * POST /auth/web/delete
- * Возвращает:
- *  - 204 No Content — аккаунт удалён
- *  - 401 Unauthorized — неверные учётные данные
- *  - 403 Forbidden — пользователь неактивен
- *  - 422 Unprocessable Entity — не прошла валидация
- *  - 429 Too Many Requests — лимит запросов
  */
 export function authDeleteAccount(username, password) {
   return request('/auth/web/delete', {
@@ -182,13 +237,6 @@ export function authDeleteAccount(username, password) {
 /**
  * Восстановление пароля (WEB)
  * POST /auth/web/recover-password
- * @param {string} email
- * @returns {Promise<{ok: boolean, status: number, data: any}>}
- *
- * Возможные ответы:
- *  - 204 No Content — письмо отправлено (data === null)
- *  - 404 Not Found — пользователь с указанным адресом не найден
- *  - 422 Unprocessable Entity — ошибка валидации (например, пустой/некорректный e-mail)
  */
 export function authRecoverPassword(email) {
   return request('/auth/web/recover-password', {
@@ -198,20 +246,34 @@ export function authRecoverPassword(email) {
   });
 }
 
+/* ======================== subscriptions (NEW) ======================== */
+
 /**
- * Полное удаление записи об устройстве пользователя
- * POST /auth/web/devices/delete
- * Успех: 204 No Content (res.ok === true, data === null)
- * Ошибки: 401/403/422/429 — как обычно
+ * Тип плана подписки (ответ /auth/web/subscriptions)
+ * @typedef {Object} SubscriptionPlan
+ * @property {string} id               - Идентификатор плана
+ * @property {string} name             - Название подписки
+ * @property {string} sku              - SKU/код продукта
+ * @property {number} duration_months  - Длительность в месяцах
+ * @property {number} price            - Стоимость (в минимальных единицах валюты, если так задано на сервере)
+ * @property {string} currency         - Валюта (например, "RUB")
+ * @property {number} discount         - Скидка (в процентах или единицах, согласно бэкенду)
+ * @property {boolean} is_active       - Признак активности плана
  */
-export function authDeleteDevice(accessToken, deviceId) {
-  return request('/auth/web/devices/delete', {
-    method: 'POST',
+
+/**
+ * Получить список доступных web-подписок для текущего пользователя.
+ * GET /auth/web/subscriptions
+ * Требуется Bearer токен.
+ * @param {string} accessToken
+ * @returns {Promise<{ok: boolean, status: number, data: SubscriptionPlan[] | null}>}
+ */
+export function authSubscriptions(accessToken) {
+  return request('/auth/web/subscriptions', {
+    method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
-      'Accept': '*/*',
+      'Accept': 'application/json',
       'Authorization': `Bearer ${accessToken}`
-    },
-    body: JSON.stringify({ device_id: deviceId })
+    }
   });
 }

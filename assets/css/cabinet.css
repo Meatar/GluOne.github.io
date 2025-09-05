@@ -268,3 +268,103 @@
   stroke-linejoin: round;
 }
 
+/* ===== Patch: базовые токены/фолбэки и доступность ===== */
+
+/* БАЗА: если общих токенов нет — дадим дефолты */
+:root{
+  --card: #0f172a;                /* фон карточек (dark-friendly) */
+  --ink: #e5e7eb;                 /* основной текст */
+  --divider: #1f2937;             /* деликатные разделители */
+  --shadow-sm: 0 2px 10px rgba(0,0,0,.18);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.28);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --card: #fff;
+    --ink: #0b1220;
+    --divider: #e5e7eb;
+    --shadow-sm: 0 1px 6px rgba(2,6,23,.08);
+    --shadow-lg: 0 20px 60px rgba(2,6,23,.12);
+  }
+}
+
+/* ФОЛБЭКИ для color-mix: чутка усилим контуры там, где браузер не умеет mix */
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .me-row{ border-bottom: 1px dashed var(--divider); }
+  .me-chips .chip,
+  .device-badges .chip,
+  .modal-card{
+    border-color: var(--divider);
+    background: rgba(127,127,127,.06);
+  }
+  .devices-card{ /* если оборачиваешь карту в card */
+    background: var(--card);
+  }
+}
+
+/* Чип Premium – под класс, который мы используем в JS */
+.chip-premium{
+  color: #8b5cf6;                   /* violet-500 */
+  border-color: color-mix(in oklab, #8b5cf6 60%, var(--divider));
+  background: color-mix(in oklab, #8b5cf6 12%, transparent);
+}
+
+/* Фокус для интерактивных элементов */
+.device-revoke,
+.device-delete,
+.btn-danger{
+  outline: none;
+}
+.device-revoke:focus-visible,
+.device-delete:focus-visible,
+.btn-danger:focus-visible{
+  box-shadow: 0 0 0 3px color-mix(in oklab, #6366f1 25%, transparent);
+  border-color: color-mix(in oklab, #6366f1 45%, var(--danger-border, var(--divider)));
+}
+
+/* Состояния наведения/нажатия – чуть понятнее */
+.device-revoke:hover,
+.device-delete:hover{
+  filter: brightness(1.02);
+}
+.device-revoke:active,
+.device-delete:active{
+  transform: translateY(1px);
+}
+
+/* Тёмная тема: добавим danger-border, чтобы не терялся контур */
+@media (prefers-color-scheme: dark){
+  :root{
+    --danger-border: color-mix(in oklab, #ef4444 35%, var(--divider));
+  }
+}
+
+/* Мелочь: выравнивание бейджей и кнопок при переносах */
+.device-right{ align-items: center; flex-wrap: wrap; }
+
+/* Слегка усилим пустое состояние устройств на light */
+@media (prefers-color-scheme: light){
+  .devices-empty{ color:#64748b; }
+}
+
+/* На очень узких экранах – больше воздуха */
+@media (max-width: 380px){
+  .me-head{ grid-template-columns: 56px 1fr; }
+  .me-avatar{ inline-size:56px; block-size:56px; }
+  .me-actions .btn-outline,
+  .me-actions .btn-hero,
+  .me-actions .btn-danger{ min-width: 140px; }
+}
+
+/* Печатный режим: убрать декоративные рамки/тени */
+@media print{
+  .device-item,
+  .me-row{ border: 0 !important; }
+  .me-badge, .device-badges .chip, .chip-premium{
+    border: 1px solid #999 !important;
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  .modal, .modal-backdrop{ display:none !important; }
+}

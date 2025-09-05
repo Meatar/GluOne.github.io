@@ -8,6 +8,7 @@
     <!-- SEO description and theme colour -->
     <meta name="description" content="GluOne — контроль глюкозы, инсулин, питание и активность в одном приложении." />
     <meta name="theme-color" content="#0f172a" />
+    <meta name="color-scheme" content="light dark" />
 
     <!-- Favicons -->
     <link rel="shortcut icon" href="/favicon.ico?v=4" type="image/x-icon" />
@@ -21,6 +22,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- Общие стили проекта -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
     <style>
       :root {
         --arc-size-x: 165%;
@@ -29,20 +33,23 @@
         --arc-feather: 80%;
         --divider: #e5e7eb;
       }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
 
-      body {
-        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      }
-
-      /* HERO background with subtle colored gradients */
       .hero-bg {
         background:
           radial-gradient(circle at 20% 10%, rgba(99, 102, 241, 0.08), transparent 25%),
           radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.08), transparent 25%),
           linear-gradient(#ffffff, #ffffff);
       }
+      @media (prefers-color-scheme: dark){
+        .hero-bg {
+          background:
+            radial-gradient(circle at 20% 10%, rgba(99, 102, 241, 0.12), transparent 30%),
+            radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.12), transparent 30%),
+            linear-gradient(#0b1220, #0b1220);
+        }
+      }
 
-      /* Card containing the image; keep rounded corners and subtle shadow */
       .hero-card {
         border-radius: 24px;
         box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06), 0 20px 40px rgba(2, 6, 23, 0.08);
@@ -50,108 +57,66 @@
         background: #fff;
         border: 1px solid rgba(2, 6, 23, 0.06);
       }
+      @media (prefers-color-scheme: dark){
+        .hero-card { background:#0f172a; border-color: rgba(148,163,184,.35); }
+      }
 
-      /* Mask used on the image – creates the curved right edge */
-      .hero-mask {
-        width: 100%;
-        height: 100%;
+      .hero-mask{
+        width: 100%; height: 100%;
         -webkit-mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
                 mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
-        -webkit-mask-repeat: no-repeat;
-                mask-repeat: no-repeat;
+        -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
       }
 
-      /* Ensure the hero image always covers the container */
-      .hero-img {
-        width: 100%;
-        height: auto;
-        display: block;
-        object-fit: cover;
-        object-position: center 45%;
+      .hero-img{
+        width:100%; height:auto; display:block;
+        object-fit: cover; object-position:center 45%;
         aspect-ratio: 4 / 3;
       }
-      @media (max-width: 1024px) {
-        .hero-img {
-          aspect-ratio: 3 / 2;
-        }
+      @media (max-width:1024px){ .hero-img{ aspect-ratio:3/2; } }
+
+      .v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
+
+      .hero-buttons{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+
+      .btn-hero{
+        height: 40px; padding: 0 20px; border-radius: 9999px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 16px; line-height: 1;
+        background: #0f172a; color: #fff;
+        transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+        cursor: pointer; text-decoration: none;
+      }
+      .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(2,6,23,.12); }
+      .btn-hero:focus-visible{ outline: 2px solid #0f172a; outline-offset: 2px; }
+      @media (prefers-color-scheme: dark){
+        .btn-hero{ background:#fff; color:#0b1220; }
+        .btn-hero:focus-visible{ outline-color:#fff; }
       }
 
-      /* Vertical divider between image and content */
-      .v-divider {
-        width: 1px;
-        background: linear-gradient(transparent, var(--divider) 40%, transparent);
-      }
+      .store-btn{ display:inline-block; height:40px; line-height:0; }
+      .store-btn img{ display:block; height:40px; width:auto; }
 
-      /* Buttons on the hero section share the same height */
-      .hero-buttons {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
+      .emo{
+        inline-size:40px; block-size:40px; border-radius:9999px;
+        background:#f1f5f9; display:inline-flex; align-items:center; justify-content:center;
+        font-size:22px; line-height:1; user-select:none; flex:0 0 auto;
       }
-
-      /* Primary CTA button (Авторизация) */
-      .btn-hero {
-        height: 40px;
-        padding: 0 20px;
-        border-radius: 9999px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 16px;
-        line-height: 1;
-        background: #0f172a;
-        color: #fff;
-        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
-        cursor: pointer;
-      }
-      .btn-hero:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(2, 6, 23, 0.12);
-      }
-      .btn-hero:focus-visible {
-        outline: 2px solid #0f172a;
-        outline-offset: 2px;
-      }
-
-      /* App Store button wrapper keeps the same height */
-      .store-btn {
-        display: inline-block;
-        height: 40px;
-        line-height: 0;
-      }
-      .store-btn img {
-        display: block;
-        height: 40px;
-        width: auto;
-      }
-
-      /* Emoji chips used in the feature list */
-      .emo {
-        inline-size: 40px;
-        block-size: 40px;
-        border-radius: 9999px;
-        background: #f1f5f9;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        line-height: 1;
-        user-select: none;
-        flex: 0 0 auto;
-      }
+      @media (prefers-color-scheme: dark){ .emo{ background: rgba(30,41,59,.8); } }
     </style>
+
+    <!-- Скрипт, который меняет "Авторизация" → "Личный кабинет/username" -->
+    <script type="module" src="assets/js/core.js"></script>
   </head>
   <body class="bg-white text-slate-900">
     <!-- Header -->
     <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
       <a class="flex items-center gap-3" href="/">
-        <img src="assets/image/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne logo" />
+        <img src="assets/image/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne logo" width="36" height="36" />
         <span class="font-semibold tracking-tight">GluOne</span>
       </a>
-      <!-- Primary action in header (same styling as hero button) -->
-      <a href="/auth.html" class="btn-hero" role="button">Авторизация</a>
+      <!-- помечаем как data-auth-link, чтобы core.js мог подменять текст/ссылку -->
+      <a href="/auth.html" class="btn-hero" data-auth-link role="button">Авторизация</a>
     </header>
 
     <!-- HERO -->
@@ -163,18 +128,19 @@
             <div class="hero-mask">
               <img
                 src="assets/image/hero.jpg"
-                srcset="assets/image/hero.jpg 800w, assets/image/hero.jpg 1200w, assets/image/hero.jpg 1600w"
+                srcset="
+                  assets/image/hero-800.jpg 800w,
+                  assets/image/hero-1200.jpg 1200w,
+                  assets/image/hero-1600.jpg 1600w"
                 sizes="(min-width:1024px) 560px, 100vw"
-                width="1600"
-                height="1200"
+                width="1600" height="1200"
                 class="hero-img"
-                loading="eager"
-                decoding="async"
+                loading="eager" decoding="async" fetchpriority="high"
                 alt="Диабет: приборы и принадлежности"
               />
             </div>
           </div>
-          <div class="v-divider hidden lg:block"></div>
+          <div class="v-divider hidden lg:block" aria-hidden="true"></div>
           <!-- Content -->
           <div class="lg:pl-4">
             <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
@@ -184,15 +150,13 @@
               Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
             </p>
             <div class="mt-7 hero-buttons">
-              <a href="/auth.html" class="btn-hero" role="button">Авторизация</a>
+              <a href="/auth.html" class="btn-hero" data-auth-link role="button">Авторизация</a>
               <a
                 href="https://apps.apple.com/app/idXXXXXXXX"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="store-btn"
-                aria-label="Загрузите в App Store"
+                target="_blank" rel="noopener noreferrer"
+                class="store-btn" aria-label="Загрузите в App Store"
               >
-                <img src="assets/image/appstore-badge.svg" alt="Загрузите в App Store" />
+                <img src="assets/image/appstore-badge.svg" alt="Загрузите в App Store" loading="lazy" width="140" height="40" />
               </a>
             </div>
           </div>
@@ -206,47 +170,19 @@
       <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Функционал GluOne">
         <button
           class="feature-tab px-4 py-2 rounded-full border bg-slate-900 text-white"
-          data-panel="panel-track"
-          role="tab"
-          aria-selected="true"
-          aria-controls="panel-track"
-        >
+          data-panel="panel-track" role="tab" aria-selected="true" aria-controls="panel-track">
           Что можно вести
         </button>
-        <button
-          class="feature-tab px-4 py-2 rounded-full border"
-          data-panel="panel-analytics"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-analytics"
-        >
+        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-analytics" role="tab" aria-selected="false" aria-controls="panel-analytics">
           Аналитика
         </button>
-        <button
-          class="feature-tab px-4 py-2 rounded-full border"
-          data-panel="panel-goals"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-goals"
-        >
+        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-goals" role="tab" aria-selected="false" aria-controls="panel-goals">
           Цели и&nbsp;единицы
         </button>
-        <button
-          class="feature-tab px-4 py-2 rounded-full border"
-          data-panel="panel-tools"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-tools"
-        >
+        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-tools" role="tab" aria-selected="false" aria-controls="panel-tools">
           Инструменты
         </button>
-        <button
-          class="feature-tab px-4 py-2 rounded-full border"
-          data-panel="panel-important"
-          role="tab"
-          aria-selected="false"
-          aria-controls="panel-important"
-        >
+        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-important" role="tab" aria-selected="false" aria-controls="panel-important">
           Важно
         </button>
       </div>
@@ -271,7 +207,7 @@
           <span class="emo" aria-hidden="true">🍽️</span>
           <div>
             <h3 class="text-[17px] font-semibold">Питание</h3>
-            <p class="mt-1 text-slate-600 text-sm">Граммы и ХЕ; поиск продуктов; поддержка штрих‑кодов.</p>
+            <p class="mt-1 text-slate-600 text-sm">Граммы и ХЕ; поиск продуктов; поддержка штрих-кодов.</p>
           </div>
         </div>
         <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
@@ -304,7 +240,7 @@
         </div>
         <div class="p-5 border rounded-2xl">
           <h3 class="font-semibold">Постпрандиальный контроль</h3>
-          <p class="text-sm text-slate-600">Динамика через 1–2 часа после еды и средний пик.</p>
+          <p class="text-sm text-slate-600">Динамика через 1–2 часа после еды и средний пик.</p>
         </div>
         <div class="p-5 border rounded-2xl">
           <h3 class="font-semibold">Инсулин</h3>
@@ -327,7 +263,7 @@
         </div>
         <div class="p-5 border rounded-2xl">
           <h3 class="font-semibold">Единицы измерения</h3>
-          <p class="text-sm text-slate-600">ммоль/л ↔ mg/dL; граммы ↔ ХЕ (10/12/15 г на 1 ХЕ).</p>
+          <p class="text-sm text-slate-600">ммоль/л ↔ mg/dL; граммы ↔ ХЕ (10/12/15 г на 1 ХЕ).</p>
         </div>
       </div>
 
@@ -341,7 +277,7 @@
           <p class="text-sm text-slate-600">CSV/Excel/PDF за выбранный период.</p>
         </div>
         <div class="p-5 border rounded-2xl">
-          <h3 class="font-semibold">Интеграция с Apple Health</h3>
+          <h3 class="font-semibold">Интеграция с Apple Health</h3>
           <p class="text-sm text-slate-600">Чтение/запись поддерживаемых категорий.</p>
         </div>
         <div class="p-5 border rounded-2xl">
@@ -369,13 +305,10 @@
 
     <!-- Scripts -->
     <script>
-      // When the DOM is ready, update the year and wire up tab switching
+      // Когда DOM готов, год и табы
       document.addEventListener('DOMContentLoaded', () => {
-        // Set current year
         const yearSpan = document.getElementById('y');
-        if (yearSpan) {
-          yearSpan.textContent = new Date().getFullYear();
-        }
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 
         const tablist = document.querySelector('[role="tablist"]');
         const tabs = Array.from(document.querySelectorAll('.feature-tab'));
@@ -396,7 +329,6 @@
           });
         }
 
-        // Click handler via event delegation
         if (tablist) {
           tablist.addEventListener('click', (evt) => {
             const targetTab = evt.target.closest('.feature-tab');
@@ -407,7 +339,6 @@
           });
         }
 
-        // Initialize default active panel
         const selectedTab = document.querySelector('.feature-tab[aria-selected="true"]');
         activate(selectedTab?.dataset.panel || 'panel-track');
       });
