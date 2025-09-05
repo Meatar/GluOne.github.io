@@ -640,8 +640,6 @@ function AccountApp() {
         order: orderId,
         description: selectedPlan.sku,
         email: accountEmail,
-        customerkey: profile?.id,
-        DATA: currentPremiumDeviceId ? `device_id=${currentPremiumDeviceId}` : '',
       });
     } catch (e) {
       console.error(e);

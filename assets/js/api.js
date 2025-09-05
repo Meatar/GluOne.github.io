@@ -288,8 +288,10 @@ export function authSubscriptions(accessToken) {
  * @returns {Promise<{ok: boolean, status: number, data: {order_id: string} | null}>}
  */
 export function authCreateSubscriptionOrder(accessToken, userId, deviceId, subscriptionPlanId) {
-  const payload = { user_id: userId, subscription_plan_id: subscriptionPlanId };
-  if (deviceId) payload.device_id = deviceId;
+  if (!deviceId) {
+    throw new Error('deviceId is required to create subscription order');
+  }
+  const payload = { user_id: userId, device_id: deviceId, subscription_plan_id: subscriptionPlanId };
   return request('/auth/web/payments/order', {
     method: 'POST',
     headers: {
