@@ -268,7 +268,7 @@ function UserMenu({ isAuthed, userName = "", onLogout }) {
 function SiteHeader({ isAuthed, onLogout, userName }) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto max-w-7xl px-5 h-14 flex items-center justify-between">
+      <div className="mx-auto max-w-screen-2xl px-5 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img
             src="assets/image/logo.png"
@@ -280,10 +280,8 @@ function SiteHeader({ isAuthed, onLogout, userName }) {
           <span className="font-semibold text-slate-900">GluOne</span>
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm text-slate-600">
-          <a className="hover:text-slate-900" href="#">Главная</a>
-          <a className="hover:text-slate-900" href="#">Приложение</a>
+          <a className="hover:text-slate-900" href="https://gluone.ru">Главная</a>
           <a className="hover:text-slate-900" href="#">Поддержка</a>
-          <a className="hover:text-slate-900" href="#">Цены</a>
         </nav>
         <div className="flex items-center gap-3">
           <UserMenu isAuthed={isAuthed} userName={userName} onLogout={onLogout} />
@@ -322,7 +320,7 @@ function Sidebar({ current, onChange }) {
 function ProfilePanel({ profile }) {
   if (!profile) {
     return (
-      <div className="space-y-4 max-w-3xl">
+      <div className="space-y-4 max-w-6xl">
         <SectionCard><div className="text-sm text-slate-600">Загружаем профиль…</div></SectionCard>
       </div>
     );
@@ -332,7 +330,7 @@ function ProfilePanel({ profile }) {
   const roles = Array.isArray(profile.roles) ? profile.roles : [];
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-4 max-w-6xl">
       <SectionCard>
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 shrink-0 rounded-xl bg-indigo-100 text-indigo-600 font-semibold flex items-center justify-center">{initial}</div>
@@ -362,7 +360,7 @@ function ProfilePanel({ profile }) {
 
 function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email }) {
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-6xl">
       <SectionCard title="Подписка Premium">
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
@@ -444,7 +442,7 @@ function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
   };
 
   return (
-    <div className="max-w-3xl space-y-4">
+    <div className="max-w-6xl space-y-4">
       <SectionCard title="Смена пароля">
         <form className="space-y-3" onSubmit={handleSubmit}>
           <p className="text-sm text-slate-600">Рекомендуем менять пароль раз в 6–12 месяцев.</p>
@@ -655,7 +653,7 @@ function AccountApp() {
         currentDeviceId={currentPremiumDeviceId}
       />
 
-      <main className="flex-1 mx-auto max-w-7xl px-5 py-6 flex gap-6">
+      <main className="flex-1 mx-auto max-w-screen-2xl px-5 py-6 flex gap-6">
         <Sidebar current={section} onChange={setSection} />
 
         <div className="flex-1 min-w-0">
@@ -692,7 +690,7 @@ function AccountApp() {
       </main>
 
       <footer className="mt-auto border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-6 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3">
+        <div className="mx-auto max-w-screen-2xl px-5 py-6 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3">
           <div>© {new Date().getFullYear()} GluOne. Все права защищены.</div>
           <div className="flex items-center gap-4">
             <a className="hover:text-slate-700" href="#">Политика конфиденциальности</a>
