@@ -133,27 +133,48 @@ import { KEYS, load, save, del } from './storage.js';
 
     inputs.forEach((el, i) => {
       el.value = '';
+
       const handleInput = () => {
-        el.value = el.value.replace(/\D/g, '').slice(0,1);
-        if (el.value && i < inputs.length - 1) inputs[i + 1].focus();
+        // Оставляем только цифры и распределяем остаток по следующим полям
+        const chars = (el.value || '').replace(/\D/g, '').split('');
+        el.value = chars.shift() || '';
+
+        let idx = i + 1;
+        while (chars.length && idx < inputs.length) {
+          inputs[idx].value = chars.shift() || '';
+          idx++;
+        }
+
+        if (el.value && idx < inputs.length) {
+          // Перенос фокуса после завершения текущего события ввода
+          setTimeout(() => inputs[idx].focus(), 0);
+        }
+
         maybeVerify();
       };
-      // достаточно 'input'; keyup/change — на всякий случай кросс-браузерно
-      ['input','keyup','change'].forEach(evt => el.addEventListener(evt, handleInput));
+
+      el.addEventListener('input', handleInput);
+
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace' && !el.value && i > 0) inputs[i - 1].focus();
         if (e.key === 'Enter') { e.preventDefault(); attemptVerify(); }
       });
-      el.addEventListener('paste', (e) => {
-        const text = (e.clipboardData || window.clipboardData).getData('text') || '';
-        if (!text) return;
-        e.preventDefault();
-        const digits = text.replace(/\D/g, '').slice(0, inputs.length).split('');
-        inputs.forEach((inp, idx) => { inp.value = digits[idx] || ''; });
-        if (digits.length >= inputs.length) attemptVerify();
-        else (inputs[digits.length] || el).focus();
-      });
     });
+
+    form.addEventListener('paste', (e) => {
+      const text = (e.clipboardData || window.clipboardData).getData('text') || '';
+      if (!text) return;
+      e.preventDefault();
+      const digits = text.replace(/\D/g, '').slice(0, inputs.length).split('');
+      inputs.forEach((inp, idx) => { inp.value = digits[idx] || ''; });
+      if (digits.length >= inputs.length) {
+        attemptVerify();
+      } else {
+        setTimeout(() => inputs[digits.length]?.focus(), 0);
+        maybeVerify();
+      }
+    });
+
     inputs[0]?.focus();
 
     // ===== Resend с кулдауном (LOGIN /resend) =====
