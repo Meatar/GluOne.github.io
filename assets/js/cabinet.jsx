@@ -625,8 +625,13 @@ function AccountApp() {
       alert(devices.length ? 'Не выбрано устройство для подписки.' : 'У вас нет устройств. Добавьте устройство для оплаты.');
       return;
     }
+    const userId = profile?.id;
+    if (!userId) {
+      alert('Не удалось определить пользователя.');
+      return;
+    }
     try {
-      const order = await authCreateSubscriptionOrder(accessToken, profile?.id, currentPremiumDeviceId, selectedPlan.id);
+      const order = await authCreateSubscriptionOrder(accessToken, userId, currentPremiumDeviceId, selectedPlan.id);
       const orderId = order?.data?.order_id;
       if (!order.ok || !orderId) {
         alert('Не удалось создать заказ. Попробуйте ещё раз.');

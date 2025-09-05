@@ -400,8 +400,13 @@ function AccountApp() {
       alert(devices.length ? "\u041D\u0435 \u0432\u044B\u0431\u0440\u0430\u043D\u043E \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u0434\u043B\u044F \u043F\u043E\u0434\u043F\u0438\u0441\u043A\u0438." : "\u0423 \u0432\u0430\u0441 \u043D\u0435\u0442 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432. \u0414\u043E\u0431\u0430\u0432\u044C\u0442\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E \u0434\u043B\u044F \u043E\u043F\u043B\u0430\u0442\u044B.");
       return;
     }
+    const userId = profile?.id;
+    if (!userId) {
+      alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0438\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.");
+      return;
+    }
     try {
-      const order = await authCreateSubscriptionOrder(accessToken, profile?.id, currentPremiumDeviceId, selectedPlan.id);
+      const order = await authCreateSubscriptionOrder(accessToken, userId, currentPremiumDeviceId, selectedPlan.id);
       const orderId = order?.data?.order_id;
       if (!order.ok || !orderId) {
         alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0437\u0430\u043A\u0430\u0437. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.");
