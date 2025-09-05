@@ -401,9 +401,10 @@ function AccountApp() {
         language: "ru",
         amount: gatewayAmountString(amountRub),
         order: orderId,
-        description: `GluOne Premium \u2014 \u043F\u0440\u043E\u0434\u043B\u0435\u043D\u0438\u0435 (${selectedPlan.name || selectedPlan.duration_months + " \u043C\u0435\u0441."})`,
+        description: selectedPlan.sku,
         email: accountEmail,
-        customerkey: profile?.id || profile?.username || profile?.email
+        customerkey: profile?.id,
+        DATA: currentPremiumDeviceId ? `device_id=${currentPremiumDeviceId}` : ''
       });
     } catch (e) {
       console.error(e);
