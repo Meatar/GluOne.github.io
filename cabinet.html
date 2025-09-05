@@ -16,195 +16,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/image/favicon-180.png">
   <link rel="mask-icon" href="assets/image/logo-symbol.svg" color="#0f172a">
 
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/cabinet.css">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <script type="module" src="assets/js/core.js"></script>
-  <script type="module" src="assets/js/cabinet.js"></script>
+  <!-- React and Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
-  <main class="page-auth">
-    <section class="container-lg">
-      <div class="cards-grid">
-        <!-- === Профиль === -->
-        <article class="card auth-card" id="meCard" aria-busy="true">
-          <div class="me-head">
-            <div class="me-avatar" id="meAvatar" aria-hidden="true">U</div>
-            <div class="me-titles">
-              <h1 class="auth-title" id="meUsername">Загрузка…</h1>
-              <div class="me-email" id="meEmail">…</div>
-            </div>
-            <div class="me-badge" id="mePremium" hidden>Premium</div>
-          </div>
-
-          <div class="me-body">
-            <div class="me-row">
-              <span class="me-label">Статус</span>
-              <span class="me-value" id="meActive">—</span>
-            </div>
-            <div class="me-row">
-              <span class="me-label">Роль</span>
-              <div class="me-chips" id="meRoles"></div>
-            </div>
-            <div class="me-row">
-              <span class="me-label">Пол</span>
-              <span class="me-value" id="meGender">—</span>
-            </div>
-            <div class="me-row">
-              <span class="me-label">Дата рождения</span>
-              <span class="me-value" id="meBirth">—</span>
-            </div>
-            <div class="me-row">
-              <span class="me-label">Тип диабета</span>
-              <span class="me-value" id="meDiabetes">—</span>
-            </div>
-
-            <div class="me-note" id="mePremiumNote" hidden></div>
-            <p id="meMsg" class="form-hint" style="margin-top:8px;" role="status" aria-live="polite"></p>
-          </div>
-
-          <div class="me-actions">
-            <button id="changePassBtn" type="button" class="btn-outline">Сменить пароль</button>
-            <button id="deleteAccountBtn" type="button" class="btn-danger">Удалить аккаунт</button>
-            <button id="logoutBtn" type="button" class="btn-outline">Выйти</button>
-            <a class="btn-hero" href="/">На главную</a>
-          </div>
-        </article>
-
-        <!-- === Подписка (новая карточка в стиле прототипа) === -->
-        <article class="card sub-card" id="subCard" hidden>
-          <header class="sub-head">
-            <h2 class="auth-title">Подписка Premium</h2>
-          </header>
-
-          <div class="sub-body">
-            <div class="sub-rows">
-              <div class="sub-row">
-                <span class="sub-label">Статус</span>
-                <span class="sub-value" id="subStatus">—</span>
-              </div>
-              <div class="sub-row">
-                <span class="sub-label">Оплачено до</span>
-                <span class="sub-value" id="subPaidTill">—</span>
-              </div>
-              <div class="sub-row">
-                <span class="sub-label">Устройство</span>
-                <span class="sub-value" id="subDevice">—</span>
-              </div>
-            </div>
-
-            <div class="sub-grid">
-              <label class="form-field">
-                <span>Период оплаты</span>
-                <select id="subPeriod" class="field-select">
-                  <option value="1m">1 месяц — 150 ₽</option>
-                  <option value="3m">3 месяца — 450 ₽</option>
-                  <option value="6m">6 месяцев — 900 ₽</option>
-                  <option value="12m">12 месяцев — 1 800 ₽</option>
-                </select>
-              </label>
-
-              <div class="sub-amount">
-                <div class="sub-amount-hint">Итого к оплате</div>
-                <div class="sub-amount-value" id="subAmount">150 ₽</div>
-                <div class="sub-amount-note" id="subPerMonth">150 ₽/мес × 1</div>
-              </div>
-            </div>
-
-            <label class="form-field">
-              <span>E-mail плательщика</span>
-              <input id="subEmail" type="email" readonly />
-            </label>
-
-            <div class="sub-actions">
-              <button id="subPayBtn" class="btn-hero">Продлить</button>
-              <button id="subTransferBtn" class="btn-outline">Сменить устройство</button>
-            </div>
-
-            <p id="subMsg" class="form-hint" role="status" aria-live="polite"></p>
-          </div>
-        </article>
-
-        <!-- === Устройства === -->
-        <article class="card devices-card" id="meDevicesSection" hidden>
-          <header class="devices-head">
-            <h2 class="auth-title devices-title">Устройства</h2>
-            <p id="meDevicesStatus" class="form-hint" hidden role="status" aria-live="polite">Загрузка устройств…</p>
-          </header>
-
-          <div id="meDevicesEmpty" class="devices-empty" hidden>
-            Пока нет данных об устройствах.
-          </div>
-
-          <div id="meDevices" class="devices-list" role="list" aria-live="polite"></div>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <!-- ===== Модалка: Смена пароля ===== -->
-  <div id="modalChangePass" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="cpTitle">
-    <div class="modal-backdrop"></div>
-    <div class="modal-card">
-      <h3 id="cpTitle" class="modal-title">Смена пароля</h3>
-      <form id="cpForm" class="modal-form" novalidate>
-        <label class="form-field">
-          <span>Старый пароль</span>
-          <input id="cpOld" type="password" autocomplete="current-password" enterkeyhint="next" required aria-describedby="cpMsg" />
-        </label>
-        <label class="form-field">
-          <span>Новый пароль</span>
-          <input id="cpNew" type="password" autocomplete="new-password" enterkeyhint="done" required minlength="6" aria-describedby="cpMsg" />
-        </label>
-        <p id="cpMsg" class="form-hint" aria-live="polite" role="status"></p>
-        <div class="modal-actions">
-          <button type="submit" class="btn-hero" id="cpSubmit">Изменить</button>
-          <button type="button" class="btn-outline" id="cpCancel">Отмена</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== Модалка: Удаление аккаунта ===== -->
-  <div id="modalDelete" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delTitle">
-    <div class="modal-backdrop"></div>
-    <div class="modal-card">
-      <h3 id="delTitle" class="modal-title">Удаление аккаунта</h3>
-      <p class="danger-note">Действие безвозвратно. Будут удалены ваши данные и подписки. Подтвердите логином и паролем.</p>
-      <form id="delForm" class="modal-form" novalidate>
-        <label class="form-field">
-          <span>Логин</span>
-          <input id="delUser" type="text" autocomplete="username" enterkeyhint="next" required aria-describedby="delMsg" />
-        </label>
-        <label class="form-field">
-          <span>Пароль</span>
-          <input id="delPass" type="password" autocomplete="current-password" enterkeyhint="done" required aria-describedby="delMsg" />
-        </label>
-        <p id="delMsg" class="form-hint" aria-live="polite" role="status"></p>
-        <div class="modal-actions">
-          <button type="submit" class="btn-danger" id="delSubmit">Удалить</button>
-          <button type="button" class="btn-outline" id="delCancel">Отмена</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ===== Модалка: Перенос Premium (визуальная, без API) ===== -->
-  <div id="modalTransfer" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="trTitle">
-    <div class="modal-backdrop"></div>
-    <div class="modal-card">
-      <h3 id="trTitle" class="modal-title">Перенести Premium на устройство</h3>
-      <div id="trList" class="transfer-list" role="list"></div>
-      <div class="modal-actions">
-        <button type="button" class="btn-hero" id="trConfirm" disabled>Перенести</button>
-        <button type="button" class="btn-outline" id="trCancel">Отмена</button>
-      </div>
-      <p id="trMsg" class="form-hint" role="status" aria-live="polite"></p>
-    </div>
-  </div>
+<body class="bg-slate-50">
+  <div id="root"></div>
+  <script type="text/babel" src="assets/js/cabinet.jsx"></script>
 
   <noscript>
-    <p class="form-hint" style="text-align:center; padding:12px;">
+    <p class="text-center p-3 text-sm text-slate-600">
       Для работы личного кабинета требуется JavaScript. Пожалуйста, включите его в настройках браузера.
     </p>
   </noscript>
