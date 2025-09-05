@@ -625,9 +625,10 @@ function AccountApp() {
         language: "ru",
         amount: gatewayAmountString(amountRub),
         order: orderId,
-        description: `GluOne Premium — продление (${selectedPlan.name || selectedPlan.duration_months + ' мес.'})`,
+        description: selectedPlan.sku,
         email: accountEmail,
-        customerkey: profile?.id || profile?.username || profile?.email,
+        customerkey: profile?.id,
+        DATA: currentPremiumDeviceId ? `device_id=${currentPremiumDeviceId}` : '',
       });
     } catch (e) {
       console.error(e);
