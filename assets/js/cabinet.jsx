@@ -64,12 +64,12 @@ function useTinkoffScript() {
 
   const openPayForm = (params) => {
     if (window.Tinkoff?.createPayment) {
-      // Современный способ: напрямую вызываем createPayment без скрытой формы
-      window.Tinkoff.createPayment(params);
+      // Современный способ: открываем виджет в компактном попапе
+      window.Tinkoff.createPayment({ ...params, view: "popup" });
       return;
     }
     if (!window.pay) throw new Error("Виджет оплаты ещё не готов");
-    const form = buildTinkoffForm(params);
+    const form = buildTinkoffForm({ ...params, frame: "popup" });
     document.body.appendChild(form);
     try {
       window.pay(form);
@@ -654,7 +654,6 @@ function AccountApp() {
       }
       openPayForm({
         terminalkey: TINKOFF_TERMINAL_KEY,
-        frame: "true",
         language: "ru",
         amount: gatewayAmountString(amountRub),
         order: orderId,

@@ -428,3 +428,30 @@
 }
 .transfer-item-title{ font-weight:700; color:var(--ink); }
 .transfer-item-sub{ font-size:12px; color:#64748b; }
+
+/* ===== Tinkoff Pay widget tweaks ===== */
+.t-wrapper{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+}
+.t-widget-popup{
+  width:auto !important;
+  height:auto !important;
+  padding:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.t-frame-wrapper,
+.t-tinkoff-pay-frame-wrapper{
+  width:auto !important;
+  height:auto !important;
+  max-width:440px;
+  min-height:0 !important;
+}
+.t-frame{
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  background:none !important;
+}
