@@ -162,7 +162,43 @@ function UserMenu({ isAuthed, userName = "", onLogout }) {
   }, className: "w-full text-left px-3 py-2 text-sm hover:bg-slate-50" }, "\u0412\u044B\u0439\u0442\u0438")));
 }
 function SiteHeader({ isAuthed, onLogout, userName }) {
-  return /* @__PURE__ */ React.createElement("header", { className: "sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur" }, /* @__PURE__ */ React.createElement("div", { className: "mx-auto max-w-7xl px-5 h-14 flex items-center justify-between" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-500" }), /* @__PURE__ */ React.createElement("span", { className: "font-semibold text-slate-900" }, "GluOne")), /* @__PURE__ */ React.createElement("nav", { className: "hidden md:flex items-center gap-6 text-sm text-slate-600" }, /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u0413\u043B\u0430\u0432\u043D\u0430\u044F"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u041F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u041F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u0426\u0435\u043D\u044B")), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ React.createElement(UserMenu, { isAuthed, userName, onLogout }))));
+  return /* @__PURE__ */ React.createElement(
+    "header",
+    { className: "sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur" },
+    /* @__PURE__ */ React.createElement(
+      "div",
+      { className: "mx-auto max-w-7xl px-5 h-14 flex items-center justify-between" },
+      /* @__PURE__ */ React.createElement(
+        "div",
+        { className: "flex items-center gap-3" },
+        /* @__PURE__ */ React.createElement("img", {
+          src: "assets/image/logo.png",
+          className: "h-9 w-9 rounded-xl",
+          alt: "GluOne logo",
+          width: "36",
+          height: "36"
+        }),
+        /* @__PURE__ */ React.createElement(
+          "span",
+          { className: "font-semibold text-slate-900" },
+          "GluOne"
+        )
+      ),
+      /* @__PURE__ */ React.createElement(
+        "nav",
+        { className: "hidden md:flex items-center gap-6 text-sm text-slate-600" },
+        /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u0413\u043B\u0430\u0432\u043D\u0430\u044F"),
+        /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u041F\u0440\u0438\u043B\u043E\u0436\u0435\u043D\u0438\u0435"),
+        /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u041F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430"),
+        /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-900", href: "#" }, "\u0426\u0435\u043D\u044B")
+      ),
+      /* @__PURE__ */ React.createElement(
+        "div",
+        { className: "flex items-center gap-3" },
+        /* @__PURE__ */ React.createElement(UserMenu, { isAuthed, userName, onLogout })
+      )
+    )
+  );
 }
 function Sidebar({ current, onChange }) {
   const Item = ({ k, label, icon }) => /* @__PURE__ */ React.createElement(
@@ -381,7 +417,7 @@ function AccountApp() {
     setCurrentPremiumDeviceName(device.name);
     setTransferOpen(false);
   };
-  return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen w-full bg-slate-50" }, /* @__PURE__ */ React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.username || profile?.email }), /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen w-full bg-slate-50 flex flex-col" }, /* @__PURE__ */ React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.username || profile?.email }), /* @__PURE__ */ React.createElement(
     TransferPremiumModal,
     {
       open: transferOpen,
@@ -390,7 +426,7 @@ function AccountApp() {
       devices: devices.map((d) => ({ name: d.model || "\u041D\u0435\u0438\u0437\u0432\u0435\u0441\u0442\u043D\u043E\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E", os: d.os, ip: d.last_ip, active: fmtDateTime(d.last_seen_at), deviceId: d.device_id, revoked: d.revoked })),
       currentDeviceId: currentPremiumDeviceId
     }
-  ), /* @__PURE__ */ React.createElement("main", { className: "mx-auto max-w-7xl px-5 py-6 flex gap-6" }, /* @__PURE__ */ React.createElement(Sidebar, { current: section, onChange: setSection }), /* @__PURE__ */ React.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ React.createElement("div", { className: "xl:hidden mb-4 grid grid-cols-2 sm:grid-cols-4 gap-2" }, [
+  ), /* @__PURE__ */ React.createElement("main", { className: "flex-1 mx-auto max-w-7xl px-5 py-6 flex gap-6" }, /* @__PURE__ */ React.createElement(Sidebar, { current: section, onChange: setSection }), /* @__PURE__ */ React.createElement("div", { className: "flex-1 min-w-0" }, /* @__PURE__ */ React.createElement("div", { className: "xl:hidden mb-4 grid grid-cols-2 sm:grid-cols-4 gap-2" }, [
     { key: "profile", label: "\u041F\u0440\u043E\u0444\u0438\u043B\u044C" },
     { key: "subscription", label: "\u041F\u043E\u0434\u043F\u0438\u0441\u043A\u0430" },
     { key: "security", label: "\u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C" },
@@ -409,6 +445,6 @@ function AccountApp() {
       monthPrice,
       email: accountEmail
     }
-  ), section === "security" && /* @__PURE__ */ React.createElement(SecurityPanel, { username: profile?.username || profile?.email, onChangePassword: handleChangePassword, onDeleteAccount: handleDeleteAccount }), section === "devices" && /* @__PURE__ */ React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }), payError && /* @__PURE__ */ React.createElement("div", { className: "mt-3 text-sm text-rose-600" }, payError))), /* @__PURE__ */ React.createElement("footer", { className: "mt-8 border-t border-slate-200 bg-white" }, /* @__PURE__ */ React.createElement("div", { className: "mx-auto max-w-7xl px-5 py-6 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3" }, /* @__PURE__ */ React.createElement("div", null, "\xA9 ", (/* @__PURE__ */ new Date()).getFullYear(), " GluOne. \u0412\u0441\u0435 \u043F\u0440\u0430\u0432\u0430 \u0437\u0430\u0449\u0438\u0449\u0435\u043D\u044B."), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-4" }, /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u043A\u043E\u043D\u0444\u0438\u0434\u0435\u043D\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "\u0423\u0441\u043B\u043E\u0432\u0438\u044F"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B")))));
+  ), section === "security" && /* @__PURE__ */ React.createElement(SecurityPanel, { username: profile?.username || profile?.email, onChangePassword: handleChangePassword, onDeleteAccount: handleDeleteAccount }), section === "devices" && /* @__PURE__ */ React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }), payError && /* @__PURE__ */ React.createElement("div", { className: "mt-3 text-sm text-rose-600" }, payError))), /* @__PURE__ */ React.createElement("footer", { className: "mt-auto border-t border-slate-200 bg-white" }, /* @__PURE__ */ React.createElement("div", { className: "mx-auto max-w-7xl px-5 py-6 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3" }, /* @__PURE__ */ React.createElement("div", null, "\xA9 ", (/* @__PURE__ */ new Date()).getFullYear(), " GluOne. \u0412\u0441\u0435 \u043F\u0440\u0430\u0432\u0430 \u0437\u0430\u0449\u0438\u0449\u0435\u043D\u044B."), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-4" }, /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u043A\u043E\u043D\u0444\u0438\u0434\u0435\u043D\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "\u0423\u0441\u043B\u043E\u0432\u0438\u044F"), /* @__PURE__ */ React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B")))));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(AccountApp, null));
