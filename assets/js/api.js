@@ -288,6 +288,9 @@ export function authSubscriptions(accessToken) {
  * @returns {Promise<{ok: boolean, status: number, data: {order_id: string} | null}>}
  */
 export function authCreateSubscriptionOrder(accessToken, userId, deviceId, subscriptionPlanId) {
+  if (!userId) {
+    throw new Error('userId is required to create subscription order');
+  }
   if (!deviceId) {
     throw new Error('deviceId is required to create subscription order');
   }
