@@ -63,6 +63,11 @@ function useTinkoffScript() {
   }, []);
 
   const openPayForm = (params) => {
+    if (window.Tinkoff?.createPayment) {
+      // Современный способ: напрямую вызываем createPayment без скрытой формы
+      window.Tinkoff.createPayment(params);
+      return;
+    }
     if (!window.pay) throw new Error("Виджет оплаты ещё не готов");
     const form = buildTinkoffForm(params);
     document.body.appendChild(form);
