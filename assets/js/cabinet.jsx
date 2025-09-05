@@ -358,7 +358,7 @@ function ProfilePanel({ profile }) {
   );
 }
 
-function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email }) {
+function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId }) {
   return (
     <div className="max-w-6xl">
       <SectionCard title="Подписка Premium">
@@ -402,7 +402,7 @@ function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady,
         </div>
 
         <div className="mt-4 flex gap-3">
-          <button disabled={!payReady || !selectedPlanId} onClick={onPay} className={`rounded-xl px-4 py-2 font-medium text-white ${payReady ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-400 cursor-not-allowed"}`}>
+          <button disabled={!payReady || !selectedPlanId || !currentDeviceId} onClick={onPay} className={`rounded-xl px-4 py-2 font-medium text-white ${payReady ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-400 cursor-not-allowed"}`}>
             Продлить
           </button>
           <button onClick={onOpenTransfer} className="rounded-xl border border-slate-200 px-4 py-2 font-medium">Сменить устройство</button>
@@ -527,10 +527,15 @@ function AccountApp() {
   }, [accessToken]);
 
   useEffect(() => {
-    const cur = devices.find(d => d.is_premium);
-    if (cur) {
-      setCurrentPremiumDeviceId(cur.device_id);
-      setCurrentPremiumDeviceName(cur.model || 'Неизвестное устройство');
+    if (!devices.length) {
+      setCurrentPremiumDeviceId(null);
+      setCurrentPremiumDeviceName('Нет устройств');
+      return;
+    }
+    const last = devices.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
+    if (last) {
+      setCurrentPremiumDeviceId(last.device_id);
+      setCurrentPremiumDeviceName(last.model || 'Неизвестное устройство');
     }
   }, [devices]);
 
@@ -616,7 +621,10 @@ function AccountApp() {
   const { ready: payReady, error: payError, openPayForm } = useTinkoffScript();
 
   const handlePay = async () => {
-    if (!selectedPlan || !payReady) return;
+    if (!selectedPlan || !payReady || !currentPremiumDeviceId) {
+      alert(devices.length ? 'Не выбрано устройство для подписки.' : 'У вас нет устройств. Добавьте устройство для оплаты.');
+      return;
+    }
     try {
       const order = await authCreateSubscriptionOrder(accessToken, profile?.id, currentPremiumDeviceId, selectedPlan.id);
       const orderId = order?.data?.order_id;
@@ -686,6 +694,7 @@ function AccountApp() {
               amountRub={amountRub}
               monthPrice={monthPrice}
               email={accountEmail}
+              currentDeviceId={currentPremiumDeviceId}
             />
           )}
           {section === "security" && <SecurityPanel username={profile?.username || profile?.email} onChangePassword={handleChangePassword} onDeleteAccount={handleDeleteAccount} />}
