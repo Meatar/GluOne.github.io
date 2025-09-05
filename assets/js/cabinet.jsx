@@ -625,7 +625,7 @@ function AccountApp() {
       alert(devices.length ? 'Не выбрано устройство для подписки.' : 'У вас нет устройств. Добавьте устройство для оплаты.');
       return;
     }
-    const userId = profile?.id;
+    const userId = profile?.user_id;
     if (!userId) {
       alert('Не удалось определить пользователя.');
       return;
