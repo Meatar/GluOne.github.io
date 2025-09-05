@@ -428,3 +428,19 @@
 }
 .transfer-item-title{ font-weight:700; color:var(--ink); }
 .transfer-item-sub{ font-size:12px; color:#64748b; }
+
+/* ===== Tinkoff Pay widget tweaks ===== */
+.t-wrapper{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+}
+.t-frame-wrapper{
+  width:auto !important;
+  height:auto !important;
+  max-width:440px;
+}
+.t-frame{
+  width:100% !important;
+  height:auto !important;
+}
