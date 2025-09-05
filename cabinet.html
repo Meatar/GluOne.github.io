@@ -25,6 +25,15 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-slate-50">
+  <script>
+    try {
+      if (!sessionStorage.getItem('gluone:auth_token')) {
+        window.location.href = '/auth.html?next=%2Fcabinet.html';
+      }
+    } catch (e) {
+      window.location.href = '/auth.html?next=%2Fcabinet.html';
+    }
+  </script>
   <div id="root"></div>
   <script type="text/babel" data-type="module" data-presets="env,react" src="assets/js/cabinet.jsx"></script>
 
