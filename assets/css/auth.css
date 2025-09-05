@@ -1,0 +1,219 @@
+/* auth.css — модалка восстановления пароля */
+
+/* ===== БАЗОВЫЕ ПЕРЕМЕННЫЕ И ФОЛЛБЭКИ ===== */
+:root {
+  /* ядро */
+  --rec-surface: #ffffff;
+  --rec-ink: #0b1220;
+  --rec-ink-sub: #475569;
+  --rec-line: #e5e7eb;
+  --rec-focus: #1f2937;
+  --rec-backdrop: rgba(2,6,23,.45);
+  --rec-shadow: 0 20px 60px rgba(2,6,23,.25);
+  --rec-radius: 20px;
+
+  /* кнопки */
+  --rec-btn-ghost-bg: #ffffff;
+  --rec-btn-ghost-ink: #0b1220;
+  --rec-btn-ghost-border: #e5e7eb;
+
+  /* инпуты */
+  --rec-input-bg: #f8fafc;
+  --rec-placeholder: #9aa4b2;
+
+  /* размеры */
+  --rec-card-w: 420px;
+  --rec-btn-w: 170px;
+
+  /* ДОБАВЛЕНО: акцент и ring для primary-кнопки/фокуса */
+  --accent: #4f46e5;     /* indigo-600 как дефолт */
+  --ring: #4f46e5;
+  --danger: #dc2626;     /* для ошибок на светлой теме */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rec-surface: #0f172a;
+    --rec-ink: #e5e7eb;
+    --rec-ink-sub: #cbd5e1;
+    --rec-line: rgba(148,163,184,.35);
+    --rec-focus: #6366f1;
+    --rec-backdrop: rgba(0,0,0,.6);
+    --rec-shadow: 0 20px 60px rgba(0,0,0,.6);
+
+    --rec-btn-ghost-bg: #1e293b;
+    --rec-btn-ghost-ink: #e5e7eb;
+    --rec-btn-ghost-border: rgba(148,163,184,.35);
+
+    --rec-input-bg: #1e293b;
+    --rec-placeholder: #94a3b8;
+
+    --accent: #6366f1;  /* indigo-500/600 */
+    --ring: #6366f1;
+    --danger: #f87171;  /* мягче в тёмной теме для контраста */
+  }
+}
+
+/* ===== НЕБОЛЬШОЙ RESET ДЛЯ КНОПОК/ИНПУТОВ ВНУТРИ МОДАЛКИ ===== */
+.rec-wrap button,
+.rec-wrap input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ===== БЭКДРОП И ОБЁРТКА ===== */
+.rec-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--rec-backdrop);
+  backdrop-filter: blur(2px) saturate(110%);
+}
+
+.rec-wrap {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1001;
+  padding: 16px; /* ДОБАВЛЕНО: чтобы карточка не прилипала к краям на мобилках */
+}
+
+/* ===== КАРТОЧКА ===== */
+.rec-card {
+  width: min(var(--rec-card-w), 92vw);
+  background: var(--rec-surface);
+  color: var(--rec-ink);
+  border-radius: var(--rec-radius);
+  box-shadow: var(--rec-shadow);
+  padding: 24px 24px 18px;
+  transform: translateY(4px);
+  opacity: .98;
+  transition: transform .18s ease, opacity .18s ease;
+}
+.rec-wrap:where(:not(.reduced-motion)) .rec-card { transform: translateY(0); opacity: 1; }
+
+/* ===== ТЕКСТЫ ===== */
+.rec-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.rec-sub {
+  margin: 6px 0 16px;
+  color: var(--rec-ink-sub);
+  font-size: 14px;
+}
+
+/* ===== ФОРМА ===== */
+.rec-label {
+  display: block;
+  font-weight: 600;
+  color: var(--rec-ink);
+  font-size: 14px;
+}
+.rec-input {
+  width: 100%;
+  margin-top: 8px;
+  background: var(--rec-input-bg);
+  color: var(--rec-ink);
+  border: 1px solid var(--rec-line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  line-height: 1.2;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .2s;
+}
+.rec-input::placeholder { color: var(--rec-placeholder); }
+
+/* фокус с фолбэком для старых браузеров */
+.rec-input:focus {
+  border-color: var(--rec-focus);
+  box-shadow:
+    0 0 0 3px rgba(99,102,241,.35), /* fallback */
+    0 0 0 3px color-mix(in oklab, var(--rec-focus) 35%, transparent);
+  background: var(--rec-surface);
+}
+
+/* состояние ошибки по aria-invalid */
+.rec-input[aria-invalid="true"] {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--danger) 25%, transparent);
+  background: color-mix(in oklab, var(--danger) 3%, var(--rec-input-bg));
+}
+
+.rec-error {
+  margin-top: 6px;
+  color: var(--danger);
+  font-size: 13px;
+}
+.rec-hint {
+  margin-top: 10px;
+  color: var(--rec-ink-sub);
+  font-size: 13px;
+}
+
+/* ===== ДЕЙСТВИЯ ===== */
+.rec-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.rec-btn {
+  height: 48px;
+  border: 0;
+  border-radius: 9999px;
+  padding: 0 24px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
+  min-width: var(--rec-btn-w);
+  text-align: center;
+  flex: 0 0 auto;
+}
+.rec-btn:disabled { opacity: .6; cursor: default; }
+
+/* primary (с фолбэком к теням) */
+.rec-btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.rec-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(2,6,23,.12); filter: saturate(110%); }
+.rec-btn-primary:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(79,70,229,.5), /* fallback */
+    0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent);
+}
+
+/* ghost */
+.rec-btn-ghost {
+  background: var(--rec-btn-ghost-bg);
+  color: var(--rec-btn-ghost-ink);
+  border: 1px solid var(--rec-btn-ghost-border);
+}
+.rec-btn-ghost:hover { filter: brightness(.98); }
+
+/* ===== ПРЕДПОЧТЕНИЯ ДВИЖЕНИЯ ===== */
+@media (prefers-reduced-motion: reduce) {
+  .rec-wrap { animation: none; }
+  .rec-card, .rec-btn { transition: none !important; }
+}
+/* удобный хук JS, если захочется вручную поставить класс */
+.reduced-motion * { transition: none !important; }
+
+/* ===== МЕЛОЧИ/АДАПТИВ ===== */
+@media (max-width: 380px) {
+  :root { --rec-btn-w: 140px; }
+  .rec-card { padding: 20px 16px 14px; }
+}
+
+/* Опционально: скрыть лишние обратные SVG-иконки, если не используешь :where/.visible контроллер */
+.i { width: 20px; height: 20px; }

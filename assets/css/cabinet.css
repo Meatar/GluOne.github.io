@@ -1,0 +1,370 @@
+/* ===== Design tokens for cabinet (light/dark) ===== */
+:root{
+  --badge-bg: #bbf7d0;
+  --badge-text: #0c2a1a;
+  --badge-border: #86efac;
+  --danger-bg: color-mix(in oklab, #fee2e2 70%, transparent);
+  --danger-text: #991b1b;
+  --danger-border: color-mix(in oklab, #ef4444 60%, var(--divider));
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --badge-bg: color-mix(in oklab, #bbf7d0 80%, transparent);
+    --badge-text: #064e3b;
+    --badge-border: color-mix(in oklab, #86efac 80%, transparent);
+    --danger-bg: color-mix(in oklab, #7f1d1d 40%, transparent);
+    --danger-text: #fecaca;
+  }
+}
+
+/* ===== Layout for cabinet ===== */
+.container-lg{
+  width: min(100%, 1040px);
+  margin-inline: auto;
+  padding: clamp(16px, 4vw, 32px);
+}
+.cards-grid{
+  display:grid;
+  gap: clamp(12px, 2vw, 20px);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 980px){
+  .cards-grid{
+    grid-template-columns: 1.05fr 1.25fr; /* профиль | устройства */
+    align-items: start;
+  }
+}
+
+/* ===== Cabinet: profile ===== */
+.me-head{
+  display:grid;
+  grid-template-columns: 64px 1fr auto;
+  gap:12px; align-items:center;
+  margin-bottom: 12px;
+}
+.me-avatar{
+  inline-size:64px; block-size:64px; border-radius:16px;
+  display:grid; place-items:center;
+  font: 800 24px/1 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color:#fff;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  box-shadow: var(--shadow-sm);
+}
+.me-titles .me-email{
+  color:#64748b;
+  font-size:14px;
+  margin-top:4px;
+  overflow-wrap:anywhere;
+}
+.me-badge{
+  padding:6px 10px; border-radius:9999px;
+  font-weight:700; font-size:12px; line-height:1;
+  color:var(--badge-text); background:var(--badge-bg); border:1px solid var(--badge-border);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+}
+.me-body{ padding-top:6px; }
+.me-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0;
+  border-bottom:1px dashed color-mix(in oklab, var(--divider) 70%, transparent);
+}
+.me-row:last-child{ border-bottom:0; }
+.me-label{ color:#64748b; font-size:14px; }
+.me-value{ font-weight:600; color:var(--ink); }
+
+.me-chips{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.me-chips .chip{
+  padding:4px 8px; font-size:12px; border-radius:9999px;
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 10%, transparent);
+}
+.me-note{
+  margin-top:12px;
+  padding:12px 14px; border-radius:12px;
+  background: color-mix(in oklab, #60a5fa 10%, transparent);
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  color: color-mix(in oklab, var(--ink) 85%, transparent);
+}
+
+/* Actions */
+.me-actions{
+  display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;
+}
+.me-actions .btn-outline,
+.me-actions .btn-hero,
+.me-actions .btn-danger{ flex:1; min-width:180px; }
+
+/* ===== Devices ===== */
+.devices-card{ padding: clamp(16px, 2vw, 24px); }
+.devices-head{ display:flex; align-items:baseline; gap:12px; margin-bottom:8px; }
+.devices-title{ font-size:20px; }
+.devices-empty{ color:#64748b; font-size:14px; padding:8px 0; }
+.devices-list{ display:flex; flex-direction:column; }
+
+.device-item{
+  padding:12px 0;
+  border-top:1px dashed color-mix(in oklab, var(--divider) 70%, transparent);
+}
+.device-item:first-child{ border-top:0; }
+
+.device-head{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin-bottom:6px;
+}
+.device-title{ font-weight:700; color:var(--ink); }
+
+/* справа — бейджи + кнопка */
+.device-right{ display:flex; align-items:center; gap:10px; margin-left:auto; }
+.device-badges{ display:flex; gap:8px; flex-wrap:wrap; }
+.device-badges .chip{
+  padding:4px 8px; font-size:12px; border-radius:9999px;
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 10%, transparent);
+}
+
+/* компактная кнопка выхода */
+.device-revoke{
+  padding:6px 10px;
+  font-size:12px;
+  line-height:1;
+  white-space:nowrap;
+}
+
+/* компактная кнопка удаления записи об устройстве (рядом с бейджами) */
+.device-delete{
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* атрибуты — таблица */
+.device-attrs{
+  display:grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap:6px 14px;
+  align-items:start;
+  font-size:14px;
+}
+.device-attrs dt{ color:#64748b; }
+.device-attrs dd{ margin:0; color:var(--ink); overflow-wrap:anywhere; }
+
+/* компактней на мобилках */
+@media (max-width: 520px){
+  .device-attrs{ grid-template-columns: 1fr; }
+  .device-attrs dt{ font-size:12px; opacity:.8; }
+  .device-right{ gap:8px; }
+}
+
+/* ===== Кнопка опасного действия ===== */
+.btn-danger{
+  appearance:none;
+  border:1px solid var(--danger-border);
+  background: var(--danger-bg);
+  color:var(--danger-text);
+  font-weight:700;
+  border-radius:12px;
+  padding:10px 14px;
+  cursor:pointer;
+}
+.btn-danger:disabled{ opacity:.6; cursor:not-allowed; }
+
+/* ===== Модалки ===== */
+.modal[hidden]{ display:none !important; }
+.modal{
+  position:fixed; inset:0; z-index:60; display:grid; place-items:center;
+}
+.modal-backdrop{
+  position:absolute; inset:0; background:color-mix(in oklab, #000 30%, transparent);
+  backdrop-filter: blur(2px);
+}
+.modal-card{
+  position:relative; z-index:1;
+  width:min(100%, 420px);
+  background: var(--card);
+  color: var(--ink);
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius:16px;
+  padding:16px;
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+}
+.modal-title{ margin:0 0 8px; font:700 18px/1.2 Inter, system-ui, sans-serif; }
+.modal-form{ display:grid; gap:10px; }
+.form-field{ display:grid; gap:6px; }
+
+/* ==== Поля ввода как в auth ==== */
+.form-field input{
+  height: 48px;
+  border-radius: 14px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 7%, transparent);
+  font: 500 14px/1.2 Inter, system-ui, sans-serif;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.form-field input:focus{
+  outline: none;
+  border-color: color-mix(in oklab, #6366f1 50%, var(--divider));
+  box-shadow: 0 0 0 3px color-mix(in oklab, #6366f1 22%, transparent);
+}
+
+.modal-actions{ display:flex; gap:10px; margin-top:6px; }
+.danger-note{
+  padding:10px 12px; border-radius:12px; margin:0 0 8px;
+  background: var(--danger-bg);
+  border:1px solid var(--danger-border);
+  color:var(--danger-text);
+}
+
+/* ==== Показ/скрытие пароля (как в auth.html) ==== */
+.form-field .field-wrap{
+  position: relative;
+  display: block;                /* важно */
+}
+
+.form-field .field-wrap input{
+  width: 100%;                   /* ключевой фикс */
+  box-sizing: border-box;        /* на всякий */
+  padding-right: 44px;           /* место под кнопку */
+}
+
+.toggle-pass{
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: #94a3b8;            /* тот же оттенок, что и в auth */
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color .15s ease, transform .05s ease, color .15s ease;
+}
+.toggle-pass:hover{
+  background: color-mix(in oklab, var(--divider) 16%, transparent);
+}
+.toggle-pass:focus-visible{
+  outline: 2px solid color-mix(in oklab, #6366f1 60%, transparent);
+  outline-offset: 2px;
+}
+.toggle-pass:active{
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* Переключение иконок */
+.toggle-pass .i-eye-off{ display: none; }
+.toggle-pass[data-state="visible"] .i-eye{ display: none; }
+.toggle-pass[data-state="visible"] .i-eye-off{ display: block; }
+
+/* Оптика SVG */
+.toggle-pass svg{
+  width: 18px;
+  height: 18px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ===== Patch: базовые токены/фолбэки и доступность ===== */
+
+/* БАЗА: если общих токенов нет — дадим дефолты */
+:root{
+  --card: #0f172a;                /* фон карточек (dark-friendly) */
+  --ink: #e5e7eb;                 /* основной текст */
+  --divider: #1f2937;             /* деликатные разделители */
+  --shadow-sm: 0 2px 10px rgba(0,0,0,.18);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.28);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --card: #fff;
+    --ink: #0b1220;
+    --divider: #e5e7eb;
+    --shadow-sm: 0 1px 6px rgba(2,6,23,.08);
+    --shadow-lg: 0 20px 60px rgba(2,6,23,.12);
+  }
+}
+
+/* ФОЛБЭКИ для color-mix: чутка усилим контуры там, где браузер не умеет mix */
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .me-row{ border-bottom: 1px dashed var(--divider); }
+  .me-chips .chip,
+  .device-badges .chip,
+  .modal-card{
+    border-color: var(--divider);
+    background: rgba(127,127,127,.06);
+  }
+  .devices-card{ /* если оборачиваешь карту в card */
+    background: var(--card);
+  }
+}
+
+/* Чип Premium – под класс, который мы используем в JS */
+.chip-premium{
+  color: #8b5cf6;                   /* violet-500 */
+  border-color: color-mix(in oklab, #8b5cf6 60%, var(--divider));
+  background: color-mix(in oklab, #8b5cf6 12%, transparent);
+}
+
+/* Фокус для интерактивных элементов */
+.device-revoke,
+.device-delete,
+.btn-danger{
+  outline: none;
+}
+.device-revoke:focus-visible,
+.device-delete:focus-visible,
+.btn-danger:focus-visible{
+  box-shadow: 0 0 0 3px color-mix(in oklab, #6366f1 25%, transparent);
+  border-color: color-mix(in oklab, #6366f1 45%, var(--danger-border, var(--divider)));
+}
+
+/* Состояния наведения/нажатия – чуть понятнее */
+.device-revoke:hover,
+.device-delete:hover{
+  filter: brightness(1.02);
+}
+.device-revoke:active,
+.device-delete:active{
+  transform: translateY(1px);
+}
+
+/* Тёмная тема: добавим danger-border, чтобы не терялся контур */
+@media (prefers-color-scheme: dark){
+  :root{
+    --danger-border: color-mix(in oklab, #ef4444 35%, var(--divider));
+  }
+}
+
+/* Мелочь: выравнивание бейджей и кнопок при переносах */
+.device-right{ align-items: center; flex-wrap: wrap; }
+
+/* Слегка усилим пустое состояние устройств на light */
+@media (prefers-color-scheme: light){
+  .devices-empty{ color:#64748b; }
+}
+
+/* На очень узких экранах – больше воздуха */
+@media (max-width: 380px){
+  .me-head{ grid-template-columns: 56px 1fr; }
+  .me-avatar{ inline-size:56px; block-size:56px; }
+  .me-actions .btn-outline,
+  .me-actions .btn-hero,
+  .me-actions .btn-danger{ min-width: 140px; }
+}
+
+/* Печатный режим: убрать декоративные рамки/тени */
+@media print{
+  .device-item,
+  .me-row{ border: 0 !important; }
+  .me-badge, .device-badges .chip, .chip-premium{
+    border: 1px solid #999 !important;
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  .modal, .modal-backdrop{ display:none !important; }
+}

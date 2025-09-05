@@ -1,0 +1,437 @@
+/* ===== Design tokens ===== */
+:root{
+  --arc-size-x: 165%;
+  --arc-size-y: 105%;
+  --arc-solid : 78%;
+  --arc-feather: 80%;
+  --divider: #e5e7eb;
+
+  --ink: #0f172a;
+  --ink-2: #334155;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --ring: #818cf8;
+  --accent: var(--ink);
+  --shadow-sm: 0 1px 2px rgba(2,6,23,.06);
+  --shadow-lg: 0 20px 40px rgba(2,6,23,.08);
+  --shadow-hover: 0 12px 28px rgba(2,6,23,.12);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink: #e5e7eb;
+    --ink-2: #cbd5e1;
+    --bg: #0b1220;
+    --card: #0f172a;
+    --divider: rgba(148,163,184,.35);
+    --accent: #6366f1;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+    --shadow-lg: 0 20px 40px rgba(0,0,0,.45);
+    --shadow-hover: 0 12px 28px rgba(0,0,0,.55);
+  }
+}
+
+/* ===== Layout baseline ===== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body{
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ===== Header (sticky, glassy) ===== */
+.site-header{
+  position: sticky; top:0; z-index:50;
+  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid color-mix(in oklab, var(--divider) 60%, transparent);
+}
+
+/* ===== Hero background: grid + noise + gradients ===== */
+.hero-bg{
+  position: relative;
+  overflow: clip;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(99,102,241,.12), transparent 70%),
+    radial-gradient(1000px 600px at 90% 10%, rgba(14,165,233,.12), transparent 70%),
+    linear-gradient(var(--bg), var(--bg));
+}
+.hero-bg::before{
+  content:""; position:absolute; inset:-2px;
+  background:
+    linear-gradient(transparent 31px, color-mix(in oklab, var(--divider) 60%, transparent) 32px),
+    linear-gradient(90deg, transparent 31px, color-mix(in oklab, var(--divider) 60%, transparent) 32px);
+  background-size: 32px 32px;
+  mask: radial-gradient(1000px 600px at 30% -10%, rgba(0,0,0,.35), transparent 70%);
+  pointer-events:none;
+}
+.hero-bg::after{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.07;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* ===== Hero cards/images ===== */
+.hero-card{
+  border-radius: 24px;
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+  overflow: hidden;
+  background: var(--card);
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  transition: box-shadow .25s ease, transform .25s ease;
+}
+.hero-card:hover{ box-shadow: var(--shadow-hover); transform: translateY(2px); }
+
+.hero-mask{
+  width: 100%; height: 100%;
+  -webkit-mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
+          mask-image: radial-gradient(var(--arc-size-x) var(--arc-size-y) at 100% 50%, #000 var(--arc-solid), transparent var(--arc-feather));
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+}
+.hero-img{
+  width:100%; height:auto; display:block;
+  object-fit: cover; object-position:center 45%;
+  aspect-ratio: 4 / 3;
+}
+@media (max-width:1024px){ .hero-img{ aspect-ratio:3/2; } }
+
+.v-divider{ width:1px; background: linear-gradient(transparent, var(--divider) 40%, transparent); }
+
+/* ===== Buttons: hero / primary / store ===== */
+.hero-buttons{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+
+/* Сброс нативного вида и устойчивое поведение на iOS */
+button, .btn-hero, .btn-outline {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* БАЗОВОЕ ВЫРАВНИВАНИЕ КНОПОК: одинаковые размеры и типографика
+   (используем display:flex + min-height — надёжнее в мобильном Safari) */
+.btn-hero,
+.btn-outline {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;          /* минимальный tap-target */
+  min-height:44px;
+  padding:0 20px;       /* одинаковый горизонтальный отступ */
+  font-size:15px;       /* согласованный размер шрифта */
+  border-radius:9999px;
+  font-weight:700;
+  line-height:1;
+  text-decoration:none;
+}
+
+/* Заливка (герой-кнопка) */
+.btn-hero{
+  background: var(--ink);
+  color:#fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
+}
+.btn-hero:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter: saturate(110%); }
+.btn-hero:active{ transform:translateY(0); }
+.btn-hero:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+@media (prefers-color-scheme: dark){
+  .btn-hero{
+    background:#fff;
+    color:var(--bg);
+  }
+}
+
+/* Кнопка-обводка */
+.btn-outline{
+  background: transparent;
+  border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
+  color: var(--ink);
+  gap:8px;
+  cursor:pointer;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.btn-outline:hover{ transform:translateY(-1px); background: color-mix(in oklab, var(--divider) 12%, transparent); }
+.btn-outline:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 55%, transparent); }
+
+/* Точечный фикс для WebKit (по желанию — чуть больше высота на iOS) */
+@supports (-webkit-touch-callout: none) {
+  .btn-hero, .btn-outline { height:48px; min-height:48px; }
+}
+
+/* Кнопка стора — картинка ровно 40px высотой */
+.store-btn{ display:inline-block; height:40px; line-height:0; }
+.store-btn img, .store-btn svg{ display:block; height:40px; width:auto; }
+
+/* ===== Emoji chips ===== */
+.emo{
+  inline-size:40px; block-size:40px; border-radius:9999px;
+  background: rgba(241,245,249,.8);
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:22px; line-height:1; user-select:none; flex:0 0 auto;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+}
+@media (prefers-color-scheme: dark){
+  .emo{ background: rgba(30,41,59,.8); }
+}
+
+/* ===== Title accent ===== */
+.gradient-accent{
+  background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ===== Tabs ===== */
+.feature-tab{
+  transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.feature-tab:hover{ transform: translateY(-1px); }
+.feature-tab:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent);
+}
+.feature-panel{
+  opacity:0; transform: translateY(6px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.feature-panel[aria-hidden="false"]{ opacity:1; transform:none; }
+
+/* ===== Feature cards ===== */
+.feature-card{
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+}
+.feature-card:hover{
+  box-shadow: var(--shadow-sm);
+  transform: translateY(2px);
+  border-color: color-mix(in oklab, var(--divider) 90%, transparent);
+}
+
+/* ===== Motion reduce ===== */
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+
+/* ===== Auth layout ===== */
+.page-auth{
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 4vw, 40px);
+  background: var(--bg);
+}
+.container-sm{ width: min(100%, 28rem); margin-inline: auto; }
+
+.card{
+  background: var(--card);
+  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm), var(--shadow-lg);
+}
+.auth-card{
+  padding: clamp(20px, 2vw, 32px);
+  overflow: hidden; /* обводка инпута не выйдет за край */
+}
+
+.auth-title{ font: 800 24px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; letter-spacing:-0.01em; color: var(--ink); margin:0; }
+.auth-sub{ margin:6px 0 0; color:#64748b; font-size:14px; }
+.logo-brand{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  display:block;
+  margin:0 auto 12px;
+}
+
+/* ===== Form primitives ===== */
+.input-wrap{ position: relative; max-width: 100%; }
+
+.field{
+  width:100%;
+  display:block;
+  height:46px; /* финальная высота */
+  border-radius:12px;
+  border:1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+  background: var(--bg);
+  padding:0 12px;
+  font-size:16px;
+  color:var(--ink);
+  transition:border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+}
+.field::placeholder{ color: color-mix(in oklab, var(--ink) 45%, transparent); }
+.field:focus{
+  outline:none;
+  border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
+  box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  background: var(--card);
+}
+
+/* поле с иконкой справа */
+.field--with-icon{ padding-right: 52px; }
+
+/* встроенная кнопка-иконка в правой части поля */
+.icon-btn{
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  right: 10px;
+  transform: none;
+  min-width: 38px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: color-mix(in oklab, var(--ink) 75%, transparent);
+  cursor: pointer;
+}
+.icon-btn:hover{ background: color-mix(in oklab, var(--divider) 14%, transparent); }
+.icon-btn:focus-visible{ outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent); }
+
+.icon-btn .i{ display:none; }
+.icon-btn[data-state="hidden"]  .i-eye{ display:inline; }     /* пароль скрыт */
+.icon-btn[data-state="visible"] .i-eye-off{ display:inline; } /* пароль показан */
+
+.form-hint{ color:#64748b; font-size:14px; }
+.form-error{ color:#e11d48; font-size:14px; }
+
+/* ===== Primary button ===== */
+.btn-primary{
+  height:48px;
+  border:0;
+  border-radius:9999px;
+  background: var(--accent);
+  color:#fff;
+  font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:100%;
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
+  text-decoration: none;
+}
+.btn-primary:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
+.btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+
+/* Общая util, т.к. Tailwind тут нет */
+.hidden{ display:none !important; }
+
+/* Пилюли-переключатели в секции с контентом главной */
+.feature-tab{
+  appearance:none; border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 7%, transparent);
+  color: var(--ink);
+  padding: 10px 14px; border-radius: 9999px;
+  font-weight: 700; font-size: 14px; line-height:1;
+  cursor: pointer; user-select: none;
+  transition: background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.feature-tab:hover{
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--divider) 90%, transparent);
+}
+.feature-tab.is-active,
+.feature-tab[aria-selected="true"]{
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Карточки фич-листа — видимая рамка всегда + усиление на hover */
+.feature-card{
+  border:1px solid color-mix(in oklab, var(--divider) 75%, transparent);
+  border-radius: 14px;
+  background: var(--card);
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+}
+.feature-card:hover{
+  box-shadow: var(--shadow-sm);
+  transform: translateY(2px);
+  border-color: color-mix(in oklab, var(--divider) 95%, transparent);
+}
+
+/* ===== Patches & a11y hardening ===== */
+
+/* 1) color-mix fallbacks (старые браузеры) */
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .site-header{
+    background: var(--bg);
+    border-bottom: 1px solid var(--divider);
+  }
+  .hero-bg::before{
+    background:
+      linear-gradient(transparent 31px, var(--divider) 32px),
+      linear-gradient(90deg, transparent 31px, var(--divider) 32px);
+  }
+  .hero-card,
+  .card,
+  .feature-card{
+    border-color: var(--divider);
+  }
+  .feature-tab{
+    background: rgba(127,127,127,.06);
+    border-color: var(--divider);
+  }
+  .v-divider{
+    background: linear-gradient(transparent, var(--divider) 40%, transparent);
+  }
+}
+
+/* 2) Кнопки: :disabled, и узнаваемый фокус в dark */
+.btn-hero:disabled,
+.btn-outline:disabled,
+.btn-primary:disabled{
+  opacity:.6;
+  cursor: not-allowed;
+  transform:none;
+  filter:none;
+  box-shadow:none;
+}
+@media (prefers-color-scheme: dark){
+  .btn-outline:focus-visible,
+  .btn-primary:focus-visible,
+  .btn-hero:focus-visible{
+    box-shadow: 0 0 0 3px rgba(99,102,241,.5); /* заметнее в dark */
+  }
+}
+
+/* 3) Поля форм: aria-invalid, autofill, focus-visible */
+.field[aria-invalid="true"]{
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px color-mix(in oklab, #ef4444 25%, transparent);
+  background: color-mix(in oklab, #ef4444 6%, var(--bg));
+}
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .field[aria-invalid="true"]{
+    box-shadow: 0 0 0 3px rgba(239,68,68,.25);
+    background: rgba(239,68,68,.06);
+  }
+}
+.field:focus-visible{ outline: none; }
+.field:-webkit-autofill{
+  -webkit-text-fill-color: var(--ink);
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* 4) Кнопки-иконки в полях: hit area + фокус */
+.icon-btn{ -webkit-tap-highlight-color: transparent; }
+.icon-btn:disabled{ opacity:.5; cursor: default; }
+.icon-btn:active{ transform: translateY(1px); }
+
+/* 5) Hero-карточки: немного «подушки» на мобилках */
+@media (max-width: 520px){
+  .hero-card{ border-radius: 20px; }
+}
+
+/* 6) Контраст табов при активном состоянии: текст всегда читаемый */
+.feature-tab.is-active,
+.feature-tab[aria-selected="true"]{
+  color: #fff;
+}
+
+/* 7) Мелочь: указываем system tap/hover улучшалки */
+button, .btn-hero, .btn-outline, .btn-primary{
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 8) Если захочется более «брендового» акцента — можно переопределить здесь:
+:root{ --accent: #4f46e5; }  @media (prefers-color-scheme: dark){ :root{ --accent:#6366f1; } }
+*/

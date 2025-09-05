@@ -8,9 +8,12 @@ require __DIR__ . '/PHPMailer/src/Exception.php';
 require __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require __DIR__ . '/PHPMailer/src/SMTP.php';
 
+// Always return JSON
 header('Content-Type: application/json; charset=UTF-8');
 
-// -------------------- Чтение config.env --------------------
+// -----------------------------------------------------------------------------
+// Load configuration from a .env‑style file. Missing keys fall back to defaults.
+// -----------------------------------------------------------------------------
 $configPath = __DIR__ . '/config.env';
 $env = file_exists($configPath)
     ? (parse_ini_file($configPath, false, INI_SCANNER_RAW) ?: [])
@@ -25,44 +28,72 @@ $FROM_EMAIL = $env['FROM_EMAIL'] ?? $SMTP_USER;
 $FROM_NAME  = $env['FROM_NAME']  ?? 'Mailer';
 $USE_SMTPS  = isset($env['USE_SMTPS']) ? filter_var($env['USE_SMTPS'], FILTER_VALIDATE_BOOLEAN) : true;
 
-// -------------------- Авторизация --------------------
+// -----------------------------------------------------------------------------
+// Authorization: expect an Authorization header in the form "Bearer <token>"
+// Also accept an X-Api-Key header for compatibility. Use a constant‑time
+// comparison to avoid timing attacks.
+// -----------------------------------------------------------------------------
 $headers = function_exists('getallheaders') ? getallheaders() : [];
-$auth = $_SERVER['HTTP_AUTHORIZATION']
+$authHeader = $_SERVER['HTTP_AUTHORIZATION']
     ?? ($headers['Authorization'] ?? $headers['authorization'] ?? null);
 
-// fallback на X-Api-Key
-if (!$auth && isset($headers['X-Api-Key'])) {
-    $auth = 'Bearer ' . $headers['X-Api-Key'];
+if (!$authHeader && isset($headers['X-Api-Key'])) {
+    $authHeader = 'Bearer ' . $headers['X-Api-Key'];
 }
 
-if ($API_TOKEN === '' || $auth !== "Bearer $API_TOKEN") {
+$providedToken = '';
+if ($authHeader && preg_match('/Bearer\s+(.+)/', (string)$authHeader, $m)) {
+    $providedToken = trim($m[1]);
+}
+
+if ($API_TOKEN === '' || !hash_equals($API_TOKEN, (string)$providedToken)) {
     http_response_code(401);
-    echo json_encode(['status'=>'error','message'=>'Unauthorized']);
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
     exit;
 }
 
-// -------------------- Чтение JSON --------------------
-$data = json_decode(file_get_contents("php://input"), true);
+// -----------------------------------------------------------------------------
+// Parse request body (JSON) and extract fields. Invalid JSON results in 400.
+// -----------------------------------------------------------------------------
+$data = json_decode(file_get_contents('php://input'), true);
 if (!is_array($data)) {
     http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>'Invalid JSON']);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON']);
     exit;
 }
 
-$to         = $data['to'] ?? null;
-$subject    = $data['subject'] ?? '(no subject)';
-$body       = $data['body'] ?? '';
-$isHtml     = $data['isHtml'] ?? true;
-$attachments= $data['attachments'] ?? [];
-$embedded   = $data['embedded'] ?? [];
+$to          = $data['to']         ?? null;
+$subject     = $data['subject']    ?? '(no subject)';
+$body        = $data['body']       ?? '';
+$isHtml      = isset($data['isHtml']) ? filter_var($data['isHtml'], FILTER_VALIDATE_BOOLEAN) : true;
+$attachments = is_array($data['attachments'] ?? null) ? $data['attachments'] : [];
+$embedded    = is_array($data['embedded']    ?? null) ? $data['embedded']    : [];
 
-if (!$to) {
+// -----------------------------------------------------------------------------
+// Validate recipient address. Reject if missing or invalid. Avoid sending to
+// arbitrary strings to reduce spam/abuse risk.
+// -----------------------------------------------------------------------------
+if (!$to || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
-    echo json_encode(['status'=>'error','message'=>"Field 'to' required"]);
+    echo json_encode(['status' => 'error', 'message' => "Field 'to' must be a valid email"]);
     exit;
 }
 
-// -------------------- Отправка --------------------
+// Restrict attachments/embeds to a specific uploads directory. If the directory
+// does not exist, attachments will be ignored. This prevents path traversal
+// attacks (e.g. sending /etc/passwd). If you wish to allow arbitrary files,
+// remove this check but understand the risk.
+$allowedDir = realpath(__DIR__ . '/uploads');
+
+// Helper to check if a path is within the allowed directory
+function allowed_path(?string $path, ?string $root): bool {
+    if (!$root || !$path) return false;
+    return strncmp($path, $root, strlen($root)) === 0;
+}
+
+// -----------------------------------------------------------------------------
+// Configure and send the email. Catch exceptions and hide sensitive details.
+// -----------------------------------------------------------------------------
 $mail = new PHPMailer(true);
 
 try {
@@ -85,27 +116,31 @@ try {
     $mail->setFrom($FROM_EMAIL, $FROM_NAME);
     $mail->addAddress($to);
 
-    // Вложения
+    // Attach files if they exist within the allowed directory
     foreach ($attachments as $file) {
-        if (file_exists($file)) {
-            $mail->addAttachment($file);
+        $full = realpath($file);
+        if (allowed_path($full, $allowedDir) && file_exists($full)) {
+            $mail->addAttachment($full);
         }
     }
 
-    // Inline картинки
+    // Embed images inline; require both path and cid and ensure allowed path
     foreach ($embedded as $item) {
-        if (isset($item['path'], $item['cid']) && file_exists($item['path'])) {
-            $mail->addEmbeddedImage(
-                $item['path'],
-                $item['cid'],
-                $item['name'] ?? basename($item['path']),
-                'base64',
-                $item['mime'] ?? mime_content_type($item['path'])
-            );
+        if (isset($item['path'], $item['cid'])) {
+            $full = realpath($item['path']);
+            if (allowed_path($full, $allowedDir) && file_exists($full)) {
+                $mail->addEmbeddedImage(
+                    $full,
+                    $item['cid'],
+                    $item['name'] ?? basename($full),
+                    'base64',
+                    $item['mime'] ?? mime_content_type($full)
+                );
+            }
         }
     }
 
-    $mail->isHTML((bool)$isHtml);
+    $mail->isHTML($isHtml);
     $mail->Subject = $subject;
     $mail->Body    = $body;
     if ($isHtml) {
@@ -113,8 +148,9 @@ try {
     }
 
     $mail->send();
-    echo json_encode(['status'=>'ok']);
+    echo json_encode(['status' => 'ok']);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status'=>'error','message'=>$mail->ErrorInfo]);
+    // Avoid exposing internal error details to the client
+    echo json_encode(['status' => 'error', 'message' => 'Could not send email']);
 }

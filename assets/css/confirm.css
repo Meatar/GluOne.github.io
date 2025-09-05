@@ -1,0 +1,131 @@
+/* ===== OTP: фиксированные квадраты и центрирование ===== */
+:root{
+  --otp-size: 56px;
+  --otp-gap: 12px;
+}
+@media (max-width: 380px){
+  :root{ --otp-size: 48px; --otp-gap: 10px; }
+}
+
+/* карточка повыше и с «воздухом» */
+.auth-card--confirm{
+  padding: clamp(24px, 2.6vw, 36px);
+  min-height: 460px;
+  display: grid;
+  align-content: start;
+  row-gap: 8px;
+}
+
+/* круглая иконка сверху */
+.circle-icon{
+  width:56px; height:56px; margin:4px auto 14px;
+  display:grid; place-items:center;
+  color:var(--accent);
+  background: color-mix(in oklab, var(--divider) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+}
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .circle-icon{
+    background: rgba(127,127,127,.08);
+    border-color: var(--divider);
+  }
+}
+
+/* ===== Сетка OTP ===== */
+.otp-grid{
+  display: grid;
+  justify-content: center;
+  gap: var(--otp-gap);
+  width: 100%;
+  margin-inline: auto;
+}
+.otp-grid--4{ grid-template-columns: repeat(4, var(--otp-size)); }
+.otp-grid--6{ grid-template-columns: repeat(6, var(--otp-size)); }
+
+/* ===== Ячейка OTP ===== */
+.otp-input{
+  width: var(--otp-size);
+  height: var(--otp-size);
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--divider) 80%, transparent);
+  background: var(--bg);
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease, transform .08s ease;
+  -webkit-appearance: none; appearance: none;
+  caret-color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  /* предотвращаем неожиданный zoom в iOS при фокусе */
+  font-size: clamp(20px, 2.4vw, 22px);
+}
+.otp-input:focus{
+  outline: none;
+  border-color: color-mix(in oklab, var(--ring) 55%, var(--divider));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 35%, transparent);
+  background: var(--card);
+  transform: translateY(-1px);
+}
+.otp-input:focus-visible{
+  outline: none; /* оставляем только box-shadow */
+}
+.otp-input:active{
+  transform: translateY(0); /* без «скачка» при быстром наборе */
+}
+.otp-input:disabled{
+  opacity: .55;
+  cursor: default;
+}
+.otp-input[aria-invalid="true"]{
+  border-color: color-mix(in oklab, #ef4444 65%, var(--divider));
+  box-shadow: 0 0 0 3px color-mix(in oklab, #ef4444 25%, transparent);
+  background: color-mix(in oklab, #ef4444 8%, var(--bg));
+}
+@supports not (color: color-mix(in oklab, #000 10%, #fff)){
+  .otp-input{
+    border-color: var(--divider);
+    background: var(--card);
+  }
+  .otp-input:focus{
+    box-shadow: 0 0 0 3px rgba(99,102,241,.35);
+    border-color: #6366f1;
+  }
+  .otp-input[aria-invalid="true"]{
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239,68,68,.25);
+    background: rgba(239,68,68,.06);
+  }
+}
+
+/* Убираем автозаливку браузера */
+.otp-input:-webkit-autofill{
+  -webkit-text-fill-color: var(--ink);
+  transition: background-color 100000s ease-in-out 0s;
+}
+
+/* ===== Ссылка-кнопка (повторная отправка) ===== */
+.link-btn{
+  margin-left:8px;
+  background:none; border:0; padding:0;
+  color:var(--accent); font: inherit; cursor:pointer;
+  text-decoration: none;
+}
+.link-btn:hover{ text-decoration: underline; }
+.link-btn:focus-visible{
+  outline: 2px solid color-mix(in oklab, var(--ring) 55%, transparent);
+  outline-offset: 2px;
+}
+.link-btn[disabled]{ opacity:.45; cursor: default; text-decoration: none; }
+
+/* небольшая заметка под формой */
+.note--confirm{ padding: 14px 16px; }
+
+/* ===== Reduce motion ===== */
+@media (prefers-reduced-motion: reduce){
+  .otp-input{ transition: none; }
+}

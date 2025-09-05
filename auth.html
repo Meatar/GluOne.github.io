@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GluOne — вход</title>
+
+  <meta name="description" content="Авторизация в личном кабинете GluOne" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- Favicons — как на главной -->
+  <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/image/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/image/favicon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/image/favicon-180.png">
+  <link rel="mask-icon" href="assets/image/logo-symbol.svg" color="#0f172a">
+
+  <!-- Стили -->
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/auth.css">
+
+  <!-- Скрипты (type="module" — грузятся отложенно по умолчанию) -->
+  <script type="module" src="assets/js/core.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
+</head>
+<body>
+  <main class="page-auth">
+    <section class="container-sm">
+      <div class="card auth-card">
+        <div style="text-align:center;">
+          <img src="assets/image/logo.png" alt="GluOne" class="logo-brand" width="40" height="40">
+          <h1 class="auth-title">Вход</h1>
+          <p class="auth-sub">Введите логин и пароль, чтобы продолжить.</p>
+        </div>
+
+        <form id="authForm" novalidate style="margin-top:24px;">
+          <!-- ЛОГИН -->
+          <label for="login" style="display:block; font-weight:600; color:var(--ink-2); font-size:14px;">Логин</label>
+          <div class="input-wrap" style="margin-top:8px;">
+            <input id="login" name="login" type="text"
+                   autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"
+                   placeholder="Введите логин" enterkeyhint="next" autofocus
+                   class="field" aria-describedby="formMsg" />
+          </div>
+
+          <!-- ПАРОЛЬ -->
+          <label for="password" style="display:block; font-weight:600; color:var(--ink-2); font-size:14px; margin-top:16px;">Пароль</label>
+          <div class="input-wrap" style="margin-top:8px;">
+            <input id="password" name="password" type="password"
+                   autocomplete="current-password"
+                   placeholder="Введите пароль" enterkeyhint="go"
+                   class="field field--with-icon" aria-describedby="formMsg" />
+            <button type="button" id="togglePass" class="icon-btn"
+                    aria-label="Показать пароль" title="Показать пароль"
+                    aria-pressed="false" data-state="hidden">
+              <!-- глаз -->
+              <svg class="i i-eye" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <!-- перечёркнутый глаз -->
+              <svg class="i i-eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7c2.2 0 4 .6 5.6 1.5M22 12s-3.5 7-10 7c-2.2 0-4-.6-5.6-1.5" stroke="currentColor" stroke-width="2"/>
+                <path d="M3 3l18 18" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Ссылка на восстановление -->
+          <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <a id="forgotLink" href="#" style="font-size:14px; color:#6366f1; text-decoration:none;">Забыли пароль?</a>
+          </div>
+
+          <button id="submitBtn" type="submit" class="btn-primary" style="margin-top:20px;">Войти</button>
+          <p id="formMsg" class="form-hint" style="margin-top:12px;"
+             role="status" aria-live="polite"></p>
+        </form>
+
+        <noscript>
+          <p class="form-error" style="margin-top:12px;">
+            Для входа требуется JavaScript. Пожалуйста, включите его в настройках браузера.
+          </p>
+        </noscript>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // синхронизация aria-pressed с data-state для togglePass (на случай, если стили/скринридер ориентируются на aria)
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('togglePass');
+      const pass = document.getElementById('password');
+      if (!btn || !pass) return;
+      btn.addEventListener('click', () => {
+        const visible = pass.type === 'text';
+        btn.setAttribute('aria-pressed', String(!visible));
+      });
+    });
+  </script>
+</body>
+</html>
