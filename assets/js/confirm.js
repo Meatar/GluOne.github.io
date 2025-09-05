@@ -135,7 +135,7 @@ import { KEYS, load, save, del } from './storage.js';
       el.value = '';
 
       const handleInput = () => {
-        // Собираем только цифры и распределяем их по полям, начиная с текущего
+        // Оставляем только цифры и распределяем остаток по следующим полям
         const chars = (el.value || '').replace(/\D/g, '').split('');
         el.value = chars.shift() || '';
 
@@ -145,8 +145,9 @@ import { KEYS, load, save, del } from './storage.js';
           idx++;
         }
 
-        if (el.value && idx <= inputs.length - 1) {
-          inputs[idx]?.focus();
+        if (el.value && idx < inputs.length) {
+          // Перенос фокуса после завершения текущего события ввода
+          setTimeout(() => inputs[idx].focus(), 0);
         }
 
         maybeVerify();
@@ -166,8 +167,12 @@ import { KEYS, load, save, del } from './storage.js';
       e.preventDefault();
       const digits = text.replace(/\D/g, '').slice(0, inputs.length).split('');
       inputs.forEach((inp, idx) => { inp.value = digits[idx] || ''; });
-      if (digits.length >= inputs.length) attemptVerify();
-      else inputs[digits.length]?.focus();
+      if (digits.length >= inputs.length) {
+        attemptVerify();
+      } else {
+        setTimeout(() => inputs[digits.length]?.focus(), 0);
+        maybeVerify();
+      }
     });
 
     inputs[0]?.focus();
