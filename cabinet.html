@@ -19,10 +19,12 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- React and Babel -->
+  <!-- React -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Общие скрипты сайта -->
+  <script type="module" src="assets/js/core.js"></script>
 </head>
 <body class="bg-slate-50">
   <script>
@@ -35,7 +37,7 @@
     }
   </script>
   <div id="root"></div>
-  <script type="text/babel" data-type="module" data-presets="env,react" src="assets/js/cabinet.jsx"></script>
+  <script type="module" src="assets/js/cabinet.js"></script>
 
   <noscript>
     <p class="text-center p-3 text-sm text-slate-600">
