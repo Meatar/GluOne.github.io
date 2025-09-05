@@ -51,6 +51,11 @@ function useTinkoffScript() {
     document.head.appendChild(s);
   }, []);
   const openPayForm = (params) => {
+    if (window.Tinkoff?.createPayment) {
+      // \u0421\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0439 \u0441\u043F\u043E\u0441\u043E\u0431: \u043D\u0430\u043F\u0440\u044F\u043C\u0443\u044E \u0432\u044B\u0437\u044B\u0432\u0430\u0435\u043C createPayment
+      window.Tinkoff.createPayment(params);
+      return;
+    }
     if (!window.pay)
       throw new Error("\u0412\u0438\u0434\u0436\u0435\u0442 \u043E\u043F\u043B\u0430\u0442\u044B \u0435\u0449\u0451 \u043D\u0435 \u0433\u043E\u0442\u043E\u0432");
     const form = buildTinkoffForm(params);
