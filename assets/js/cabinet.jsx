@@ -187,21 +187,25 @@ function DeviceItem({ device, onRevoke, onDelete }) {
 
 // ========= Модалки =========
 function TransferPremiumModal({ open, onClose, onConfirm, devices, currentDeviceId }) {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(currentDeviceId || null);
+
+  useEffect(() => {
+    if (open) setSelected(currentDeviceId || null);
+  }, [open, currentDeviceId]);
 
   if (!open) return null;
-  const eligible = devices.filter(d => !d.revoked && d.deviceId !== currentDeviceId);
+  const eligible = devices.filter(d => !d.revoked);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} />
       <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200 p-4">
-        <div className="text-base font-semibold text-slate-900">Перенести Premium на устройство</div>
-        <p className="mt-1 text-sm text-slate-600">Выберите доступное устройство. Текущее устройство исключено из списка.</p>
+        <div className="text-base font-semibold text-slate-900">Выбрать устройство для оплаты</div>
+        <p className="mt-1 text-sm text-slate-600">Выберите устройство из списка.</p>
 
         <div className="mt-4 space-y-2 max-h-72 overflow-auto">
           {eligible.length === 0 && (
-            <div className="text-sm text-slate-500">Нет доступных устройств для переноса.</div>
+            <div className="text-sm text-slate-500">Нет доступных устройств.</div>
           )}
           {eligible.map((d) => (
             <label key={d.deviceId} className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 hover:bg-slate-50 cursor-pointer">
@@ -216,10 +220,16 @@ function TransferPremiumModal({ open, onClose, onConfirm, devices, currentDevice
 
         <div className="mt-4 flex justify-end gap-2">
           <button className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm" onClick={onClose}>Отмена</button>
-          <button disabled={!selected} className={`rounded-lg px-3 py-1.5 text-sm text-white ${selected ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-400 cursor-not-allowed"}`} onClick={() => {
-            const d = eligible.find(x => x.deviceId === selected);
-            if (d) onConfirm(d);
-          }}>Перенести</button>
+          <button
+            disabled={!selected}
+            className={`rounded-lg px-3 py-1.5 text-sm text-white ${selected ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-400 cursor-not-allowed"}`}
+            onClick={() => {
+              const d = eligible.find(x => x.deviceId === selected);
+              if (d) onConfirm(d);
+            }}
+          >
+            Выбрать
+          </button>
         </div>
       </div>
     </div>
