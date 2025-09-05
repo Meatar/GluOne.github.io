@@ -145,9 +145,10 @@ import { KEYS, load, save, del } from './storage.js';
           idx++;
         }
 
-        if (el.value && idx < inputs.length) {
-          // Перенос фокуса после завершения текущего события ввода
-          setTimeout(() => inputs[idx].focus(), 0);
+        if (el.value) {
+          // Переносим фокус на первое свободное поле
+          const empty = inputs.find(inp => !inp.value);
+          if (empty) empty.focus();
         }
 
         maybeVerify();
