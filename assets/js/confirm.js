@@ -1,5 +1,5 @@
-// confirm.js (login-only)
-import { authLoginResend, authLoginVerify } from './api.js';
+// assets/js/confirm.js
+import { authVerify, authResend } from './api.js';
 import { KEYS, load, save, del } from './storage.js';
 
 (function initConfirmModule() {
@@ -7,7 +7,7 @@ import { KEYS, load, save, del } from './storage.js';
     const form = document.getElementById('confirmForm');
     if (!form) return;
 
-    // Берём инпуты в рамках формы (чтобы не поймать чужие случайно)
+    // Берём инпуты ТОЛЬКО внутри формы
     const inputs = Array.from(form.querySelectorAll('.otp-input'));
     const codeE  = document.getElementById('codeError');
     const msg    = document.getElementById('confirmMsg');
@@ -61,7 +61,6 @@ import { KEYS, load, save, del } from './storage.js';
       return d0?.msg || '';
     };
 
-    // маппинг ошибок по спецификации LOGIN /verify
     function mapVerifyError(status, data){
       const d = serverDetail(data);
       switch (status) {
@@ -85,10 +84,10 @@ import { KEYS, load, save, del } from './storage.js';
       setMsg('Проверяем код…');
 
       try {
-        const { ok, status, data } = await authLoginVerify(challengeId, code);
+        const { ok, status, data } = await authVerify(challengeId, code);
 
         if (ok) {
-          // токен и премиум-флаги из ответа
+          // Сохраняем токен/флаги, если пришли
           if (data?.access_token) {
             save(KEYS.TOKEN, {
               access_token: data.access_token,
@@ -135,7 +134,7 @@ import { KEYS, load, save, del } from './storage.js';
       el.value = '';
 
       const handleInput = () => {
-        // Оставляем только цифры и распределяем остаток по следующим полям
+        // Берём только цифры и распределяем их по полям, начиная с текущего
         const chars = (el.value || '').replace(/\D/g, '').split('');
         el.value = chars.shift() || '';
 
@@ -145,10 +144,11 @@ import { KEYS, load, save, del } from './storage.js';
           idx++;
         }
 
+        // Авто-фокус на следующем незаполненном
         if (el.value) {
-          // Переносим фокус на первое свободное поле
-          const empty = inputs.find(inp => !inp.value);
-          if (empty) empty.focus();
+          const nextEmpty = inputs.findIndex((n, k) => k > i && !n.value);
+          if (nextEmpty !== -1) inputs[nextEmpty].focus();
+          else if (i < inputs.length - 1) inputs[i + 1].focus();
         }
 
         maybeVerify();
@@ -159,30 +159,30 @@ import { KEYS, load, save, del } from './storage.js';
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace' && !el.value && i > 0) inputs[i - 1].focus();
         if (e.key === 'Enter') { e.preventDefault(); attemptVerify(); }
+        // Стрелки для навигации
+        if (e.key === 'ArrowLeft' && i > 0) inputs[i - 1].focus();
+        if (e.key === 'ArrowRight' && i < inputs.length - 1) inputs[i + 1].focus();
       });
     });
 
+    // Вставка «1234» распределится по ячейкам
     form.addEventListener('paste', (e) => {
       const text = (e.clipboardData || window.clipboardData).getData('text') || '';
       if (!text) return;
       e.preventDefault();
       const digits = text.replace(/\D/g, '').slice(0, inputs.length).split('');
       inputs.forEach((inp, idx) => { inp.value = digits[idx] || ''; });
-      if (digits.length >= inputs.length) {
-        attemptVerify();
-      } else {
-        setTimeout(() => inputs[digits.length]?.focus(), 0);
-        maybeVerify();
-      }
+      if (digits.length >= inputs.length) attemptVerify();
+      else inputs[digits.length]?.focus();
     });
 
     inputs[0]?.focus();
 
-    // ===== Resend с кулдауном (LOGIN /resend) =====
+    // ===== Resend с кулдауном =====
     const RESEND_COOLDOWN_S = 45;
     let timerId = null;
     const fmt = (s)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-    const cooldownKey = `${KEYS.RESEND_UNTIL}:login`; // ключ отдельно для login
+    const cooldownKey = `${KEYS.RESEND_UNTIL}:login`;
     const cooldownLeft = () => Math.max(0, Math.ceil((Number(load(cooldownKey, 0)) - Date.now())/1000));
 
     function startCooldown(seconds){
@@ -202,7 +202,7 @@ import { KEYS, load, save, del } from './storage.js';
       }, 1000);
     }
 
-    // запускаем кулдаун (продолжаем незавершённый или стартуем новый)
+    // запуск/продолжение кулдауна
     const left0 = cooldownLeft();
     startCooldown(left0 > 0 ? left0 : RESEND_COOLDOWN_S);
 
@@ -213,12 +213,11 @@ import { KEYS, load, save, del } from './storage.js';
       setMsg('Отправляем новый код…');
 
       try {
-        const { status, ok, data } = await authLoginResend(challengeId);
+        const { status, ok, data } = await authResend(challengeId);
         if (ok || status === 204) {
           setMsg('Новый код отправлен. Проверьте почту.', '#059669');
           startCooldown(RESEND_COOLDOWN_S);
         } else {
-          // LOGIN /resend: 400 — неверный challenge_id; 404 — пользователь не найден/без e-mail; 500 — ошибка письма
           let human = '';
           if (status === 400) human = 'Некорректная сессия подтверждения. Вернитесь на шаг входа.';
           else if (status === 404) human = 'Пользователь не найден или у аккаунта не указан e-mail.';
@@ -235,11 +234,11 @@ import { KEYS, load, save, del } from './storage.js';
       }
     });
 
-    // На случай, если браузер инициирует submit
+    // На случай нативного submit
     form.addEventListener('submit', (e) => { e.preventDefault(); attemptVerify(); });
   };
 
-  // Гарантированно запускаем после готовности DOM
+  // Запуск после готовности DOM
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
