@@ -1,4 +1,4 @@
-import { authMe, authLogout, authDevices, authRevokeDevice, authDeleteDevice, authChangePassword, authDeleteAccount, authSubscriptions } from "./api.js";
+import { authMe, authLogout, authDevices, authRevokeDevice, authDeleteDevice, authChangePassword, authDeleteAccount, authSubscriptions, authCreateSubscriptionOrder } from "./api.js";
 import { KEYS, load, del } from "./storage.js";
 const { useState, useEffect } = React;
 const TINKOFF_SCRIPT_SRC = "https://securepay.tinkoff.ru/html/payForm/js/tinkoff_v2.js";
@@ -390,11 +390,16 @@ function AccountApp() {
   const monthPrice = selectedPlan ? Math.round(selectedPlan.price / selectedPlan.duration_months) : 0;
   const accountEmail = profile?.email || "";
   const { ready: payReady, error: payError, openPayForm } = useTinkoffScript();
-  const handlePay = () => {
+  const handlePay = async () => {
     if (!selectedPlan || !payReady)
       return;
-    const orderId = `sub_${selectedPlan.id}_${Date.now()}`;
     try {
+      const order = await authCreateSubscriptionOrder(accessToken, profile?.id, currentPremiumDeviceId, selectedPlan.id);
+      const orderId = order?.data?.order_id;
+      if (!order.ok || !orderId) {
+        alert("\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0437\u0430\u043A\u0430\u0437. \u041F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0451 \u0440\u0430\u0437.");
+        return;
+      }
       openPayForm({
         terminalkey: TINKOFF_TERMINAL_KEY,
         frame: "true",

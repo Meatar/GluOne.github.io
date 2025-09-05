@@ -1,4 +1,4 @@
-import { authMe, authLogout, authDevices, authRevokeDevice, authDeleteDevice, authChangePassword, authDeleteAccount, authSubscriptions } from './api.js';
+import { authMe, authLogout, authDevices, authRevokeDevice, authDeleteDevice, authChangePassword, authDeleteAccount, authSubscriptions, authCreateSubscriptionOrder } from './api.js';
 import { KEYS, load, del } from './storage.js';
 
 const { useState, useEffect } = React;
@@ -615,10 +615,15 @@ function AccountApp() {
 
   const { ready: payReady, error: payError, openPayForm } = useTinkoffScript();
 
-  const handlePay = () => {
+  const handlePay = async () => {
     if (!selectedPlan || !payReady) return;
-    const orderId = `sub_${selectedPlan.id}_${Date.now()}`;
     try {
+      const order = await authCreateSubscriptionOrder(accessToken, profile?.id, currentPremiumDeviceId, selectedPlan.id);
+      const orderId = order?.data?.order_id;
+      if (!order.ok || !orderId) {
+        alert('Не удалось создать заказ. Попробуйте ещё раз.');
+        return;
+      }
       openPayForm({
         terminalkey: TINKOFF_TERMINAL_KEY,
         frame: "true",
@@ -632,7 +637,7 @@ function AccountApp() {
       });
     } catch (e) {
       console.error(e);
-      alert("Не удалось открыть оплату. Попробуйте ещё раз.");
+      alert('Не удалось открыть оплату. Попробуйте ещё раз.');
     }
   };
 
