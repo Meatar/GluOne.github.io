@@ -368,3 +368,63 @@
   }
   .modal, .modal-backdrop{ display:none !important; }
 }
+
+/* ===== Подписка (стили из прототипа, адаптация под текущую систему) ===== */
+.sub-card{ padding: clamp(16px, 2vw, 24px); }
+.sub-head{ margin-bottom: 8px; }
+.sub-body{ display:grid; gap: 12px; }
+
+.sub-rows{ display:grid; gap:8px; }
+.sub-row{ display:flex; justify-content:space-between; align-items:center; padding:6px 0; }
+.sub-label{ color:#64748b; font-size:14px; }
+.sub-value{ font-weight:600; color:var(--ink); }
+
+.sub-grid{
+  display:grid;
+  grid-template-columns: 1fr minmax(160px, 240px);
+  gap: 12px;
+  align-items:end;
+}
+@media (max-width: 720px){
+  .sub-grid{ grid-template-columns: 1fr; }
+}
+
+.field-select{
+  height: 48px;
+  border-radius: 14px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 7%, transparent);
+  font: 500 14px/1.2 Inter, system-ui, sans-serif;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.field-select:focus{
+  outline: none;
+  border-color: color-mix(in oklab, #6366f1 50%, var(--divider));
+  box-shadow: 0 0 0 3px color-mix(in oklab, #6366f1 22%, transparent);
+}
+
+.sub-amount{ text-align:right; }
+.sub-amount-hint{ font-size:12px; color:#64748b; }
+.sub-amount-value{ font: 800 20px/1.1 Inter, system-ui, sans-serif; color: var(--ink); }
+.sub-amount-note{ font-size:12px; color:#64748b; }
+
+.sub-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+.sub-actions .btn-hero,
+.sub-actions .btn-outline{ flex: 1; min-width: 200px; }
+
+/* Перенос Premium (список устройств) */
+.transfer-list{ display:grid; gap:8px; margin: 8px 0; max-height: 280px; overflow:auto; }
+.transfer-item{
+  display:flex; gap:10px; align-items:start;
+  padding:10px; border-radius:12px;
+  border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
+  background: color-mix(in oklab, var(--divider) 7%, transparent);
+  cursor: pointer;
+}
+.transfer-item[data-active="true"]{
+  outline: 3px solid color-mix(in oklab, #6366f1 35%, transparent);
+  border-color: color-mix(in oklab, #6366f1 45%, var(--divider));
+}
+.transfer-item-title{ font-weight:700; color:var(--ink); }
+.transfer-item-sub{ font-size:12px; color:#64748b; }

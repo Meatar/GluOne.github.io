@@ -9,7 +9,7 @@
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#0f172a" />
 
-  <!-- Favicons: выровнено с auth.html -->
+  <!-- Favicons -->
   <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/image/favicon-32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="assets/image/favicon-192.png">
@@ -68,6 +68,60 @@
             <button id="deleteAccountBtn" type="button" class="btn-danger">Удалить аккаунт</button>
             <button id="logoutBtn" type="button" class="btn-outline">Выйти</button>
             <a class="btn-hero" href="/">На главную</a>
+          </div>
+        </article>
+
+        <!-- === Подписка (новая карточка в стиле прототипа) === -->
+        <article class="card sub-card" id="subCard" hidden>
+          <header class="sub-head">
+            <h2 class="auth-title">Подписка Premium</h2>
+          </header>
+
+          <div class="sub-body">
+            <div class="sub-rows">
+              <div class="sub-row">
+                <span class="sub-label">Статус</span>
+                <span class="sub-value" id="subStatus">—</span>
+              </div>
+              <div class="sub-row">
+                <span class="sub-label">Оплачено до</span>
+                <span class="sub-value" id="subPaidTill">—</span>
+              </div>
+              <div class="sub-row">
+                <span class="sub-label">Устройство</span>
+                <span class="sub-value" id="subDevice">—</span>
+              </div>
+            </div>
+
+            <div class="sub-grid">
+              <label class="form-field">
+                <span>Период оплаты</span>
+                <select id="subPeriod" class="field-select">
+                  <option value="1m">1 месяц — 150 ₽</option>
+                  <option value="3m">3 месяца — 450 ₽</option>
+                  <option value="6m">6 месяцев — 900 ₽</option>
+                  <option value="12m">12 месяцев — 1 800 ₽</option>
+                </select>
+              </label>
+
+              <div class="sub-amount">
+                <div class="sub-amount-hint">Итого к оплате</div>
+                <div class="sub-amount-value" id="subAmount">150 ₽</div>
+                <div class="sub-amount-note" id="subPerMonth">150 ₽/мес × 1</div>
+              </div>
+            </div>
+
+            <label class="form-field">
+              <span>E-mail плательщика</span>
+              <input id="subEmail" type="email" readonly />
+            </label>
+
+            <div class="sub-actions">
+              <button id="subPayBtn" class="btn-hero">Продлить</button>
+              <button id="subTransferBtn" class="btn-outline">Сменить устройство</button>
+            </div>
+
+            <p id="subMsg" class="form-hint" role="status" aria-live="polite"></p>
           </div>
         </article>
 
@@ -132,6 +186,20 @@
           <button type="button" class="btn-outline" id="delCancel">Отмена</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ===== Модалка: Перенос Premium (визуальная, без API) ===== -->
+  <div id="modalTransfer" class="modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="trTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <h3 id="trTitle" class="modal-title">Перенести Premium на устройство</h3>
+      <div id="trList" class="transfer-list" role="list"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-hero" id="trConfirm" disabled>Перенести</button>
+        <button type="button" class="btn-outline" id="trCancel">Отмена</button>
+      </div>
+      <p id="trMsg" class="form-hint" role="status" aria-live="polite"></p>
     </div>
   </div>
 

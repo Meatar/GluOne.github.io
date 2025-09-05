@@ -31,6 +31,19 @@ import { KEYS, load, del } from './storage.js';
   const meDiabetes    = el('meDiabetes');
   const meMsg         = el('meMsg');
 
+  // ---- subscription refs (новые)
+  const subCard       = el('subCard');
+  const subStatus     = el('subStatus');
+  const subPaidTill   = el('subPaidTill');
+  const subDevice     = el('subDevice');
+  const subPeriod     = el('subPeriod');
+  const subAmount     = el('subAmount');
+  const subPerMonth   = el('subPerMonth');
+  const subEmail      = el('subEmail');
+  const subPayBtn     = el('subPayBtn');
+  const subTransferBtn= el('subTransferBtn');
+  const subMsg        = el('subMsg');
+
   // ---- devices refs
   const meDevicesSection = el('meDevicesSection');
   const meDevicesStatus  = el('meDevicesStatus');
@@ -54,7 +67,14 @@ import { KEYS, load, del } from './storage.js';
   const delCancel = el('delCancel');
   const delSubmit = el('delSubmit');
 
-  // ===== helpers
+  // перенос Premium
+  const modalTransfer = el('modalTransfer');
+  const trList   = el('trList');
+  const trConfirm= el('trConfirm');
+  const trCancel = el('trCancel');
+  const trMsg    = el('trMsg');
+
+  /* ======================== helpers ======================== */
   const maskEmail = (em) => (em && typeof em === 'string') ? em : '—';
   const ageFrom = (dateStr) => {
     if (!dateStr) return null;
@@ -70,11 +90,71 @@ import { KEYS, load, del } from './storage.js';
   const fmtDateTime = (iso) => { try { return new Date(iso).toLocaleString('ru-RU', {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'}); } catch { return iso || '—'; } };
   const mapGender = (g) => ({ male:'Мужской', female:'Женский' })[g] || '—';
   const mapDia    = (t) => ({ type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный' })[t] || '—';
+  const RUB = (n) => new Intl.NumberFormat('ru-RU').format(n);
 
+  /* ====== PayForm v2 (Т-Банк) ====== */
+  const TINKOFF_SCRIPT_SRC = "https://securepay.tinkoff.ru/html/payForm/js/tinkoff_v2.js";
+  const TINKOFF_TERMINAL_KEY = "1756472050322DEMO";
+  const PRICE_RUB_PER_MONTH = 150;
+  const PERIODS = {
+    "1m": { label: "1 месяц", months: 1 },
+    "3m": { label: "3 месяца", months: 3 },
+    "6m": { label: "6 месяцев", months: 6 },
+    "12m": { label: "12 месяцев", months: 12 },
+  };
+  const periodAmountRub = (k) => PRICE_RUB_PER_MONTH * (PERIODS[k]?.months || 1);
+
+  function loadTinkoffScript() {
+    return new Promise((resolve, reject) => {
+      if (window.pay) return resolve(true);
+      const existing = document.querySelector(`script[src="${TINKOFF_SCRIPT_SRC}"]`);
+      if (existing) {
+        existing.addEventListener('load', () => resolve(true), { once:true });
+        existing.addEventListener('error', () => reject(new Error('script error')), { once:true });
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = TINKOFF_SCRIPT_SRC;
+      s.async = true;
+      s.onload = () => resolve(true);
+      s.onerror = () => reject(new Error('script error'));
+      document.head.appendChild(s);
+    });
+  }
+
+  function buildPayForm(params){
+    const form = document.createElement('form');
+    form.style.display = 'none';
+    form.setAttribute('name', 'payform-tbank-auto');
+    Object.entries(params).forEach(([name, value]) => {
+      const input = document.createElement('input');
+      input.type = (name === 'amount') ? 'text' : 'hidden';
+      input.name = name;
+      input.value = String(value ?? '');
+      form.appendChild(input);
+    });
+    return form;
+  }
+
+  async function openPay(params){
+    await loadTinkoffScript();
+    if (!window.pay) throw new Error('Виджет оплаты ещё не готов');
+    const form = buildPayForm(params);
+    document.body.appendChild(form);
+    try { window.pay(form); } finally { document.body.removeChild(form); }
+  }
+
+  /* ======================== state ======================== */
   let currentUsername = null;
+  let currentUserId   = null; // если бек энд вернёт id — используем для customerKey
   let profileLoaded = false;
 
-  // ===== profile
+  // для «переноса Premium»
+  let devicesCache = [];
+  let currentPremiumDeviceId = null;
+  let currentPremiumDeviceName = '—';
+
+  /* ======================== profile ======================== */
   async function loadMe(){
     meMsg.textContent = 'Загружаем профиль…';
     const { ok, status, data } = await authMe(token.access_token);
@@ -82,6 +162,7 @@ import { KEYS, load, del } from './storage.js';
     if (ok) {
       profileLoaded = true;
       currentUsername = data?.username || data?.email || null;
+      currentUserId   = data?.id || null;
 
       meUsername.textContent = data?.username || 'Без имени';
       meEmail.textContent    = data?.email ? maskEmail(data.email) : '—';
@@ -99,16 +180,23 @@ import { KEYS, load, del } from './storage.js';
         meRoles.appendChild(chipEl);
       });
 
-      mePremium.hidden = !data?.is_premium;
+      // Премиум статус / карточка подписки
+      const isPremium = !!data?.is_premium;
+      const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
+
+      mePremium.hidden = !isPremium;
       mePremiumNote.hidden = false;
-      if (data?.is_premium){
-        const exp = data?.premium_expires_at ? new Date(data.premium_expires_at) : null;
-        mePremiumNote.textContent = exp
-          ? `Premium до ${exp.toLocaleString('ru-RU',{year:'numeric',month:'long',day:'numeric'})}`
-          : 'Premium активен';
-      } else {
-        mePremiumNote.textContent = 'Premium не оплачен';
-      }
+      mePremiumNote.textContent = isPremium
+        ? (exp ? `Premium до ${exp.toLocaleString('ru-RU',{year:'numeric',month:'long',day:'numeric'})}` : 'Premium активен')
+        : 'Premium не оплачен';
+
+      // Заполним карточку подписки
+      subCard.hidden = false;
+      subEmail.value = data?.email || '';
+      subStatus.textContent = isPremium ? 'Активна' : 'Не активна';
+      subPaidTill.textContent = exp ? fmtDate(exp) : '—';
+      subDevice.textContent = currentPremiumDeviceName;
+      updateAmountUI(); // первичный пересчёт
 
       meMsg.textContent = '';
       return;
@@ -121,7 +209,7 @@ import { KEYS, load, del } from './storage.js';
     }
   }
 
-  // ===== devices
+  /* ======================== devices ======================== */
   const chip = (text, cls = '') => {
     const c = document.createElement('span');
     c.className = 'chip' + (cls ? ` ${cls}` : '');
@@ -154,7 +242,6 @@ import { KEYS, load, del } from './storage.js';
         meDevicesStatus.hidden = false;
         meDevicesStatus.textContent = 'Сессия истекла. Войдите заново.';
       } else {
-        // 422/прочее
         const msg = Array.isArray(data?.detail)
           ? data.detail.map(e => e?.msg).filter(Boolean).join('; ')
           : `Ошибка: ${status}`;
@@ -224,7 +311,7 @@ import { KEYS, load, del } from './storage.js';
     badges.className = 'device-badges';
     if (dev?.current) badges.appendChild(chip('Текущее'));
     if (dev?.revoked) badges.appendChild(chip('Отозвано'));
-    if (dev?.is_premium) badges.appendChild(chip('Premium', 'chip-premium')); // новый бейдж
+    if (dev?.is_premium) badges.appendChild(chip('Premium', 'chip-premium'));
 
     // Если устройство НЕ отозвано — показываем «Выйти ...»
     if (!dev?.revoked) {
@@ -296,6 +383,14 @@ import { KEYS, load, del } from './storage.js';
       }
 
       const arr = Array.isArray(data) ? data : [];
+      devicesCache = arr.slice();
+
+      // вычислим «текущее Premium-устройство» (если в ответе есть такая пометка)
+      const cur = arr.find(d => d.is_premium) || arr.find(d => d.current) || null;
+      currentPremiumDeviceId = cur?.device_id || null;
+      currentPremiumDeviceName = cur?.model || '—';
+      if (subDevice) subDevice.textContent = currentPremiumDeviceName;
+
       meDevicesStatus.hidden = true;
 
       if (!arr.length) {
@@ -319,7 +414,7 @@ import { KEYS, load, del } from './storage.js';
     }
   }
 
-  // ===== модалки
+  /* ======================== модалки (общие) ======================== */
   function openModal(modal){
     modal.hidden = false; modal.setAttribute('aria-hidden','false');
     const focusable = modal.querySelector('input,button,select,textarea,[href]');
@@ -336,7 +431,7 @@ import { KEYS, load, del } from './storage.js';
     return hide;
   }
 
-  // Кнопка-глаз для password-поля (как в авторизации)
+  // Кнопка-глаз для password-полей
   function installPasswordToggle(inputEl) {
     if (!inputEl) return;
     const label = inputEl.closest('.form-field');
@@ -380,7 +475,7 @@ import { KEYS, load, del } from './storage.js';
     wrap.appendChild(btn);
   }
 
-  // ===== смена пароля
+  /* ======================== смена пароля ======================== */
   function setupChangePassword(){
     const btn = el('changePassBtn');
     if (!btn) return;
@@ -446,7 +541,7 @@ import { KEYS, load, del } from './storage.js';
     });
   }
 
-  // ===== удаление аккаунта
+  /* ======================== удаление аккаунта ======================== */
   function setupDeleteAccount(){
     const btn = el('deleteAccountBtn');
     if (!btn) return;
@@ -456,7 +551,6 @@ import { KEYS, load, del } from './storage.js';
     btn.addEventListener('click', () => {
       delForm.reset();
       delMsg.textContent = '';
-      // НЕ подставляем логин автоматически
       closeModal = openModal(modalDelete);
     });
 
@@ -507,19 +601,133 @@ import { KEYS, load, del } from './storage.js';
     });
   }
 
-  // init password toggles
-  installPasswordToggle(cpOld);
-  installPasswordToggle(cpNew);
-  installPasswordToggle(delPass);
+  /* ======================== перенос Premium (UI, без API) ======================== */
+  function setupTransfer(){
+    if (!subTransferBtn) return;
+    let closeModal = null;
+    let selectedId = null;
 
-  // ===== logout
+    const renderList = () => {
+      trList.innerHTML = '';
+      const eligible = devicesCache.filter(d => !d.revoked && d.device_id !== currentPremiumDeviceId);
+      if (!eligible.length) {
+        trList.innerHTML = `<div class="form-hint">Нет доступных устройств для переноса.</div>`;
+        trConfirm.disabled = true;
+        return;
+      }
+      eligible.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'transfer-item';
+        item.setAttribute('role','listitem');
+        item.dataset.active = 'false';
+        item.innerHTML = `
+          <div>
+            <div class="transfer-item-title">${d.model || 'Неизвестное устройство'}</div>
+            <div class="transfer-item-sub">${(d.os || '—')} • ${(d.last_ip || '—')} • ${d.last_seen_at ? fmtDateTime(d.last_seen_at) : '—'}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => {
+          [...trList.children].forEach(ch => ch.dataset.active = 'false');
+          item.dataset.active = 'true';
+          selectedId = d.device_id;
+          trConfirm.disabled = false;
+        });
+        trList.appendChild(item);
+      });
+    };
+
+    subTransferBtn.addEventListener('click', () => {
+      trMsg.textContent = '';
+      renderList();
+      trConfirm.disabled = true;
+      closeModal = openModal(modalTransfer);
+    });
+
+    trCancel.addEventListener('click', () => closeModal && closeModal());
+    trConfirm.addEventListener('click', () => {
+      if (!selectedId) return;
+      // Здесь должен быть вызов API «перенести Premium» (когда появится)
+      currentPremiumDeviceId = selectedId;
+      const d = devicesCache.find(x => x.device_id === selectedId);
+      currentPremiumDeviceName = d?.model || '—';
+      if (subDevice) subDevice.textContent = currentPremiumDeviceName;
+      trMsg.textContent = 'Premium перенесён (локально).';
+      setTimeout(() => closeModal && closeModal(), 600);
+    });
+  }
+
+  /* ======================== подписка: выбор периода / оплата ======================== */
+  function updateAmountUI(){
+    if (!subPeriod || !subAmount || !subPerMonth) return;
+    const key = subPeriod.value || '1m';
+    const months = PERIODS[key]?.months || 1;
+    const total = periodAmountRub(key);
+    subAmount.textContent = `${RUB(total)} ₽`;
+    subPerMonth.textContent = `${PRICE_RUB_PER_MONTH} ₽/мес × ${months}`;
+  }
+
+  function setupSubscription(){
+    if (!subCard) return;
+    subPeriod.addEventListener('change', updateAmountUI);
+
+    subPayBtn.addEventListener('click', async () => {
+      subMsg.textContent = '';
+      subPayBtn.disabled = true;
+
+      try {
+        const key = subPeriod.value || '1m';
+        const months = PERIODS[key]?.months || 1;
+        const totalRub = periodAmountRub(key);
+        const orderId = `sub_${key}_${Date.now()}`;
+        const email = subEmail.value || '';
+        const customerKey = (currentUserId || currentUsername || email || '').toString();
+
+        const params = {
+          terminalkey: TINKOFF_TERMINAL_KEY,
+          frame: "true",
+          language: "ru",
+          amount: String(totalRub), // в РУБЛЯХ
+          order: orderId,
+          description: `GluOne Premium — продление (${PERIODS[key].label})`,
+          email,
+          customerKey,               // camelCase
+          DATA: `plan=${key} | months=${months} | user=${customerKey}`
+        };
+
+        // Если нужна фискализация из виджета — раскомментировать:
+        // const receipt = {
+        //   EmailCompany: "billing@gluone.ru",
+        //   Taxation: "usn_income",
+        //   FfdVersion: "1.2",
+        //   Items: [{
+        //     Name: `GluOne Premium (${PERIODS[key].label})`,
+        //     Price: Math.round(totalRub * 100),
+        //     Quantity: 1.0,
+        //     Amount: Math.round(totalRub * 100),
+        //     PaymentMethod: "full_prepayment",
+        //     PaymentObject: "service",
+        //     Tax: "none",
+        //     MeasurementUnit: "pc"
+        //   }]
+        // };
+        // params.receipt = JSON.stringify(receipt);
+
+        await openPay(params);
+      } catch (e) {
+        console.error(e);
+        subMsg.textContent = 'Не удалось открыть оплату. Попробуйте ещё раз.';
+      } finally {
+        subPayBtn.disabled = false;
+      }
+    });
+  }
+
+  /* ======================== logout ======================== */
   function setupLogout(){
     const btn = document.getElementById('logoutBtn');
     if (!btn) return;
 
-    // Имя CSRF-куки — вынесено в константу для гибкости
     const CSRF_COOKIE_NAME = 'csrf_token';
-
     function getCookie(name){
       const m = document.cookie.match(new RegExp('(^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1') + '=([^;]*)'));
       return m ? decodeURIComponent(m[2]) : null;
@@ -543,10 +751,18 @@ import { KEYS, load, del } from './storage.js';
     });
   }
 
-  // init
+  /* ======================== init ======================== */
+  // password toggles
+  installPasswordToggle(cpOld);
+  installPasswordToggle(cpNew);
+  installPasswordToggle(delPass);
+
+  // boot
   loadMe();
   try { loadDevices(); } catch (e) { console.error('loadDevices() failed:', e); }
   setupChangePassword();
   setupDeleteAccount();
+  setupSubscription();
+  setupTransfer();
   setupLogout();
 })();
