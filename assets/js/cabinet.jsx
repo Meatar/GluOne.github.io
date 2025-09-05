@@ -270,7 +270,13 @@ function SiteHeader({ isAuthed, onLogout, userName }) {
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto max-w-7xl px-5 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-sky-500" />
+          <img
+            src="assets/image/logo.png"
+            className="h-9 w-9 rounded-xl"
+            alt="GluOne logo"
+            width="36"
+            height="36"
+          />
           <span className="font-semibold text-slate-900">GluOne</span>
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm text-slate-600">
@@ -638,7 +644,7 @@ function AccountApp() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-50">
+    <div className="min-h-screen w-full bg-slate-50 flex flex-col">
       <SiteHeader isAuthed={isAuthed} onLogout={handleLogout} userName={profile?.username || profile?.email} />
 
       <TransferPremiumModal
@@ -649,7 +655,7 @@ function AccountApp() {
         currentDeviceId={currentPremiumDeviceId}
       />
 
-      <main className="mx-auto max-w-7xl px-5 py-6 flex gap-6">
+      <main className="flex-1 mx-auto max-w-7xl px-5 py-6 flex gap-6">
         <Sidebar current={section} onChange={setSection} />
 
         <div className="flex-1 min-w-0">
@@ -685,7 +691,7 @@ function AccountApp() {
         </div>
       </main>
 
-      <footer className="mt-8 border-t border-slate-200 bg-white">
+      <footer className="mt-auto border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-5 py-6 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3">
           <div>© {new Date().getFullYear()} GluOne. Все права защищены.</div>
           <div className="flex items-center gap-4">
