@@ -1,7 +1,8 @@
 // cabinet.js
 import {
   authMe, authLogout, authDevices, authRevokeDevice,
-  authChangePassword, authDeleteAccount, authDeleteDevice
+  authChangePassword, authDeleteAccount, authDeleteDevice,
+  authSubscriptions
 } from './api.js';
 import { KEYS, load, del } from './storage.js';
 
@@ -91,18 +92,18 @@ import { KEYS, load, del } from './storage.js';
   const mapGender = (g) => ({ male:'Мужской', female:'Женский' })[g] || '—';
   const mapDia    = (t) => ({ type1:'Тип 1', type2:'Тип 2', gestational:'Гестационный' })[t] || '—';
   const RUB = (n) => new Intl.NumberFormat('ru-RU').format(n);
+  const pluralMonths = (n) => {
+    const mod10 = n % 10;
+    const mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return `${n} месяц`;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return `${n} месяца`;
+    return `${n} месяцев`;
+  };
 
   /* ====== PayForm v2 (Т-Банк) ====== */
   const TINKOFF_SCRIPT_SRC = "https://securepay.tinkoff.ru/html/payForm/js/tinkoff_v2.js";
   const TINKOFF_TERMINAL_KEY = "1756472050322DEMO";
-  const PRICE_RUB_PER_MONTH = 150;
-  const PERIODS = {
-    "1m": { label: "1 месяц", months: 1 },
-    "3m": { label: "3 месяца", months: 3 },
-    "6m": { label: "6 месяцев", months: 6 },
-    "12m": { label: "12 месяцев", months: 12 },
-  };
-  const periodAmountRub = (k) => PRICE_RUB_PER_MONTH * (PERIODS[k]?.months || 1);
+  const subPlans = new Map();
 
   function loadTinkoffScript() {
     return new Promise((resolve, reject) => {
@@ -659,15 +660,41 @@ import { KEYS, load, del } from './storage.js';
   /* ======================== подписка: выбор периода / оплата ======================== */
   function updateAmountUI(){
     if (!subPeriod || !subAmount || !subPerMonth) return;
-    const key = subPeriod.value || '1m';
-    const months = PERIODS[key]?.months || 1;
-    const total = periodAmountRub(key);
+    const plan = subPlans.get(subPeriod.value);
+    if (!plan) return;
+    const months = plan.duration_months || 1;
+    const total = plan.price || 0;
     subAmount.textContent = `${RUB(total)} ₽`;
-    subPerMonth.textContent = `${PRICE_RUB_PER_MONTH} ₽/мес × ${months}`;
+    const perMonth = months ? total / months : total;
+    subPerMonth.textContent = `${RUB(perMonth)} ₽/мес × ${months}`;
   }
 
   function setupSubscription(){
     if (!subCard) return;
+
+    async function loadPlans(){
+      try {
+        const { ok, data } = await authSubscriptions(token.access_token);
+        if (ok && Array.isArray(data)) {
+          subPeriod.innerHTML = '';
+          data.filter(p => p.is_active).forEach(plan => {
+            subPlans.set(plan.id, plan);
+            const opt = document.createElement('option');
+            opt.value = plan.id;
+            opt.textContent = `${pluralMonths(plan.duration_months)} — ${RUB(plan.price)} ₽`;
+            subPeriod.appendChild(opt);
+          });
+          if (subPlans.size > 0) {
+            subPeriod.value = subPeriod.options[0].value;
+            updateAmountUI();
+          }
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+    loadPlans();
+
     subPeriod.addEventListener('change', updateAmountUI);
 
     subPayBtn.addEventListener('click', async () => {
@@ -675,10 +702,12 @@ import { KEYS, load, del } from './storage.js';
       subPayBtn.disabled = true;
 
       try {
-        const key = subPeriod.value || '1m';
-        const months = PERIODS[key]?.months || 1;
-        const totalRub = periodAmountRub(key);
-        const orderId = `sub_${key}_${Date.now()}`;
+        const plan = subPlans.get(subPeriod.value);
+        if (!plan) throw new Error('plan not found');
+        const months = plan.duration_months || 1;
+        const totalRub = plan.price || 0;
+        const planId = subPeriod.value;
+        const orderId = `sub_${planId}_${Date.now()}`;
         const email = subEmail.value || '';
         const customerKey = (currentUserId || currentUsername || email || '').toString();
 
@@ -688,10 +717,10 @@ import { KEYS, load, del } from './storage.js';
           language: "ru",
           amount: String(totalRub), // в РУБЛЯХ
           order: orderId,
-          description: `GluOne Premium — продление (${PERIODS[key].label})`,
+          description: `GluOne Premium — продление (${pluralMonths(months)})`,
           email,
-          customerKey,               // camelCase
-          DATA: `plan=${key} | months=${months} | user=${customerKey}`
+          customerKey,
+          DATA: `plan=${planId} | months=${months} | user=${customerKey}`
         };
 
         // Если нужна фискализация из виджета — раскомментировать:
@@ -700,7 +729,7 @@ import { KEYS, load, del } from './storage.js';
         //   Taxation: "usn_income",
         //   FfdVersion: "1.2",
         //   Items: [{
-        //     Name: `GluOne Premium (${PERIODS[key].label})`,
+        //     Name: `GluOne Premium (${pluralMonths(months)})`,
         //     Price: Math.round(totalRub * 100),
         //     Quantity: 1.0,
         //     Amount: Math.round(totalRub * 100),
