@@ -277,3 +277,26 @@ export function authSubscriptions(accessToken) {
     }
   });
 }
+
+/**
+ * Создать заказ на оплату подписки.
+ * POST /auth/web/payments/order
+ * @param {string} accessToken
+ * @param {string} userId
+ * @param {string} [deviceId]
+ * @param {string} subscriptionPlanId
+ * @returns {Promise<{ok: boolean, status: number, data: {order_id: string} | null}>}
+ */
+export function authCreateSubscriptionOrder(accessToken, userId, deviceId, subscriptionPlanId) {
+  const payload = { user_id: userId, subscription_plan_id: subscriptionPlanId };
+  if (deviceId) payload.device_id = deviceId;
+  return request('/auth/web/payments/order', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(payload)
+  });
+}
