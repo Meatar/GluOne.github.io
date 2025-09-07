@@ -73,7 +73,30 @@ function getBrowserDeviceId() {
   }
 }
 
-/* ======================== auth: login/verify/resend ======================== */
+/* ======================== auth: register/login/verify/refresh ======================== */
+
+/**
+ * Регистрация (этап 1)
+ */
+export function authRegister(username, email, password) {
+  return request('/auth/web/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ username, email, password })
+  });
+}
+
+/**
+ * Подтверждение регистрации и установка refresh-cookie
+ */
+export function authRegisterVerify(challenge_id, code) {
+  return request('/auth/web/register/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ challenge_id, code }),
+    credentials: 'include'
+  });
+}
 
 /**
  * Логин (этап 1)
@@ -93,7 +116,8 @@ export function authVerify(challenge_id, code) {
   return request('/auth/web/login/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ challenge_id, code })
+    body: JSON.stringify({ challenge_id, code }),
+    credentials: 'include'
   });
 }
 
@@ -104,7 +128,8 @@ export function authResend(challenge_id) {
   return request('/auth/web/login/resend', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
-    body: JSON.stringify({ challenge_id })
+    body: JSON.stringify({ challenge_id }),
+    credentials: 'include'
   });
 }
 
@@ -118,10 +143,29 @@ export function authResend(challenge_id) {
 export function authMe(accessToken, { deviceId } = {}) {
   const headers = {
     'Accept': 'application/json',
-    'Authorization': `Bearer ${accessToken}`,
     'X-Device-Id': (deviceId || getBrowserDeviceId())
   };
-  return request('/auth/web/me', { method: 'GET', headers });
+  const opts = { method: 'GET', headers };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  } else {
+    opts.credentials = 'include';
+  }
+  return request('/auth/web/me', opts);
+}
+
+/**
+ * Обновление refresh-cookie и получение нового access_token
+ */
+export function authRefresh(csrfToken) {
+  const headers = { 'Accept': 'application/json' };
+  if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+
+  return request('/auth/web/refresh', {
+    method: 'POST',
+    headers,
+    credentials: 'include'
+  });
 }
 
 /**
