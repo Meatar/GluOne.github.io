@@ -5,266 +5,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GluOne</title>
 
+    <!-- SEO -->
     <meta name="description" content="GluOne — контроль глюкозы, инсулин, питание и активность в одном приложении." />
     <meta name="theme-color" content="#0f172a" />
     <meta name="color-scheme" content="light dark" />
 
     <!-- Favicons -->
-    <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon" />
-    <link rel="icon" type="image/png" sizes="32x32"  href="assets/image/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/image/favicon-192.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/image/favicon-180.png" />
-    <link rel="mask-icon" href="assets/image/logo-symbol.svg" color="#0f172a" />
+    <link rel="shortcut icon" href="/favicon.ico?v=4" type="image/x-icon" />
+    <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-192.png?v=4" sizes="192x192" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" sizes="180x180" />
 
-    <!-- Tailwind reset + общий проектный CSS -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Общие стили -->
     <link rel="stylesheet" href="assets/css/styles.css" />
 
-    <!-- Локальные стили именно для лендинга; всё под .lp-* чтобы не конфликтовать -->
     <style>
-      .lp-hero {
-        position: relative;
-        overflow: clip;
-        /* аккуратный градиент (light/dark поддерживаются твоими токенами) */
+      /* Мягкий фон с градиентом, нормальный в тёмной теме */
+      .hero-bg{
         background:
-          radial-gradient(1200px 600px at 15% -10%, color-mix(in oklab, #6366f1 12%, transparent), transparent 70%),
-          radial-gradient(1000px 600px at 85% 0%,  color-mix(in oklab, #06b6d4 12%, transparent), transparent 70%),
-          linear-gradient(var(--bg), var(--bg));
+          radial-gradient(60% 60% at 90% 20%, rgba(14,165,233,.10), transparent 60%),
+          radial-gradient(60% 60% at 10% 0%, rgba(99,102,241,.10), transparent 60%),
+          var(--bg);
       }
-      .lp-hero::before{
-        content:""; position:absolute; inset:-2px;
-        background:
-          linear-gradient(transparent 31px, color-mix(in oklab, var(--divider) 60%, transparent) 32px),
-          linear-gradient(90deg, transparent 31px, color-mix(in oklab, var(--divider) 60%, transparent) 32px);
-        background-size: 32px 32px;
-        mask: radial-gradient(900px 540px at 25% -10%, rgba(0,0,0,.35), transparent 70%);
-        pointer-events:none;
+      @media (prefers-color-scheme: dark){
+        .hero-bg{
+          background:
+            radial-gradient(60% 60% at 90% 20%, rgba(14,165,233,.16), transparent 60%),
+            radial-gradient(60% 60% at 10% 0%, rgba(99,102,241,.16), transparent 60%),
+            var(--bg);
+        }
       }
-      .lp-card{
+
+      /* Карточка для картинки — без сложных масок и с фикс. высотой,
+         чтобы контент не «перепрыгивал», если изображение грузится дольше */
+      .hero-media{
         border-radius: 24px;
+        box-shadow: var(--shadow-sm), var(--shadow-lg);
         background: var(--card);
         border:1px solid color-mix(in oklab, var(--divider) 70%, transparent);
-        box-shadow: var(--shadow-sm), var(--shadow-lg);
         overflow: hidden;
+        min-height: clamp(220px, 38vw, 420px); /* защита от сдвига макета */
       }
-      .lp-mask{
+      .hero-img{
         width:100%;
-        -webkit-mask-image: radial-gradient(165% 105% at 100% 50%, #000 78%, transparent 80%);
-                mask-image: radial-gradient(165% 105% at 100% 50%, #000 78%, transparent 80%);
-        -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+        height:100%;
+        display:block;
+        object-fit: cover;
+        object-position: center 45%;
       }
-      .lp-img{
-        width:100%; height:auto; display:block;
-        object-fit: cover; object-position:center 45%;
-        aspect-ratio: 4 / 3;
-      }
-      @media (max-width:1024px){
-        .lp-img{ aspect-ratio: 3 / 2; }
-      }
-      .lp-title{
-        font-weight:800;
-        letter-spacing:-0.01em;
-        line-height:1.05;
-      }
-      /* кнопка из токенов проекта, не конфликтует */
-      .lp-cta{
+
+      /* Кнопка hero в едином стиле */
+      .btn-hero{
+        -webkit-appearance:none; appearance:none;
         display:inline-flex; align-items:center; justify-content:center;
-        height:48px; padding:0 22px; border-radius:9999px;
-        background: var(--ink); color:#fff; font-weight:700;
-        text-decoration:none; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        height:44px; min-height:44px; padding:0 20px;
+        border-radius:9999px; font-weight:700; line-height:1; text-decoration:none;
+        background: var(--ink); color:#fff;
+        transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
       }
-      .lp-cta:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(2,6,23,.12); filter:saturate(110%); }
-      @media (prefers-color-scheme: dark){ .lp-cta{ background:#fff; color: var(--bg); } }
+      .btn-hero:hover{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(2,6,23,.12); filter:saturate(108%); }
+      .btn-hero:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 65%, transparent); }
+      @media (prefers-color-scheme: dark){
+        .btn-hero{ background:#fff; color: var(--bg); }
+      }
+
+      /* Плашки в блоках ниже */
+      .feature-card{ border-radius: 16px; }
     </style>
 
-    <!-- core.js меняет ссылку Авторизация ↔ Кабинет -->
+    <!-- Скрипт, который меняет "Авторизация" → "Личный кабинет/username" -->
     <script type="module" src="assets/js/core.js"></script>
   </head>
-
   <body>
     <!-- Header -->
-    <header class="site-header">
-      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <a class="flex items-center gap-3" href="/">
-          <img src="assets/image/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne logo" width="36" height="36" />
-          <span class="font-semibold tracking-tight">GluOne</span>
-        </a>
-        <a href="/auth.html" class="lp-cta" data-auth-link role="button">Авторизация</a>
-      </div>
+    <header class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a class="flex items-center gap-3" href="/">
+        <img src="assets/image/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne logo" width="36" height="36" />
+        <span class="font-semibold tracking-tight">GluOne</span>
+      </a>
+      <a href="/auth.html" class="btn-hero" data-auth-link role="button">Авторизация</a>
     </header>
 
     <!-- HERO -->
-    <section class="lp-hero">
-      <div class="max-w-6xl mx-auto px-4 py-10 lg:py-14">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
-          <!-- Photo -->
-          <div class="lp-card">
-            <div class="lp-mask">
-              <picture>
-                <!-- webp -->
-                <source
-                  type="image/webp"
-                  srcset="
-                    assets/image/hero/hero-800.webp   800w,
-                    assets/image/hero/hero-1200.webp 1200w,
-                    assets/image/hero/hero-1600.webp 1600w"
-                  sizes="(min-width:1024px) 560px, 100vw" />
-                <!-- jpg -->
-                <img
-                  id="heroImg"
-                  src="assets/image/hero/hero-1600.jpg"
-                  srcset="
-                    assets/image/hero/hero-800.jpg   800w,
-                    assets/image/hero/hero-1200.jpg 1200w,
-                    assets/image/hero/hero-1600.jpg 1600w"
-                  sizes="(min-width:1024px) 560px, 100vw"
-                  width="1600" height="1200"
-                  class="lp-img"
-                  loading="eager" decoding="async" fetchpriority="high"
-                  alt="Диабет: приборы и принадлежности" />
-              </picture>
-            </div>
-          </div>
-
-          <!-- Content -->
-          <div class="lg:pl-2">
-            <h1 class="lp-title mt-2 text-4xl md:text-5xl">
-              GluOne — цифровой помощник<br class="hidden md:block" />
-              в&nbsp;управлении диабетом
+    <section class="hero-bg">
+      <div class="max-w-6xl mx-auto px-4 py-10 lg:py-16">
+        <!-- Две колонки: слева текст, справа изображение -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <!-- Текст -->
+          <div class="order-1">
+            <h1 class="mt-2 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
+              GluOne — цифровой помощник<br/>в управлении диабетом
             </h1>
-            <p class="mt-5 text-lg text-slate-700 max-w-xl">
-              Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
+            <p class="mt-4 text-lg text-slate-700 dark:text-slate-300 max-w-xl">
+              Контролируйте глюкозу, питание, инсулин и&nbsp;активность в одном приложении.
             </p>
             <div class="mt-7 flex items-center gap-4 flex-wrap">
-              <a href="/auth.html" class="lp-cta" data-auth-link role="button">Авторизация</a>
-              <a href="https://apps.apple.com/app/idXXXXXXXX" target="_blank" rel="noopener" class="store-btn" aria-label="Загрузите в App Store">
-                <img src="assets/image/appstore-badge.svg" alt="Загрузите в App Store" loading="lazy" width="140" height="40" />
+              <a href="/auth.html" class="btn-hero" data-auth-link role="button">Авторизация</a>
+              <a
+                href="https://apps.apple.com/app/idXXXXXXXX"
+                target="_blank" rel="noopener noreferrer"
+                class="inline-block h-10"
+                aria-label="Загрузите в App Store"
+              >
+                <img src="assets/image/appstore-badge.svg" alt="Загрузите в App Store" loading="lazy" width="140" height="40" class="h-10 w-auto" />
               </a>
             </div>
           </div>
+
+          <!-- Картинка справа -->
+          <div class="order-2 hero-media">
+            <!-- ВАЖНО: кладём файл сюда: assets/image/hero/hero.jpg -->
+            <img
+              src="assets/image/hero/hero.jpg"
+              alt="Диабет: приборы и принадлежности"
+              width="1600" height="1200"
+              class="hero-img"
+              loading="eager" decoding="async" fetchpriority="high"
+            />
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- FEATURES (из твоего шаблона, стили уже есть в assets/css/styles.css) -->
+    <!-- FEATURES (короткий блок для примера; оставил самые запрошенные пункты) -->
     <section id="features" class="max-w-6xl mx-auto px-4 pb-16">
       <div class="flex flex-wrap gap-2 mb-6" role="tablist" aria-label="Функционал GluOne">
-        <button class="feature-tab px-4 py-2 rounded-full border bg-slate-900 text-white"
-                data-panel="panel-track" role="tab" aria-selected="true" aria-controls="panel-track">Что можно вести</button>
-        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-analytics" role="tab" aria-selected="false" aria-controls="panel-analytics">Аналитика</button>
-        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-goals" role="tab" aria-selected="false" aria-controls="panel-goals">Цели и&nbsp;единицы</button>
-        <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-tools" role="tab" aria-selected="false" aria-controls="panel-tools">Инструменты</button>
+        <button class="feature-tab px-4 py-2 rounded-full border bg-slate-900 text-white" data-panel="panel-tools" role="tab" aria-selected="true" aria-controls="panel-tools">Инструменты</button>
         <button class="feature-tab px-4 py-2 rounded-full border" data-panel="panel-important" role="tab" aria-selected="false" aria-controls="panel-important">Важно</button>
       </div>
 
-      <div id="panel-track" class="feature-panel grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="false">
-        <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-          <span class="emo" aria-hidden="true">🩸</span>
-          <div><h3 class="text-[17px] font-semibold">Глюкоза</h3><p class="mt-1 text-slate-600 text-sm">ммоль/л или mg/dL; контекст (до/после еды, сон и др.); кетоны; самочувствие.</p></div>
+      <div id="panel-tools" class="feature-panel grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="false">
+        <div class="p-5 border rounded-2xl feature-card">
+          <h3 class="font-semibold">Напоминания</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">О приёме таблеток, замерах и событиях.</p>
         </div>
-        <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-          <span class="emo" aria-hidden="true">💉</span>
-          <div><h3 class="text-[17px] font-semibold">Инсулин</h3><p class="mt-1 text-slate-600 text-sm">Базальный/болюсный; пищевые и корректирующие дозы; выбор препарата.</p></div>
+        <div class="p-5 border rounded-2xl feature-card">
+          <h3 class="font-semibold">Экспорт отчётов</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">CSV/Excel/PDF за выбранный период.</p>
         </div>
-        <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-          <span class="emo" aria-hidden="true">🍽️</span>
-          <div><h3 class="text-[17px] font-semibold">Питание</h3><p class="mt-1 text-slate-600 text-sm">Граммы и ХЕ; поиск продуктов; поддержка штрих-кодов.</p></div>
+        <div class="p-5 border rounded-2xl feature-card">
+          <h3 class="font-semibold">Интеграция с Apple Health</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Чтение/запись поддерживаемых категорий.</p>
         </div>
-        <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-          <span class="emo" aria-hidden="true">💊</span>
-          <div><h3 class="text-[17px] font-semibold">Таблетки</h3><p class="mt-1 text-slate-600 text-sm">Дозы и режим приёма; напоминания.</p></div>
+        <div class="p-5 border rounded-2xl feature-card">
+          <h3 class="font-semibold">Темы и локализация</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Тёмная/светлая тема; RU/EN.</p>
         </div>
-        <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-          <span class="emo" aria-hidden="true">🩺</span>
-          <div><h3 class="text-[17px] font-semibold">Артериальное давление</h3><p class="mt-1 text-slate-600 text-sm">SYS/DIA; поза и рука измерения.</p></div>
-        </div>
-        <div class="flex items-start gap-4 p-5 border rounded-2xl hover:shadow-sm transition">
-          <span class="emo" aria-hidden="true">🏃‍♂️</span>
-          <div><h3 class="text-[17px] font-semibold">Активность и симптомы</h3><p class="mt-1 text-slate-600 text-sm">Тип, длительность/интенсивность, отметки самочувствия.</p></div>
-        </div>
-      </div>
-
-      <div id="panel-analytics" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Время в диапазоне (TIR/TBR/TAR)</h3><p class="text-sm text-slate-600">Доля времени в целевом, ниже и выше диапазона.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Постпрандиальный контроль</h3><p class="text-sm text-slate-600">Динамика через 1–2 часа после еды и средний пик.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Инсулин</h3><p class="text-sm text-slate-600">Соотношение базал/болюс, TDD, пропуски базала.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Давление</h3><p class="text-sm text-slate-600">Распределение по клиническим зонам.</p></div>
-        <div class="p-5 border rounded-2xl md:col-span-2"><h3 class="font-semibold">Симптомы</h3><p class="text-sm text-slate-600">Частота, средняя тяжесть, взаимосвязи.</p></div>
-      </div>
-
-      <div id="panel-goals" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Гибкие цели</h3><p class="text-sm text-slate-600">По рекомендациям (ВОЗ/национальные) или собственные значения.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Единицы измерения</h3><p class="text-sm text-slate-600">ммоль/л ↔ mg/dL; граммы ↔ ХЕ (10/12/15 г на 1 ХЕ).</p></div>
-      </div>
-
-      <div id="panel-tools" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Напоминания</h3><p class="text-sm text-slate-600">О приёме таблеток, замерах и событиях.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Экспорт отчётов</h3><p class="text-sm text-slate-600">CSV/Excel/PDF за выбранный период.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Интеграция с Apple Health</h3><p class="text-sm text-slate-600">Чтение/запись поддерживаемых категорий.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Темы и локализация</h3><p class="text-sm text-slate-600">Тёмная/светлая тема; RU/EN.</p></div>
       </div>
 
       <div id="panel-important" class="feature-panel hidden grid md:grid-cols-2 gap-4" role="tabpanel" aria-hidden="true">
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Юридически важно</h3><p class="text-sm text-slate-600">Приложение не ставит диагнозы и не заменяет консультацию врача.</p></div>
-        <div class="p-5 border rounded-2xl"><h3 class="font-semibold">Конфиденциальность</h3><p class="text-sm text-slate-600">Данные шифруются. Можно экспортировать или удалить их в любой момент.</p></div>
+        <div class="p-5 border rounded-2xl feature-card">
+          <h3 class="font-semibold">Юридически важно</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Приложение не ставит диагнозы и не заменяет консультацию врача.</p>
+        </div>
+        <div class="p-5 border rounded-2xl feature-card">
+          <h3 class="font-semibold">Конфиденциальность</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Данные шифруются. Можно экспортировать или удалить их в любой момент.</p>
+        </div>
       </div>
     </section>
 
+    <!-- Footer -->
     <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 border-t">
       © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
     </footer>
 
-    <!-- Минискрипты: вкладки + геро-фолбэки + год -->
+    <!-- Tabs + год -->
     <script>
-      // год
-      document.getElementById('y').textContent = new Date().getFullYear();
+      document.addEventListener('DOMContentLoaded', () => {
+        const yearSpan = document.getElementById('y');
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 
-      // вкладки
-      (function(){
         const tabs = Array.from(document.querySelectorAll('.feature-tab'));
         const panels = Array.from(document.querySelectorAll('.feature-panel'));
-        if (!tabs.length) return;
         function activate(id){
-          tabs.forEach(b => {
-            const on = b.dataset.panel === id;
-            b.classList.toggle('bg-slate-900', on);
-            b.classList.toggle('text-white', on);
-            b.setAttribute('aria-selected', on ? 'true' : 'false');
+          tabs.forEach(t=>{
+            const on = t.dataset.panel===id;
+            t.classList.toggle('bg-slate-900', on);
+            t.classList.toggle('text-white', on);
+            t.setAttribute('aria-selected', on?'true':'false');
           });
-          panels.forEach(p => {
-            const on = p.id === id;
+          panels.forEach(p=>{
+            const on = p.id===id;
             p.classList.toggle('hidden', !on);
-            p.setAttribute('aria-hidden', on ? 'false' : 'true');
+            p.setAttribute('aria-hidden', on?'false':'true');
           });
         }
-        document.querySelector('[role="tablist"]').addEventListener('click', e=>{
-          const t = e.target.closest('.feature-tab'); if(!t) return;
+        document.querySelector('[role="tablist"]')?.addEventListener('click', e=>{
+          const t = e.target.closest('.feature-tab'); if (!t) return;
           activate(t.dataset.panel); t.focus();
         });
-        activate(document.querySelector('.feature-tab[aria-selected="true"]')?.dataset.panel || 'panel-track');
-      })();
-
-      // надёжная подгрузка геро-изображения: пробуем несколько путей
-      (function(){
-        const img = document.getElementById('heroImg');
-        if (!img) return;
-        const fallbacks = [
-          'assets/image/hero/hero-1600.jpg',
-          'assets/image/hero.jpg',
-          'assets/image/hero-1200.jpg'
-        ];
-        let i = 0;
-        img.addEventListener('error', function onErr(){
-          i++;
-          if (i < fallbacks.length) {
-            this.src = fallbacks[i];
-          } else {
-            // если совсем плохо — просто скрываем карточку, чтобы не ломать композицию
-            const card = this.closest('.lp-card');
-            if (card) card.style.display = 'none';
-          }
-        }, { once:false });
-      })();
+        const first = document.querySelector('.feature-tab[aria-selected="true"]');
+        activate(first?.dataset.panel || 'panel-tools');
+      });
     </script>
   </body>
 </html>
