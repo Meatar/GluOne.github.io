@@ -30,6 +30,8 @@ export default function AccountApp() {
   const [transferOpen, setTransferOpen] = useState(false);
   const [currentPremiumDeviceId, setCurrentPremiumDeviceId] = useState(null);
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
+  const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
+  const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
 
   const { ready: payReady, error: payError } = useTinkoffScript();
 
@@ -67,12 +69,16 @@ export default function AccountApp() {
     if (!devices.length) {
       setCurrentPremiumDeviceId(null);
       setCurrentPremiumDeviceName("Нет устройств");
+      setCurrentDeviceIsPremium(false);
+      setCurrentDeviceExpiresAt(null);
       return;
     }
     const last = devices.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
     if (last) {
       setCurrentPremiumDeviceId(last.device_id);
       setCurrentPremiumDeviceName(last.model || "Неизвестное устройство");
+      setCurrentDeviceIsPremium(!!last.is_premium);
+      setCurrentDeviceExpiresAt(last.premium_expires_at || null);
     }
   }, [devices]);
 
@@ -191,6 +197,8 @@ export default function AccountApp() {
   const handleConfirmTransfer = (device) => {
     setCurrentPremiumDeviceId(device.deviceId);
     setCurrentPremiumDeviceName(device.name);
+    setCurrentDeviceIsPremium(!!device.isPremium);
+    setCurrentDeviceExpiresAt(device.premiumExpiresAt || null);
     setTransferOpen(false);
   };
 
@@ -201,7 +209,7 @@ export default function AccountApp() {
       open: transferOpen,
       onClose: () => setTransferOpen(false),
       onConfirm: handleConfirmTransfer,
-      devices: devices.map((d) => ({ name: d.model || "Неизвестное устройство", os: d.os, ip: d.last_ip, active: fmtDateTime(d.last_seen_at), deviceId: d.device_id, revoked: d.revoked })),
+      devices: devices.map((d) => ({ name: d.model || "Неизвестное устройство", os: d.os, ip: d.last_ip, active: fmtDateTime(d.last_seen_at), deviceId: d.device_id, revoked: d.revoked, isPremium: d.is_premium, premiumExpiresAt: d.premium_expires_at })),
       currentDeviceId: currentPremiumDeviceId
     }),
 
@@ -233,7 +241,9 @@ export default function AccountApp() {
           amountRub,
           monthPrice,
           email: accountEmail,
-          currentDeviceId: currentPremiumDeviceId
+          currentDeviceId: currentPremiumDeviceId,
+          isPremium: currentDeviceIsPremium,
+          premiumExpiresAt: currentDeviceExpiresAt
         }),
         section === "security" && React.createElement(SecurityPanel, { username: profile?.username || profile?.email, onChangePassword: handleChangePassword, onDeleteAccount: handleDeleteAccount }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
