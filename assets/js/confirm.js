@@ -1,5 +1,5 @@
 // assets/js/confirm.js
-import { authLoginVerify, authLoginResend } from './api.js';
+import { authLoginVerify, authLoginResend, authRefresh } from './api.js';
 import { KEYS, load, save, del } from './storage.js';
 
 (function initConfirmModule() {
@@ -94,6 +94,10 @@ import { KEYS, load, save, del } from './storage.js';
       try {
         const { ok, status, data } = await authLoginVerify(challengeId, code);
         if (ok) {
+          // сразу «разменяем» refresh на access-куку, чтобы /me не словил 401
+          try { await authRefresh(); } catch {}
+
+          // состояние (не токены)
           save(KEYS.STATE, {
             is_premium: !!data?.is_premium,
             premium_expires_at: data?.premium_expires_at || null,

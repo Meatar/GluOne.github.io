@@ -1,6 +1,7 @@
 // cabinet.js
 import {
   authMe,
+  authRefresh,
   authLogout,
   authDevices,
   authRevokeDevice,
@@ -71,7 +72,6 @@ function useTinkoffScript() {
 
   const openPayForm = (params) => {
     if (window.Tinkoff?.createPayment) {
-      // современный способ
       window.Tinkoff.createPayment({ ...params, view: "popup" });
       return;
     }
@@ -115,7 +115,7 @@ function Chip({ children }) {
   return React.createElement("span", { className: "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium bg-white/60 text-slate-700 border-slate-200" }, children);
 }
 function RowButton({ icon, children, onClick }) {
-  return React.createElement("button", { onClick, className: "w-full flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm hover:bg-slate-50 border border-transparent hover:border-slate-200 transition" },
+  return React.createElement("button", { onClick, className: "w-full flex items-center gap-2 rounded-xl px-3 py-2 text-sm hover:bg-slate-50 border border-transparent hover:border-slate-200 transition" },
     React.createElement("span", { className: "text-slate-500" }, icon),
     React.createElement("span", { className: "text-slate-800 font-medium" }, children)
   );
@@ -407,10 +407,17 @@ function AccountApp() {
   const [currentPremiumDeviceId, setCurrentPremiumDeviceId] = useState(null);
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
 
-  // первичная загрузка: проверяем cookie-сессию
+  // первичная загрузка: сначала refresh → потом me
   useEffect(() => {
     (async () => {
-      const me = await authMe();
+      await authRefresh().catch(()=>{});
+      let me = await authMe();
+      if (!me.ok && me.status === 401) {
+        // единоразовый короткий ретрай, если access ещё не «встал»
+        await new Promise(r => setTimeout(r, 200));
+        me = await authMe();
+      }
+
       if (me.ok) {
         setProfile(me.data);
         setIsAuthed(true);
@@ -523,7 +530,6 @@ function AccountApp() {
     if (!userId) { alert("Не удалось определить пользователя."); return; }
 
     try {
-      // cookie-авторизация: без токена
       const order = await authCreateSubscriptionOrder(userId, currentPremiumDeviceId, selectedPlan.id);
       const orderId = order?.data?.order_id;
       if (!order.ok || !orderId) {
