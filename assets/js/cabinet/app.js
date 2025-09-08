@@ -66,14 +66,15 @@ export default function AccountApp() {
   }, []);
 
   useEffect(() => {
-    if (!devices.length) {
+    const active = devices.filter((d) => !d.revoked);
+    if (!active.length) {
       setCurrentPremiumDeviceId(null);
-      setCurrentPremiumDeviceName("Нет устройств");
+      setCurrentPremiumDeviceName(devices.length ? "Нет активных устройств" : "Нет устройств");
       setCurrentDeviceIsPremium(false);
       setCurrentDeviceExpiresAt(null);
       return;
     }
-    const last = devices.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
+    const last = active.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
     if (last) {
       setCurrentPremiumDeviceId(last.device_id);
       setCurrentPremiumDeviceName(last.model || "Неизвестное устройство");
@@ -150,7 +151,12 @@ export default function AccountApp() {
 
   const handlePay = async () => {
     if (!selectedPlan || !payReady || !currentPremiumDeviceId) {
-      alert(devices.length ? "Не выбрано устройство для подписки." : "У вас нет устройств. Добавьте устройство для оплаты.");
+      const hasDevices = devices.length > 0;
+      const hasActiveDevices = devices.some((d) => !d.revoked);
+      const msg = hasDevices
+        ? (hasActiveDevices ? "Не выбрано устройство для подписки." : "Нет активных устройств. Добавьте устройство для оплаты.")
+        : "У вас нет устройств. Добавьте устройство для оплаты.";
+      alert(msg);
       return;
     }
     const userId = profile?.user_id;
