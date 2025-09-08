@@ -1,7 +1,7 @@
 // cabinet.js
 import {
-  authMe,
   authRefresh,
+  authMe,
   authLogout,
   authDevices,
   authRevokeDevice,
@@ -11,7 +11,7 @@ import {
   authSubscriptions,
   authCreateSubscriptionOrder
 } from "./api.js";
-import { KEYS, del } from "./storage.js";
+import { clearAuthStorage } from "./storage.js";
 
 const { useState, useEffect } = React;
 
@@ -72,6 +72,7 @@ function useTinkoffScript() {
 
   const openPayForm = (params) => {
     if (window.Tinkoff?.createPayment) {
+      // современный способ
       window.Tinkoff.createPayment({ ...params, view: "popup" });
       return;
     }
@@ -115,7 +116,7 @@ function Chip({ children }) {
   return React.createElement("span", { className: "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium bg-white/60 text-slate-700 border-slate-200" }, children);
 }
 function RowButton({ icon, children, onClick }) {
-  return React.createElement("button", { onClick, className: "w-full flex items-center gap-2 rounded-xl px-3 py-2 text-sm hover:bg-slate-50 border border-transparent hover:border-slate-200 transition" },
+  return React.createElement("button", { onClick, className: "w-full flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm hover:bg-slate-50 border border-transparent hover:border-slate-200 transition" },
     React.createElement("span", { className: "text-slate-500" }, icon),
     React.createElement("span", { className: "text-slate-800 font-medium" }, children)
   );
@@ -330,7 +331,7 @@ function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady,
           selectedPlanId && React.createElement("div", { className: "text-xs text-slate-500" }, `${formatRub(monthPrice)} ₽/мес × ${plans.find((p) => p.id === selectedPlanId)?.duration_months}`)
         )
       ),
-      React.createElement("div", { className: "mt-3 flex flex-col gap-1" },
+      React.createElement("div", { className: "mt-4 flex flex-col gap-1" },
         React.createElement("label", { className: "text-sm text-slate-600" }, "E-mail плательщика"),
         React.createElement("input", { value: email, readOnly: true, className: "rounded-lg border border-slate-200 px-3 py-2 text-sm bg-slate-50 text-slate-700" })
       ),
@@ -407,26 +408,26 @@ function AccountApp() {
   const [currentPremiumDeviceId, setCurrentPremiumDeviceId] = useState(null);
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
 
-  // первичная загрузка: сначала refresh → потом me
+  const { ready: payReady, error: payError, openPayForm } = useTinkoffScript();
+
+  // первичная загрузка: обновляем access по cookie, затем тянем всё остальное
   useEffect(() => {
     (async () => {
-      await authRefresh().catch(()=>{});
-      let me = await authMe();
-      if (!me.ok && me.status === 401) {
-        // единоразовый короткий ретрай, если access ещё не «встал»
-        await new Promise(r => setTimeout(r, 200));
-        me = await authMe();
+      const r = await authRefresh();           // требует X-CSRF-Token из куки
+      if (!r.ok) {
+        setIsAuthed(false);
+        window.location.href = "/auth.html?next=%2Fcabinet.html";
+        return;
       }
 
+      const me = await authMe();
       if (me.ok) {
         setProfile(me.data);
         setIsAuthed(true);
       } else {
         setIsAuthed(false);
-        if (me.status === 401 || me.status === 404) {
-          window.location.href = "/auth.html?next=%2Fcabinet.html";
-          return;
-        }
+        window.location.href = "/auth.html?next=%2Fcabinet.html";
+        return;
       }
 
       const dev = await authDevices();
@@ -474,7 +475,7 @@ function AccountApp() {
 
   const handleLogout = async () => {
     try { await authLogout(); } catch {}
-    try { del(KEYS.STATE); del(KEYS.CHALLENGE); del(KEYS.RESEND_UNTIL); del(KEYS.TOKEN); } catch {}
+    clearAuthStorage();
     window.location.href = "/auth.html";
   };
 
@@ -504,7 +505,7 @@ function AccountApp() {
     try {
       const res = await authDeleteAccount(username, password);
       if (res.status === 204) {
-        try { del(KEYS.STATE); del(KEYS.CHALLENGE); del(KEYS.RESEND_UNTIL); del(KEYS.TOKEN); } catch {}
+        clearAuthStorage();
         window.location.href = "/";
       } else {
         alert(`Ошибка: ${res.status}`);
@@ -518,8 +519,6 @@ function AccountApp() {
   const amountRub = selectedPlan ? selectedPlan.price : 0;
   const monthPrice = selectedPlan ? Math.round(selectedPlan.price / selectedPlan.duration_months) : 0;
   const accountEmail = profile?.email || "";
-
-  const { ready: payReady, error: payError, openPayForm } = useTinkoffScript();
 
   const handlePay = async () => {
     if (!selectedPlan || !payReady || !currentPremiumDeviceId) {
@@ -536,14 +535,31 @@ function AccountApp() {
         alert("Не удалось создать заказ. Попробуйте ещё раз.");
         return;
       }
-      openPayForm({
-        terminalkey: TINKOFF_TERMINAL_KEY,
-        language: "ru",
-        amount: gatewayAmountString(amountRub),
-        order: orderId,
-        description: selectedPlan.sku,
-        email: accountEmail
-      });
+      if (window.Tinkoff?.createPayment) {
+        window.Tinkoff.createPayment({
+          terminalkey: TINKOFF_TERMINAL_KEY,
+          language: "ru",
+          amount: gatewayAmountString(amountRub),
+          order: orderId,
+          description: selectedPlan.sku,
+          email: accountEmail,
+          view: "popup"
+        });
+      } else if (window.pay) {
+        const form = buildTinkoffForm({
+          terminalkey: TINKOFF_TERMINAL_KEY,
+          language: "ru",
+          amount: gatewayAmountString(amountRub),
+          order: orderId,
+          description: selectedPlan.sku,
+          email: accountEmail,
+          frame: "popup"
+        });
+        document.body.appendChild(form);
+        try { window.pay(form); } finally { document.body.removeChild(form); }
+      } else {
+        alert("Виджет оплаты ещё не готов.");
+      }
     } catch (e) {
       console.error(e);
       alert("Не удалось открыть оплату. Попробуйте ещё раз.");

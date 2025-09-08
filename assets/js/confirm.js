@@ -1,5 +1,5 @@
 // assets/js/confirm.js
-import { authLoginVerify, authLoginResend, authRefresh } from './api.js';
+import { authLoginVerify, authLoginResend, setAccessToken } from './api.js';
 import { KEYS, load, save, del } from './storage.js';
 
 (function initConfirmModule() {
@@ -15,28 +15,10 @@ import { KEYS, load, save, del } from './storage.js';
     const resendBtn = document.getElementById('resendBtn');
     const resendTimerEl = document.getElementById('resendTimer');
 
-    // a11y helpers
-    if (msg && !msg.getAttribute('aria-live')) {
-      msg.setAttribute('aria-live', 'polite');
-      msg.setAttribute('role', 'status');
-    }
     const setError = (t) => { if (!codeE) return; codeE.textContent = t || ''; codeE.hidden = !t; };
     const setMsg   = (t, color='') => { if (!msg) return; msg.textContent = t || ''; msg.style.color = color; };
 
-    // берём challenge из storage или из URL
-    const params = new URLSearchParams(location.search);
-    const urlCid = params.get('challenge_id') || params.get('challenge') || params.get('cid');
-
-    let challenge = load(KEYS.CHALLENGE, {}) || {};
-    if (urlCid && !challenge.challenge_id) {
-      challenge = {
-        ...challenge,
-        challenge_id: urlCid,
-        email: challenge.email || params.get('email') || null,
-        expires_in: challenge.expires_in || Number(params.get('expires_in')) || null,
-      };
-      save(KEYS.CHALLENGE, challenge);
-    }
+    const challenge = load(KEYS.CHALLENGE, {}) || {};
     const challengeId = challenge?.challenge_id || null;
 
     const maskEmail = (em) => {
@@ -51,16 +33,16 @@ import { KEYS, load, save, del } from './storage.js';
     const minutes = Math.max(1, Math.ceil((Number(challenge.expires_in) || 600) / 60));
     if (validT) validT.textContent = `${minutes} минут`;
 
-    // не прерываем инициализацию, даже если challengeId нет — просто предупредим
     if (!challengeId) {
-      setMsg('Не найдена сессия подтверждения. Введите код из письма или вернитесь на шаг входа.', '#e11d48');
+      setMsg('Сессия подтверждения не найдена. Возвращаемся на шаг входа…', '#e11d48');
+      setTimeout(() => { window.location.href = '/auth.html'; }, 1200);
+      return;
     }
 
-    // ===== verify / resend =====
     let verifying = false;
     const getCode = () => inputs.map(i => i.value).join('');
-    const isDigit = (ch) => /^[0-9]$/.test(ch);
     const onlyDigits = (s) => (s || '').replace(/\D/g, '');
+    const isDigit = (ch) => /^[0-9]$/.test(ch);
 
     const serverDetail = (data) => {
       if (!data) return '';
@@ -68,36 +50,26 @@ import { KEYS, load, save, del } from './storage.js';
       const d0 = Array.isArray(data.detail) ? data.detail[0] : null;
       return d0?.msg || '';
     };
-    const mapVerifyError = (status, data) => {
-      const d = serverDetail(data);
-      switch (status) {
-        case 400: return d || 'Неверный или просроченный код. Запросите новый и попробуйте снова.';
-        case 404: return d || 'Пользователь не найден. Повторите вход.';
-        default : return d || `Не удалось подтвердить код (ошибка ${status}).`;
-      }
-    };
 
     async function attemptVerify(){
       if (verifying) return;
 
       const code = getCode();
       if (code.length !== inputs.length) { setError('Введите полный код из письма.'); return; }
-      if (!/^\d+$/.test(code)) { setError('Код должен состоять только из цифр.'); return; }
-      if (!challengeId) { setError('Нет идентификатора сессии подтверждения. Вернитесь на предыдущий шаг.'); return; }
+      if (!/^\d+$/.test(code))         { setError('Код должен состоять только из цифр.'); return; }
 
       verifying = true;
-      inputs.forEach(i => i.disabled = true);
-      if (resendBtn) resendBtn.disabled = true;
-      setError('');
-      setMsg('Проверяем код…');
+      inputs.forEach(i => (i.disabled = true));
+      resendBtn && (resendBtn.disabled = true);
+      setError(''); setMsg('Проверяем код…');
 
       try {
         const { ok, status, data } = await authLoginVerify(challengeId, code);
         if (ok) {
-          // сразу «разменяем» refresh на access-куку, чтобы /me не словил 401
-          try { await authRefresh(); } catch {}
+          // Сервер уже поставил refresh_token (HttpOnly) и csrf_token (видимый).
+          // Access из ответа держим только в памяти на эту вкладку.
+          if (data?.access_token) setAccessToken(data.access_token);
 
-          // состояние (не токены)
           save(KEYS.STATE, {
             is_premium: !!data?.is_premium,
             premium_expires_at: data?.premium_expires_at || null,
@@ -106,40 +78,32 @@ import { KEYS, load, save, del } from './storage.js';
           del(KEYS.CHALLENGE);
 
           setMsg('Готово! Входим…', '#059669');
-          const next = params.get('next') || '/cabinet.html';
+          const next = new URLSearchParams(location.search).get('next') || '/cabinet.html';
           window.location.href = next;
           return;
         }
-        setError(mapVerifyError(status, data));
-        setMsg('');
+        const human =
+          status === 400 ? (serverDetail(data) || 'Неверный или просроченный код.') :
+          status === 404 ? (serverDetail(data) || 'Сессия не найдена.') :
+          (serverDetail(data) || `Ошибка ${status}`);
+        setError(human); setMsg('');
       } catch {
         setError('Проблема с сетью. Проверьте подключение и попробуйте ещё раз.');
       } finally {
         verifying = false;
-        inputs.forEach(i => i.disabled = false);
-        if (resendBtn) resendBtn.disabled = false;
+        inputs.forEach(i => (i.disabled = false));
+        resendBtn && (resendBtn.disabled = false);
         inputs[0]?.focus();
       }
     }
 
-    const maybeVerify = () => {
-      setError(''); setMsg('');
-      if (inputs.every(x => x.value && /^\d$/.test(x.value))) attemptVerify();
-    };
-
-    // распределение ввода по ячейкам
     const fillFrom = (start, str) => {
       const digits = onlyDigits(str).split('');
       let idx = start;
       while (digits.length && idx < inputs.length) { inputs[idx].value = digits.shift(); idx++; }
     };
 
-    // поведение ячеек
     inputs.forEach((el, i) => {
-      el.setAttribute('inputmode', 'numeric');
-      el.setAttribute('autocomplete', 'one-time-code');
-      el.setAttribute('maxlength', '1');
-
       el.addEventListener('focus', () => setTimeout(() => el.select?.(), 0));
       el.addEventListener('input', () => {
         const val = onlyDigits(el.value);
@@ -148,16 +112,16 @@ import { KEYS, load, save, del } from './storage.js';
         const nextEmpty = inputs.findIndex(inp => !inp.value);
         if (nextEmpty !== -1) inputs[nextEmpty].focus();
         else inputs[Math.min(i + 1, inputs.length - 1)].focus();
-        maybeVerify();
+        if (inputs.every(x => x.value && /^\d$/.test(x.value))) attemptVerify();
       });
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace') {
           if (el.value) { el.value = ''; e.preventDefault(); return; }
-          if (i > 0) { e.preventDefault(); inputs[i - 1].focus(); inputs[i - 1].value = ''; }
+          if (i > 0) { e.preventDefault(); inputs[i-1].focus(); inputs[i-1].value=''; }
           return;
         }
-        if (e.key === 'ArrowLeft' && i > 0)  { e.preventDefault(); inputs[i - 1].focus(); return; }
-        if (e.key === 'ArrowRight' && i < inputs.length - 1) { e.preventDefault(); inputs[i + 1].focus(); return; }
+        if (e.key === 'ArrowLeft' && i>0) { e.preventDefault(); inputs[i-1].focus(); return; }
+        if (e.key === 'ArrowRight' && i<inputs.length-1) { e.preventDefault(); inputs[i+1].focus(); return; }
         if (e.key === 'Enter') { e.preventDefault(); attemptVerify(); return; }
         if (e.key.length === 1 && !isDigit(e.key)) e.preventDefault();
       });
@@ -172,62 +136,42 @@ import { KEYS, load, save, del } from './storage.js';
       if (nextEmpty === -1) attemptVerify(); else inputs[nextEmpty].focus();
     });
 
-    inputs[0]?.focus();
-
-    // ===== resend cooldown =====
+    // ===== Resend cooldown (как было) =====
     const RESEND_COOLDOWN_S = 45;
-    let timerId = null;
     const fmt = (s)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
     const cooldownKey = `${KEYS.RESEND_UNTIL}:login`;
+    let tId = null;
 
-    const getUntil = () => Number(load(cooldownKey, 0)) || 0;
-    const setUntil = (ts) => save(cooldownKey, ts);
-
-    function renderCooldown() {
-      const left = Math.max(0, Math.ceil((getUntil() - Date.now()) / 1000));
-      if (resendTimerEl) resendTimerEl.textContent = fmt(left);
-      const active = left > 0;
-      if (resendBtn) resendBtn.disabled = active;
-      if (!active && timerId) { clearInterval(timerId); timerId = null; }
+    function getUntil(){ return Number(load(cooldownKey, 0)) || 0; }
+    function setUntil(ts){ save(cooldownKey, ts); }
+    function render(){
+      const left = Math.max(0, Math.ceil((getUntil()-Date.now())/1000));
+      resendTimerEl && (resendTimerEl.textContent = fmt(left));
+      const active = left>0;
+      resendBtn && (resendBtn.disabled = active);
+      if (!active && tId){ clearInterval(tId); tId = null; }
     }
-    function startCooldown(seconds){
-      setUntil(Date.now() + seconds * 1000);
-      renderCooldown();
-      if (timerId) clearInterval(timerId);
-      timerId = setInterval(renderCooldown, 1000);
+    function start(sec){
+      setUntil(Date.now()+sec*1000); render();
+      if (tId) clearInterval(tId);
+      tId = setInterval(render, 1000);
     }
 
-    const left0 = Math.max(0, Math.ceil((getUntil() - Date.now()) / 1000));
-    if (left0 > 0) { renderCooldown(); timerId = setInterval(renderCooldown, 1000); }
-    else { startCooldown(RESEND_COOLDOWN_S); }
+    const left0 = Math.max(0, Math.ceil((getUntil()-Date.now())/1000));
+    if (left0>0){ render(); tId=setInterval(render,1000); } else { start(RESEND_COOLDOWN_S); }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
 
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) renderCooldown(); });
-
-    // resend click
     resendBtn?.addEventListener('click', async () => {
       if (resendBtn.disabled) return;
-      if (!challengeId) { setMsg('Нет идентификатора сессии подтверждения. Вернитесь на предыдущий шаг.', '#e11d48'); return; }
-      resendBtn.disabled = true;
-      setMsg('Отправляем новый код…');
-
+      resendBtn.disabled = true; setMsg('Отправляем новый код…');
       try {
-        const { status, ok, data } = await authLoginResend(challengeId);
-        if (ok || status === 204) {
-          setMsg('Новый код отправлен. Проверьте почту.', '#059669');
-          startCooldown(RESEND_COOLDOWN_S);
-        } else {
-          const human =
-            status === 400 ? 'Некорректная сессия подтверждения. Вернитесь на шаг входа.' :
-            status === 404 ? 'Пользователь не найден или у аккаунта не указан e-mail.' :
-            status === 500 ? 'Ошибка отправки письма. Попробуйте позже.' :
-            (serverDetail(data) || `Не удалось отправить код (ошибка ${status}).`);
-          setMsg(human, '#e11d48');
-          resendBtn.disabled = false;
+        const { ok, status, data } = await authLoginResend(challengeId);
+        if (ok || status === 204) { setMsg('Новый код отправлен. Проверьте почту.', '#059669'); start(RESEND_COOLDOWN_S); }
+        else {
+          const human = (data?.detail?.[0]?.msg) || (data?.detail) || `Не удалось отправить код (ошибка ${status}).`;
+          setMsg(human, '#e11d48'); resendBtn.disabled = false;
         }
-      } catch {
-        setMsg('Проблема с сетью. Проверьте подключение и повторите.', '#e11d48');
-        resendBtn.disabled = false;
-      }
+      } catch { setMsg('Проблема с сетью. Повторите.', '#e11d48'); resendBtn.disabled = false; }
     });
 
     form.addEventListener('submit', (e) => { e.preventDefault(); attemptVerify(); });
