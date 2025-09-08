@@ -64,12 +64,5 @@ export function useTinkoffScript() {
     finally { document.body.removeChild(form); }
   };
 
-  useEffect(() => {
-    const f = buildTinkoffForm({ terminalkey: "K", amount: "100", order: "o1" });
-    console.assert(f.elements.namedItem("terminalkey").value === "K", "[TEST] terminalkey mismatch");
-    console.assert(f.elements.namedItem("amount").value === "100", "[TEST] amount mismatch");
-    console.assert(f.elements.namedItem("order").value === "o1", "[TEST] order mismatch");
-  }, []);
-
   return { ready, error, openPayForm };
 }
