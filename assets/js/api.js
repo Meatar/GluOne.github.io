@@ -182,11 +182,13 @@ export function authSubscriptions() {
     headers: { 'Accept': 'application/json' }
   });
 }
-export function authCreateSubscriptionOrder(user_id, device_id, subscription_plan_id) {
+export async function authCreateSubscriptionOrder(user_id, device_id, subscription_plan_id) {
   const payload = { user_id, device_id, subscription_plan_id };
-  return request('/auth/web/payments/order', {
+  const res = await request('/auth/web/payments/order', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify(payload)
   });
+  const { payment_url, order_id, payment_id } = res.data || {};
+  return { ...res, data: { payment_url, order_id, payment_id } };
 }

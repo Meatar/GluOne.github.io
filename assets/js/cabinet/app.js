@@ -12,7 +12,6 @@ import {
   authCreateSubscriptionOrder
 } from "../api.js";
 import { clearAuthStorage } from "../storage.js";
-import { useTinkoffScript, buildTinkoffForm, gatewayAmountString, TINKOFF_TERMINAL_KEY } from "./tinkoff.js";
 import { fmtDateTime } from "./helpers.js";
 import { ProfilePanel, SubscriptionPanel, SecurityPanel, DevicesPanel } from "./panels.js";
 import { SiteHeader, Sidebar } from "./layout.js";
@@ -32,8 +31,6 @@ export default function AccountApp() {
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
   const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
   const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
-
-  const { ready: payReady, error: payError } = useTinkoffScript();
 
   useEffect(() => {
     (async () => {
@@ -150,7 +147,7 @@ export default function AccountApp() {
   const accountEmail = profile?.email || "";
 
   const handlePay = async () => {
-    if (!selectedPlan || !payReady || !currentPremiumDeviceId) {
+    if (!selectedPlan || !currentPremiumDeviceId) {
       const hasDevices = devices.length > 0;
       const hasActiveDevices = devices.some((d) => !d.revoked);
       const msg = hasDevices
@@ -164,36 +161,12 @@ export default function AccountApp() {
 
     try {
       const order = await authCreateSubscriptionOrder(userId, currentPremiumDeviceId, selectedPlan.id);
-      const orderId = order?.data?.order_id;
-      if (!order.ok || !orderId) {
+      const paymentUrl = order?.data?.payment_url;
+      if (!order.ok || !paymentUrl) {
         alert("Не удалось создать заказ. Попробуйте ещё раз.");
         return;
       }
-      if (window.Tinkoff?.createPayment) {
-        window.Tinkoff.createPayment({
-          terminalkey: TINKOFF_TERMINAL_KEY,
-          language: "ru",
-          amount: gatewayAmountString(amountRub),
-          order: orderId,
-          description: selectedPlan.sku,
-          email: accountEmail,
-          view: "popup"
-        });
-      } else if (window.pay) {
-        const form = buildTinkoffForm({
-          terminalkey: TINKOFF_TERMINAL_KEY,
-          language: "ru",
-          amount: gatewayAmountString(amountRub),
-          order: orderId,
-          description: selectedPlan.sku,
-          email: accountEmail,
-          frame: "popup"
-        });
-        document.body.appendChild(form);
-        try { window.pay(form); } finally { document.body.removeChild(form); }
-      } else {
-        alert("Виджет оплаты ещё не готов.");
-      }
+      window.location.href = paymentUrl;
     } catch (e) {
       console.error(e);
       alert("Не удалось открыть оплату. Попробуйте ещё раз.");
@@ -240,7 +213,6 @@ export default function AccountApp() {
           onOpenTransfer: () => setTransferOpen(true),
           currentDeviceName: currentPremiumDeviceName,
           onPay: handlePay,
-          payReady,
           plans,
           selectedPlanId,
           setSelectedPlanId,
@@ -253,7 +225,6 @@ export default function AccountApp() {
         }),
         section === "security" && React.createElement(SecurityPanel, { username: profile?.username || profile?.email, onChangePassword: handleChangePassword, onDeleteAccount: handleDeleteAccount }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
-        payError && React.createElement("div", { className: "mt-3 text-sm text-rose-600" }, payError)
       )
     ),
 
