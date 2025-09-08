@@ -68,6 +68,7 @@
   z-index: 1000;
   background: var(--rec-backdrop);
   backdrop-filter: blur(2px) saturate(110%);
+  -webkit-backdrop-filter: blur(2px) saturate(110%); /* Safari fallback */
 }
 
 .rec-wrap {
@@ -76,7 +77,7 @@
   display: grid;
   place-items: center;
   z-index: 1001;
-  padding: 16px; /* ДОБАВЛЕНО: чтобы карточка не прилипала к краям на мобилках */
+  padding: 16px; /* чтобы карточка не прилипала к краям на мобилках */
 }
 
 /* ===== КАРТОЧКА ===== */
@@ -134,6 +135,8 @@
     0 0 0 3px rgba(99,102,241,.35), /* fallback */
     0 0 0 3px color-mix(in oklab, var(--rec-focus) 35%, transparent);
   background: var(--rec-surface);
+  outline: 2px solid transparent;  /* дополнительная видимость контура */
+  outline-offset: 2px;
 }
 
 /* состояние ошибки по aria-invalid */
@@ -143,6 +146,20 @@
   background: color-mix(in oklab, var(--danger) 3%, var(--rec-input-bg));
 }
 
+/* ====== ГАРАНТ ПРОВЕРКИ color-mix() ====== */
+@supports not (color: color-mix(in oklab, white 50%, black)) {
+  .rec-input:focus {
+    /* останется только fallback-box-shadow из секции выше */
+    box-shadow: 0 0 0 3px rgba(99,102,241,.35);
+  }
+  .rec-input[aria-invalid="true"] {
+    /* упрощаем без color-mix */
+    box-shadow: 0 0 0 2px rgba(220,38,38,.25);
+    background: var(--rec-input-bg);
+  }
+}
+
+/* ===== СООБЩЕНИЯ ===== */
 .rec-error {
   margin-top: 6px;
   color: var(--danger);
@@ -201,12 +218,11 @@
 }
 .rec-btn-ghost:hover { filter: brightness(.98); }
 
-/* ===== ПРЕДПОЧТЕНИЯ ДВИЖЕНИЯ ===== */
+/* ===== PREFERS-REDUCED-MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
   .rec-wrap { animation: none; }
   .rec-card, .rec-btn { transition: none !important; }
 }
-/* удобный хук JS, если захочется вручную поставить класс */
 .reduced-motion * { transition: none !important; }
 
 /* ===== МЕЛОЧИ/АДАПТИВ ===== */
@@ -217,3 +233,40 @@
 
 /* Опционально: скрыть лишние обратные SVG-иконки, если не используешь :where/.visible контроллер */
 .i { width: 20px; height: 20px; }
+
+/* ===== ДОП. ДОСТУПНОСТЬ: FORCED COLORS ===== */
+@media (forced-colors: active) {
+  .rec-card,
+  .rec-btn,
+  .rec-input {
+    border: 1px solid ButtonText;
+  }
+  .rec-btn-primary {
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
+  }
+  .rec-input:focus,
+  .rec-btn:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+}
+
+/* ===== ПОВЫШЕННАЯ КОНТРАСТНОСТЬ ===== */
+@media (prefers-contrast: more) {
+  .rec-input,
+  .rec-btn-ghost {
+    border-color: color-mix(in srgb, var(--rec-line) 60%, black);
+  }
+  .rec-btn-primary {
+    filter: saturate(115%);
+  }
+}
+
+/* ===== ДОП. ФОКУС-ВИДИМОСТЬ ДЛЯ КЛАВИАТУРЫ ===== */
+.rec-btn:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}

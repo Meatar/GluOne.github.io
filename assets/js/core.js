@@ -32,31 +32,28 @@ document.addEventListener('DOMContentLoaded', () => {
     activate(initial ? initial.dataset.panel : (panels[0]?.id || ''));
   }
 
-  // Шапка: заменить «Авторизация» на логин, если авторизован
+  // Шапка: показываем «Личный кабинет»/username, если сессия валидна (cookie-авторизация)
   const authLink = document.querySelector('#authEntry, [data-auth-link]');
   if (authLink) {
-    const tokenObj = load(KEYS.TOKEN, null);
-    const accessToken = tokenObj?.access_token;
+    // значение по умолчанию
+    authLink.textContent = 'Авторизация';
+    authLink.setAttribute('href', '/auth.html');
 
-    if (accessToken) {
-      // Сразу даём полезный линк
-      authLink.textContent = 'Личный кабинет';
-      authLink.setAttribute('href', '/cabinet.html');
-
-      // Пытаемся подтянуть username через /me (X-Device-Id подставит сам api.js)
-      authMe(accessToken)
-        .then(({ ok, data }) => {
-          if (ok && data?.username) {
-            authLink.textContent = data.username;
-            authLink.setAttribute('href', '/cabinet.html');
-          }
-        })
-        .catch(() => {
-          // Сеть упала — оставим «Личный кабинет» без изменений
-        });
-    } else {
-      authLink.textContent = 'Авторизация';
-      authLink.setAttribute('href', '/auth.html');
-    }
+    // пробуем тихо подтянуть профиль (если есть действующая кука — вернётся 200)
+    authMe()
+      .then(({ ok, data, status }) => {
+        if (ok && data) {
+          const label = data.username || 'Личный кабинет';
+          authLink.textContent = label;
+          authLink.setAttribute('href', '/cabinet.html');
+        } else if (status === 401) {
+          // не авторизован — оставляем «Авторизация»
+        } else {
+          // иные ошибки сети/серва — ничего не меняем
+        }
+      })
+      .catch(() => {
+        // сеть упала — оставим «Авторизация»
+      });
   }
 });

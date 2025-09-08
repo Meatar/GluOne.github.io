@@ -9,6 +9,9 @@
   <meta name="color-scheme" content="light dark" />
   <meta name="theme-color" content="#0f172a" />
 
+  <!-- (Опционально) если api.js читает CSRF из meta -->
+  <meta name="csrf-token" content="">
+
   <!-- Favicons — как на главной -->
   <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/image/favicon-32.png">
@@ -88,7 +91,7 @@
   </main>
 
   <script>
-    // синхронизация aria-pressed с data-state для togglePass (на случай, если стили/скринридер ориентируются на aria)
+    // синхронизация aria-pressed с data-state для togglePass
     document.addEventListener('DOMContentLoaded', () => {
       const btn = document.getElementById('togglePass');
       const pass = document.getElementById('password');
