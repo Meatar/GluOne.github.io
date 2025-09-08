@@ -38,7 +38,7 @@ export function ProfilePanel({ profile }) {
   );
 }
 
-export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt }) {
+export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt }) {
   return React.createElement("div", { className: "max-w-6xl" },
     React.createElement(SectionCard, { title: "Подписка Premium" },
       React.createElement("div", { className: "space-y-2 text-sm" },
@@ -76,7 +76,7 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pa
       ),
       React.createElement("div", { className: "mt-4 flex gap-3" },
         (() => {
-          const disabled = !payReady || !selectedPlanId || !currentDeviceId;
+          const disabled = !selectedPlanId || !currentDeviceId;
           const cls = disabled
             ? "bg-slate-400 cursor-not-allowed"
             : "bg-indigo-600 hover:bg-indigo-700";
@@ -91,8 +91,7 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pa
           );
         })(),
         React.createElement("button", { onClick: onOpenTransfer, className: "rounded-xl border border-slate-200 px-4 py-2 font-medium" }, "Сменить устройство")
-      ),
-      !payReady && React.createElement("div", { className: "mt-2 text-xs text-slate-500" }, "Загружаем виджет оплаты…")
+      )
     )
   );
 }
