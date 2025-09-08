@@ -108,28 +108,48 @@ import { KEYS, load, save, del } from './storage.js';
       }
     }
 
-    const maybeVerify = () => { setError(''); setMsg(''); if (inputs.every(x => x.value && /^\d$/.test(x.value))) attemptVerify(); };
+    const maybeVerify = () => {
+      setError('');
+      setMsg('');
+      if (inputs.every(x => x.value && /^\d$/.test(x.value))) {
+        attemptVerify();
+      }
+    };
+
+    const fillFrom = (start, str) => {
+      const digits = (str || '').replace(/\D/g, '').split('');
+      let idx = start;
+      while (digits.length && idx < inputs.length) {
+        inputs[idx].value = digits.shift();
+        idx++;
+      }
+    };
 
     inputs.forEach((el, i) => {
       el.value = '';
-      const handleInput = () => {
-        const chars = (el.value || '').replace(/\D/g, '').split('');
-        el.value = chars.shift() || '';
-        let idx = i + 1;
-        while (chars.length && idx < inputs.length) { inputs[idx].value = chars.shift() || ''; idx++; }
-        if (el.value) {
-          const nextEmpty = inputs.findIndex((n, k) => k > i && !n.value);
-          if (nextEmpty !== -1) inputs[nextEmpty].focus();
-          else if (i < inputs.length - 1) inputs[i + 1].focus();
+      el.addEventListener('input', () => {
+        fillFrom(i, el.value);
+        const nextEmpty = inputs.findIndex(inp => !inp.value);
+        if (nextEmpty !== -1) {
+          inputs[nextEmpty].focus();
         }
         maybeVerify();
-      };
-      el.addEventListener('input', handleInput);
+      });
+
       el.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !el.value && i > 0) inputs[i - 1].focus();
-        if (e.key === 'Enter') { e.preventDefault(); attemptVerify(); }
-        if (e.key === 'ArrowLeft' && i > 0) inputs[i - 1].focus();
-        if (e.key === 'ArrowRight' && i < inputs.length - 1) inputs[i + 1].focus();
+        if (e.key === 'Backspace' && !el.value && i > 0) {
+          inputs[i - 1].focus();
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          attemptVerify();
+        }
+        if (e.key === 'ArrowLeft' && i > 0) {
+          inputs[i - 1].focus();
+        }
+        if (e.key === 'ArrowRight' && i < inputs.length - 1) {
+          inputs[i + 1].focus();
+        }
       });
     });
 
@@ -137,10 +157,13 @@ import { KEYS, load, save, del } from './storage.js';
       const text = (e.clipboardData || window.clipboardData).getData('text') || '';
       if (!text) return;
       e.preventDefault();
-      const digits = text.replace(/\D/g, '').slice(0, inputs.length).split('');
-      inputs.forEach((inp, idx) => { inp.value = digits[idx] || ''; });
-      if (digits.length >= inputs.length) attemptVerify();
-      else inputs[digits.length]?.focus();
+      fillFrom(0, text.slice(0, inputs.length));
+      const nextEmpty = inputs.findIndex(inp => !inp.value);
+      if (nextEmpty === -1) {
+        attemptVerify();
+      } else {
+        inputs[nextEmpty].focus();
+      }
     });
 
     inputs[0]?.focus();
