@@ -9,6 +9,8 @@ export function DeviceItem({ device, onRevoke, onDelete }) {
   const ip = device?.last_ip || "—";
   const created = device?.created_at ? fmtDate(device.created_at) : "—";
   const active = device?.last_seen_at ? fmtDateTime(device.last_seen_at) : "—";
+  const isPremium = !!device?.is_premium;
+  const premiumUntil = device?.premium_expires_at ? fmtDate(device.premium_expires_at) : "—";
   const revoked = !!device?.revoked;
   const deviceId = device?.device_id;
 
@@ -23,6 +25,8 @@ export function DeviceItem({ device, onRevoke, onDelete }) {
       React.createElement("div", { className: "text-slate-500" }, "Активность"), React.createElement("div", { className: "text-slate-800" }, active),
       React.createElement("div", { className: "text-slate-500" }, "Создано"), React.createElement("div", { className: "text-slate-800" }, created),
       React.createElement("div", { className: "text-slate-500" }, "IP"), React.createElement("div", { className: "text-slate-800" }, ip),
+      React.createElement("div", { className: "text-slate-500" }, "Премиум"), React.createElement("div", { className: "text-slate-800" }, isPremium ? "Активен" : "Нет"),
+      React.createElement("div", { className: "text-slate-500" }, "Действует до"), React.createElement("div", { className: "text-slate-800" }, isPremium ? premiumUntil : "—"),
       React.createElement("div", { className: "text-slate-500" }, "ID устройства"), React.createElement("div", { className: "text-slate-800 break-all" }, deviceId)
     ),
     React.createElement("div", { className: "mt-3 flex justify-end gap-2" },

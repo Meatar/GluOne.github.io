@@ -38,13 +38,17 @@ export function ProfilePanel({ profile }) {
   );
 }
 
-export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId }) {
+export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, payReady, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt }) {
   return React.createElement("div", { className: "max-w-6xl" },
     React.createElement(SectionCard, { title: "Подписка Premium" },
       React.createElement("div", { className: "space-y-2 text-sm" },
         React.createElement("div", { className: "flex items-center justify-between" },
           React.createElement("span", { className: "text-slate-500" }, "Статус"),
-          React.createElement("span", { className: "font-medium text-emerald-700" }, "Активна")
+          React.createElement("span", { className: `font-medium ${isPremium ? "text-emerald-700" : "text-rose-600"}` }, isPremium ? "Активна" : "Неактивна")
+        ),
+        isPremium && React.createElement("div", { className: "flex items-center justify-between" },
+          React.createElement("span", { className: "text-slate-500" }, "Действует до"),
+          React.createElement("span", { className: "font-medium" }, fmtDate(premiumExpiresAt))
         ),
         React.createElement("div", { className: "flex items-center justify-between" },
           React.createElement("span", { className: "text-slate-500" }, "Устройство"),
@@ -71,7 +75,7 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pa
         React.createElement("input", { value: email, readOnly: true, className: "rounded-lg border border-slate-200 px-3 py-2 text-sm bg-slate-50 text-slate-700" })
       ),
       React.createElement("div", { className: "mt-4 flex gap-3" },
-        React.createElement("button", { disabled: !payReady || !selectedPlanId || !currentDeviceId, onClick: onPay, className: `rounded-xl px-4 py-2 font-medium text-white ${payReady ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-400 cursor-not-allowed"}` }, "Продлить"),
+        React.createElement("button", { disabled: !payReady || !selectedPlanId || !currentDeviceId, onClick: onPay, className: `rounded-xl px-4 py-2 font-medium text-white ${payReady ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-400 cursor-not-allowed"}` }, isPremium ? "Продлить" : "Купить"),
         React.createElement("button", { onClick: onOpenTransfer, className: "rounded-xl border border-slate-200 px-4 py-2 font-medium" }, "Сменить устройство")
       ),
       !payReady && React.createElement("div", { className: "mt-2 text-xs text-slate-500" }, "Загружаем виджет оплаты…")
