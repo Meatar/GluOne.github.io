@@ -15,15 +15,17 @@ import { KEYS, load, save, del } from './storage.js';
     const resendBtn = document.getElementById('resendBtn');
     const resendTimerEl = document.getElementById('resendTimer');
 
-    const challenge = load(KEYS.CHALLENGE, {});
-    const challengeId = challenge?.challenge_id || null;
-
+    // --- вспомогалки UI ---
     if (msg && !msg.getAttribute('aria-live')) {
       msg.setAttribute('aria-live', 'polite');
       msg.setAttribute('role', 'status');
     }
     const setError = (t) => { if (!codeE) return; codeE.textContent = t || ''; codeE.hidden = !t; };
     const setMsg   = (t, color='') => { if (!msg) return; msg.textContent = t || ''; msg.style.color = color; };
+
+    // --- challenge из шага логина ---
+    const challenge = load(KEYS.CHALLENGE, {});
+    const challengeId = challenge?.challenge_id || null;
 
     const maskEmail = (em) => {
       if (!em || !em.includes('@')) return '***@***';
@@ -43,9 +45,11 @@ import { KEYS, load, save, del } from './storage.js';
       return;
     }
 
+    // --- валидация/верификация ---
     let verifying = false;
     const getCode = () => inputs.map(i => i.value).join('');
-    const isDigits = (s) => /^\d+$/.test(s);
+    const isDigit = (ch) => /^[0-9]$/.test(ch);
+    const onlyDigits = (s) => (s || '').replace(/\D/g, '');
 
     const serverDetail = (data) => {
       if (!data) return '';
@@ -68,7 +72,7 @@ import { KEYS, load, save, del } from './storage.js';
 
       const code = getCode();
       if (code.length !== inputs.length) { setError('Введите полный код из письма.'); return; }
-      if (!isDigits(code)) { setError('Код должен состоять только из цифр.'); return; }
+      if (!/^\d+$/.test(code)) { setError('Код должен состоять только из цифр.'); return; }
 
       verifying = true;
       inputs.forEach(i => i.disabled = true);
@@ -116,8 +120,9 @@ import { KEYS, load, save, del } from './storage.js';
       }
     };
 
+    // --- распределение ввода по ячейкам ---
     const fillFrom = (start, str) => {
-      const digits = (str || '').replace(/\D/g, '').split('');
+      const digits = onlyDigits(str).split('');
       let idx = start;
       while (digits.length && idx < inputs.length) {
         inputs[idx].value = digits.shift();
@@ -125,34 +130,80 @@ import { KEYS, load, save, del } from './storage.js';
       }
     };
 
+    // --- ПОВЕДЕНИЕ ЯЧЕЕК: auto-advance, backspace, стрелки, фокус ---
     inputs.forEach((el, i) => {
-      el.value = '';
+      // Жёстко ограничим по 1 символу и запретим не-цифры
+      el.setAttribute('inputmode', 'numeric');
+      el.setAttribute('autocomplete', 'one-time-code');
+      el.setAttribute('maxlength', '1');
+
+      // При фокусе выделяем содержимое (удобно для ручной правки)
+      el.addEventListener('focus', () => {
+        // таймаут нужен для корректной работы на iOS
+        setTimeout(() => el.select?.(), 0);
+      });
+
+      // Основной ввод
       el.addEventListener('input', () => {
-        fillFrom(i, el.value);
+        const val = onlyDigits(el.value);
+        if (val.length === 0) {
+          el.value = '';
+          return;
+        }
+        // если вставили сразу несколько символов в одну ячейку — раскидаем дальше
+        fillFrom(i, val);
+        // фокус на следующую пустую
         const nextEmpty = inputs.findIndex(inp => !inp.value);
         if (nextEmpty !== -1) {
           inputs[nextEmpty].focus();
+        } else {
+          inputs[Math.min(i + 1, inputs.length - 1)].focus();
         }
         maybeVerify();
       });
 
+      // Клавиатурная навигация
       el.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !el.value && i > 0) {
+        if (e.key === 'Backspace') {
+          if (el.value) {
+            // очистим текущую, не прыгая
+            el.value = '';
+            e.preventDefault();
+            return;
+          }
+          // если пустая — прыгаем влево
+          if (i > 0) {
+            e.preventDefault();
+            inputs[i - 1].focus();
+            inputs[i - 1].value = '';
+          }
+          return;
+        }
+
+        if (e.key === 'ArrowLeft' && i > 0) {
+          e.preventDefault();
           inputs[i - 1].focus();
+          return;
+        }
+        if (e.key === 'ArrowRight' && i < inputs.length - 1) {
+          e.preventDefault();
+          inputs[i + 1].focus();
+          return;
         }
         if (e.key === 'Enter') {
           e.preventDefault();
           attemptVerify();
+          return;
         }
-        if (e.key === 'ArrowLeft' && i > 0) {
-          inputs[i - 1].focus();
-        }
-        if (e.key === 'ArrowRight' && i < inputs.length - 1) {
-          inputs[i + 1].focus();
+
+        // Блокируем ввод не-цифр с клавиатуры (кроме служебных клавиш)
+        if (e.key.length === 1 && !isDigit(e.key)) {
+          e.preventDefault();
         }
       });
     });
 
+    // Вставка из буфера: вставляем как есть и верифицируем если все ячейки заполнены
     form.addEventListener('paste', (e) => {
       const text = (e.clipboardData || window.clipboardData).getData('text') || '';
       if (!text) return;
@@ -168,33 +219,56 @@ import { KEYS, load, save, del } from './storage.js';
 
     inputs[0]?.focus();
 
-    // ===== Resend (cooldown) =====
+    // ===== Resend (cooldown) — стабильный тикающий таймер =====
     const RESEND_COOLDOWN_S = 45;
     let timerId = null;
     const fmt = (s)=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
     const cooldownKey = `${KEYS.RESEND_UNTIL}:login`;
-    const cooldownLeft = () => Math.max(0, Math.ceil((Number(load(cooldownKey, 0)) - Date.now())/1000));
 
-    function startCooldown(seconds){
-      clearInterval(timerId);
-      save(cooldownKey, Date.now() + seconds*1000);
-      resendBtn && (resendBtn.disabled = true);
-      resendTimerEl && (resendTimerEl.textContent = fmt(seconds));
-      let left = seconds;
-      timerId = setInterval(() => {
-        left -= 1;
-        resendTimerEl && (resendTimerEl.textContent = fmt(Math.max(0,left)));
-        if (left <= 0) {
-          clearInterval(timerId);
-          del(cooldownKey);
-          resendBtn && (resendBtn.disabled = false);
-        }
-      }, 1000);
+    // Читаем/пишем абсолютный «до какого времени»
+    const getUntil = () => Number(load(cooldownKey, 0)) || 0;
+    const setUntil = (ts) => save(cooldownKey, ts);
+
+    function renderCooldown() {
+      const now = Date.now();
+      const until = getUntil();
+      const left = Math.max(0, Math.ceil((until - now) / 1000));
+      if (resendTimerEl) resendTimerEl.textContent = fmt(left);
+
+      const active = left > 0;
+      if (resendBtn) resendBtn.disabled = active;
+
+      if (!active && timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
     }
 
-    const left0 = cooldownLeft();
-    startCooldown(left0 > 0 ? left0 : RESEND_COOLDOWN_S);
+    function startCooldown(seconds){
+      const until = Date.now() + seconds * 1000;
+      setUntil(until);
+      // моментальный рендер и запуск точного тика
+      renderCooldown();
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(renderCooldown, 1000);
+    }
 
+    // восстановим состояние таймера при загрузке (или заведём новый)
+    const left0 = Math.max(0, Math.ceil((getUntil() - Date.now()) / 1000));
+    if (left0 > 0) {
+      // уже идёт отсчёт — просто запустим тик
+      renderCooldown();
+      timerId = setInterval(renderCooldown, 1000);
+    } else {
+      startCooldown(RESEND_COOLDOWN_S);
+    }
+
+    // при возврате на вкладку/пробуждении синхронизируемся
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) renderCooldown();
+    });
+
+    // Кнопка «Отправить код снова»
     resendBtn?.addEventListener('click', async () => {
       if (resendBtn.disabled) return;
       if (!challengeId) { setMsg('Нет идентификатора сессии подтверждения. Вернитесь на предыдущий шаг.', '#e11d48'); return; }
