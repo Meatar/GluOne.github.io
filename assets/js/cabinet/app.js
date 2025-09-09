@@ -244,7 +244,7 @@ export default function AccountApp() {
     setTransferContext(null);
   };
 
-  return React.createElement("div", { className: "min-h-screen w-full bg-slate-50 flex flex-col" },
+  return React.createElement("div", { className: "min-h-screen w-full bg-slate-50 flex flex-col dark:bg-slate-950 dark:text-slate-100" },
     React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.username || profile?.email }),
 
     React.createElement(TransferPremiumModal, {
@@ -269,12 +269,16 @@ export default function AccountApp() {
             { key: "subscription", label: "Подписка" },
             { key: "security", label: "Безопасность" },
             { key: "devices", label: "Устройства" }
-          ].map((t) =>
-            React.createElement("button", {
-              key: t.key, onClick: () => setSection(t.key),
-              className: `rounded-lg px-3 py-2 text-sm border ${section === t.key ? "bg-white border-slate-300" : "bg-slate-100 border-transparent"}`
-            }, t.label)
-          )
+            ].map((t) =>
+              React.createElement("button", {
+                key: t.key, onClick: () => setSection(t.key),
+                className: `rounded-lg px-3 py-2 text-sm border ${
+                  section === t.key
+                    ? "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200"
+                    : "bg-slate-100 dark:bg-slate-700 border-transparent text-slate-700 dark:text-slate-300"
+                }`
+              }, t.label)
+            )
         ),
         /* показываем панели по секциям */
         section === "profile" && React.createElement(ProfilePanel, { profile, hiddenStatus: true }),
@@ -301,13 +305,13 @@ export default function AccountApp() {
       )
     ),
 
-    React.createElement("footer", { className: "mt-auto border-t border-slate-200 bg-white" },
-      React.createElement("div", { className: "mx-auto max-w-screen-2xl px-5 py-6 text-sm text-slate-500 flex flex-wrap items-center justify-between gap-3" },
+    React.createElement("footer", { className: "mt-auto border-t border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900" },
+      React.createElement("div", { className: "mx-auto max-w-screen-2xl px-5 py-6 text-sm text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-3" },
         React.createElement("div", null, "© ", (new Date()).getFullYear(), " GluOne. Все права защищены."),
         React.createElement("div", { className: "flex items-center gap-4" },
-          React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "Политика конфиденциальности"),
-          React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "Условия"),
-          React.createElement("a", { className: "hover:text-slate-700", href: "#" }, "Контакты")
+          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "#" }, "Политика конфиденциальности"),
+          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "#" }, "Условия"),
+          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "#" }, "Контакты")
         )
       )
     )
