@@ -165,7 +165,6 @@ export default function AccountApp() {
     }
   };
 
-  // >>> изменено: удаление аккаунта принимает логин и пароль из модалки
   const handleDeleteAccount = async (username, password) => {
     if (!username || !password) return { ok: false, msg: "Укажите логин и пароль." };
     try {
@@ -277,7 +276,8 @@ export default function AccountApp() {
             }, t.label)
           )
         ),
-        React.createElement(ProfilePanel, { profile, hiddenStatus: true }),
+        /* показываем панели по секциям */
+        section === "profile" && React.createElement(ProfilePanel, { profile, hiddenStatus: true }),
         section === "subscription" && React.createElement(SubscriptionPanel, {
           onOpenTransfer: () => setTransferContext({ type: 'subscription' }),
           currentDeviceName: currentPremiumDeviceName,
@@ -295,7 +295,6 @@ export default function AccountApp() {
         section === "security" && React.createElement(SecurityPanel, {
           username: profile?.username || profile?.email,
           onChangePassword: handleChangePassword,
-          // >>> теперь ждём логин+пароль из модалки
           onDeleteAccount: handleDeleteAccount
         }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
