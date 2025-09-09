@@ -11,7 +11,7 @@ export function RowButton({ icon, children, onClick }) {
 }
 
 export function SectionCard({ title, children, footer }) {
-  return React.createElement("div", { className: "rounded-2xl border bg-white shadow-sm border-slate-200" },
+  return React.createElement("div", { className: "w-full rounded-2xl border bg-white shadow-sm border-slate-200" },
     title && React.createElement("div", { className: "px-4 py-3 border-b border-slate-200/60 text-sm font-semibold text-slate-800" }, title),
     React.createElement("div", { className: "p-4" }, children),
     footer && React.createElement("div", { className: "px-4 py-3 border-t border-slate-200/60" }, footer)
