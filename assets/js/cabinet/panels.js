@@ -140,7 +140,10 @@ export function DevicesPanel({ devices, onRevoke, onDelete }) {
   return React.createElement("div", { className: "space-y-4" },
     React.createElement(SectionCard, { title: "Устройства", footer: React.createElement("div", { className: "text-sm text-slate-500" }, "Всего устройств: ", devices.length) },
       React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-3" },
-        devices.map((dev) => React.createElement(DeviceItem, { key: dev.device_id, device: dev, onRevoke, onDelete }))
+        devices.map((dev) => {
+          const disableDelete = devices.length === 1 && dev.is_premium;
+          return React.createElement(DeviceItem, { key: dev.device_id, device: dev, onRevoke, onDelete, disableDelete });
+        })
       )
     )
   );

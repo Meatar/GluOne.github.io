@@ -9,7 +9,8 @@ import {
   authChangePassword,
   authDeleteAccount,
   authSubscriptions,
-  authCreateSubscriptionOrder
+  authCreateSubscriptionOrder,
+  authPremiumTransfer
 } from "../api.js";
 import { clearAuthStorage } from "../storage.js";
 import { fmtDateTime } from "./helpers.js";
@@ -26,7 +27,7 @@ export default function AccountApp() {
   const [devices, setDevices] = useState([]);
   const [plans, setPlans] = useState([]);
   const [selectedPlanId, setSelectedPlanId] = useState("");
-  const [transferOpen, setTransferOpen] = useState(false);
+  const [transferContext, setTransferContext] = useState(null); // { type: 'subscription' | 'delete', fromDeviceId?, fromDeviceName? }
   const [currentPremiumDeviceId, setCurrentPremiumDeviceId] = useState(null);
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
   const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
@@ -99,7 +100,8 @@ export default function AccountApp() {
     const current = currentPremiumDeviceId
       ? active.find((d) => d.device_id === currentPremiumDeviceId)
       : null;
-    const target = current || active.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
+    const premium = active.find((d) => d.is_premium);
+    const target = current || premium || active.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
     if (target) {
       setCurrentPremiumDeviceId(target.device_id);
       setCurrentPremiumDeviceName(target.model || "Неизвестное устройство");
@@ -121,6 +123,17 @@ export default function AccountApp() {
   };
 
   const handleDeleteDevice = async (id) => {
+    const device = devices.find((d) => d.device_id === id);
+    if (!device) return;
+    if (device.is_premium) {
+      const eligible = devices.filter((d) => !d.revoked && d.device_id !== id);
+      if (!eligible.length) {
+        alert("Нельзя удалить последнее устройство с активным премиумом.");
+        return;
+      }
+      setTransferContext({ type: 'delete', fromDeviceId: id, fromDeviceName: device.model || 'Неизвестное устройство' });
+      return;
+    }
     const confirmDel = confirm("Удалить запись об устройстве?");
     if (!confirmDel) return;
     await authDeleteDevice(id);
@@ -201,23 +214,51 @@ export default function AccountApp() {
     }
   };
 
-  const handleConfirmTransfer = (device) => {
-    setCurrentPremiumDeviceId(device.deviceId);
-    setCurrentPremiumDeviceName(device.name);
-    setCurrentDeviceIsPremium(!!device.isPremium);
-    setCurrentDeviceExpiresAt(device.premiumExpiresAt || null);
-    setTransferOpen(false);
+  const handleConfirmTransfer = async (device) => {
+    if (!transferContext) return;
+    if (transferContext.type === 'delete') {
+      try {
+        await authPremiumTransfer(device.deviceId);
+        await authDeleteDevice(transferContext.fromDeviceId);
+        await reloadDevices();
+        setCurrentPremiumDeviceId(device.deviceId);
+        setCurrentPremiumDeviceName(device.name);
+        setCurrentDeviceIsPremium(true);
+        setCurrentDeviceExpiresAt(device.premiumExpiresAt || currentDeviceExpiresAt);
+      } catch (e) {
+        alert("Не удалось перенести премиум. Попробуйте ещё раз.");
+      }
+    } else if (transferContext.type === 'subscription') {
+      try {
+        if (currentDeviceIsPremium && device.deviceId !== currentPremiumDeviceId) {
+          await authPremiumTransfer(device.deviceId);
+        }
+        setCurrentPremiumDeviceId(device.deviceId);
+        setCurrentPremiumDeviceName(device.name);
+        setCurrentDeviceIsPremium(!!device.isPremium || currentDeviceIsPremium);
+        setCurrentDeviceExpiresAt(device.premiumExpiresAt || currentDeviceExpiresAt);
+        await reloadDevices();
+      } catch (e) {
+        alert("Не удалось перенести премиум. Попробуйте ещё раз.");
+      }
+    }
+    setTransferContext(null);
   };
 
   return React.createElement("div", { className: "min-h-screen w-full bg-slate-50 flex flex-col" },
     React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.username || profile?.email }),
 
     React.createElement(TransferPremiumModal, {
-      open: transferOpen,
-      onClose: () => setTransferOpen(false),
+      open: !!transferContext,
+      onClose: () => setTransferContext(null),
       onConfirm: handleConfirmTransfer,
-      devices: devices.map((d) => ({ name: d.model || "Неизвестное устройство", os: d.os, ip: d.last_ip, active: fmtDateTime(d.last_seen_at), deviceId: d.device_id, revoked: d.revoked, isPremium: d.is_premium, premiumExpiresAt: d.premium_expires_at })),
-      currentDeviceId: currentPremiumDeviceId
+      devices: devices
+        .filter((d) => !transferContext || transferContext.type !== 'delete' || d.device_id !== transferContext.fromDeviceId)
+        .map((d) => ({ name: d.model || "Неизвестное устройство", os: d.os, ip: d.last_ip, active: fmtDateTime(d.last_seen_at), deviceId: d.device_id, revoked: d.revoked, isPremium: d.is_premium, premiumExpiresAt: d.premium_expires_at })),
+      currentDeviceId: transferContext && transferContext.type === 'subscription' ? currentPremiumDeviceId : null,
+      sourceName: transferContext && transferContext.type === 'delete' ? transferContext.fromDeviceName : (currentDeviceIsPremium ? currentPremiumDeviceName : null),
+      title: transferContext && transferContext.type === 'delete' ? 'Перенос подписки' : undefined,
+      description: transferContext && transferContext.type === 'delete' ? 'Выберите устройство, на которое перенести премиум.' : undefined
     }),
 
     React.createElement("main", { className: "flex-1 mx-auto max-w-screen-2xl px-5 py-6 flex gap-6" },
@@ -238,7 +279,7 @@ export default function AccountApp() {
         ),
         section === "profile" && React.createElement(ProfilePanel, { profile }),
         section === "subscription" && React.createElement(SubscriptionPanel, {
-          onOpenTransfer: () => setTransferOpen(true),
+          onOpenTransfer: () => setTransferContext({ type: 'subscription' }),
           currentDeviceName: currentPremiumDeviceName,
           onPay: handlePay,
           plans,
