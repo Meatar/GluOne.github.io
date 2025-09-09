@@ -1,25 +1,43 @@
+// api.js — cookie-first: refresh в HttpOnly cookie, access — только в памяти (не в storage).
 const API = 'https://api.gluone.ru';
 
-/**
- * Базовый запрос с таймаутом.
- * @param {string} path
- * @param {Object} [opts]
- * @param {'GET'|'POST'|'PUT'|'PATCH'|'DELETE'} [opts.method='GET']
- * @param {Object} [opts.headers={}]
- * @param {BodyInit|null} [opts.body]
- * @param {number} [opts.timeout=15000]
- * @param {'omit'|'same-origin'|'include'} [opts.credentials]  // при необходимости можно пробрасывать куки
- */
-async function request(path, { method = 'GET', headers = {}, body, timeout = 15000, credentials } = {}) {
+/* ======================== access-токен в памяти ======================== */
+let ACCESS_TOKEN = null;
+export function setAccessToken(t) { ACCESS_TOKEN = t || null; }
+export function getAccessToken() { return ACCESS_TOKEN || null; }
+export function clearAccessToken() { ACCESS_TOKEN = null; }
+
+/* ======================== helpers ======================== */
+function readCookie(name) {
+  try {
+    const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/[-./\\^$*+?()[\]{}|]/g, '\\$&') + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  } catch { return ''; }
+}
+export function getCsrfToken() {
+  // сервер ставит видимую куку csrf_token
+  return readCookie('csrf_token') || '';
+}
+
+/* базовый запрос */
+async function request(
+  path,
+  { method = 'GET', headers = {}, body, timeout = 15000, credentials = 'include' } = {}
+) {
   const ctrl = new AbortController();
   const tId = setTimeout(() => ctrl.abort(), timeout);
+
+  const h = { ...headers };
+  const access = getAccessToken();
+  if (access) h['Authorization'] = `Bearer ${access}`;
+
   try {
     const res = await fetch(`${API}${path}`, {
       method,
-      headers,
+      headers: h,
       body,
       signal: ctrl.signal,
-      ...(credentials ? { credentials } : {}) // добавляем только если передали
+      ...(credentials ? { credentials } : {})
     });
     const isJson = res.headers.get('content-type')?.includes('application/json');
     const data = isJson ? await res.json().catch(() => null) : null;
@@ -29,55 +47,31 @@ async function request(path, { method = 'GET', headers = {}, body, timeout = 150
   }
 }
 
-/* ======================== helpers ======================== */
-
-/**
- * Грубая идентификация браузера для X-Device-Id.
- * Наша цель — стабильная короткая строка по сессии/браузеру, а не уникальный отпечаток.
- */
-function getBrowserDeviceId() {
-  try {
-    // UA-CH (современные браузеры)
-    const nav = navigator;
-    if (nav.userAgentData?.brands?.length) {
-      const brands = nav.userAgentData.brands
-        .filter(b => !/Not.?A.?Brand/i.test(b.brand))
-        .map(b => `${b.brand} ${b.version}`.trim())
-        .join('; ');
-      const mobile = nav.userAgentData.mobile ? ' Mobile' : '';
-      return `Web (${brands})${mobile}`.slice(0, 120);
-    }
-    // Fallback на userAgent
-    const ua = (nav.userAgent || '').toLowerCase();
-    const isChrome = /chrome|crios|crmo/.test(ua) && !/edg|opr\//.test(ua);
-    const isEdge   = /edg\//.test(ua);
-    const isFirefox= /firefox|fxios/.test(ua);
-    const isSafari = /safari/.test(ua) && !/chrome|crios|crmo|android/.test(ua);
-    let name = isEdge ? 'Edge'
-             : isChrome ? 'Chrome'
-             : isFirefox ? 'Firefox'
-             : isSafari  ? 'Safari'
-             : 'Browser';
-    // вытащим примерную версию
-    let version = '';
-    const m =
-      (isEdge && ua.match(/edg\/([\d.]+)/)) ||
-      (isChrome && ua.match(/(?:chrome|crios)\/([\d.]+)/)) ||
-      (isFirefox && ua.match(/(?:firefox|fxios)\/([\d.]+)/)) ||
-      (isSafari && ua.match(/version\/([\d.]+)/));
-    if (m) version = m[1];
-    const platform = nav.platform || nav.userAgent || '';
-    return `Web ${name}${version ? ' ' + version : ''} (${platform})`.slice(0, 120);
-  } catch {
-    return 'Web Browser';
-  }
+/* ======================== AUTH (WEB) ======================== */
+// REGISTER
+export function authRegister(username, email, password, gender, birth_date, diabetes_type) {
+  return request('/auth/web/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ username, email, password, gender, birth_date, diabetes_type })
+  });
+}
+export function authRegisterVerify(challenge_id, code) {
+  return request('/auth/web/register/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ challenge_id, code })
+  });
+}
+export function authRegisterResend(challenge_id) {
+  return request('/auth/web/register/resend', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ challenge_id })
+  });
 }
 
-/* ======================== auth: login/verify/resend ======================== */
-
-/**
- * Логин (этап 1)
- */
+// LOGIN (step 1 -> challenge)
 export function authLogin(username, password) {
   return request('/auth/web/login', {
     method: 'POST',
@@ -85,22 +79,15 @@ export function authLogin(username, password) {
     body: JSON.stringify({ username, password })
   });
 }
-
-/**
- * Подтверждение кода (этап 2)
- */
-export function authVerify(challenge_id, code) {
+// LOGIN VERIFY (step 2 -> ставит refresh_cookie + csrf_cookie, возвращает {access_token})
+export function authLoginVerify(challenge_id, code) {
   return request('/auth/web/login/verify', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({ challenge_id, code })
   });
 }
-
-/**
- * Повторная отправка кода
- */
-export function authResend(challenge_id) {
+export function authLoginResend(challenge_id) {
   return request('/auth/web/login/resend', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
@@ -108,112 +95,64 @@ export function authResend(challenge_id) {
   });
 }
 
-/* ======================== profile/me/logout ======================== */
-
-/**
- * Данные профиля текущего пользователя.
- * Автоматически добавляет X-Device-Id = "название браузера", в котором запущена сессия.
- * Можно переопределить передав deviceId вторым аргументом.
- */
-export function authMe(accessToken, { deviceId } = {}) {
-  const headers = {
-    'Accept': 'application/json',
-    'Authorization': `Bearer ${accessToken}`,
-    'X-Device-Id': (deviceId || getBrowserDeviceId())
-  };
-  return request('/auth/web/me', { method: 'GET', headers });
+// REFRESH (cookie) — требует X-CSRF-Token
+export async function authRefresh() {
+  const csrf = getCsrfToken();
+  const headers = { 'Accept': 'application/json' };
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+  const resp = await request('/auth/web/refresh', { method: 'POST', headers });
+  if (resp?.ok && resp.data?.access_token) {
+    setAccessToken(resp.data.access_token);
+  }
+  return resp;
 }
 
-/**
- * Выход (инвалидирует refresh/сессию на сервере)
- * ВАЖНО: credentials: 'include' — чтобы ушли куки (refresh/csrf), если они используются
- */
-export async function authLogout(csrfToken) {
+// LOGOUT — требует X-CSRF-Token, чистит refresh/csrf куки на сервере
+export async function authLogout() {
+  const csrf = getCsrfToken();
   const headers = { 'Accept': '*/*' };
-  if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+  return request('/auth/web/logout', { method: 'POST', headers });
+}
 
-  return request('/auth/web/logout', {
-    method: 'POST',
-    headers,
-    credentials: 'include' // отправляем куки
+// ME — только Bearer access
+export function authMe() {
+  return request('/auth/web/me', {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
   });
 }
 
-/* ======================== devices ======================== */
-
-/**
- * Тип устройства (JSDoc для удобства)
- * @typedef {Object} AuthDevice
- * @property {string} device_id
- * @property {string} model
- * @property {string} os
- * @property {string} app_build
- * @property {string} created_at
- * @property {string} last_seen_at
- * @property {string} last_ip
- * @property {boolean} revoked
- * @property {boolean} current
- * @property {boolean} [is_premium]
- * @property {string|null} [premium_expires_at]
- */
-
-/**
- * Список устройств, с которых пользователь авторизовывался
- * GET /auth/web/devices
- * @param {string} accessToken - Bearer токен
- * @returns {Promise<{ok: boolean, status: number, data: AuthDevice[] | null}>}
- */
-export function authDevices(accessToken) {
+/* ======================== DEVICES ======================== */
+export function authDevices() {
   return request('/auth/web/devices', {
     method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
-    }
+    headers: { 'Accept': 'application/json' }
   });
 }
-
-/**
- * Отозвать (разлогинить) конкретное устройство пользователя
- * POST /auth/web/devices/revoke
- * Успех: 204 No Content (res.ok === true, data === null)
- * Ошибки: 422 Validation Error и пр.
- */
-export function authRevokeDevice(accessToken, deviceId) {
+export function authRevokeDevice(device_id) {
   return request('/auth/web/devices/revoke', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': '*/*',
-      'Authorization': `Bearer ${accessToken}`
-    },
-    body: JSON.stringify({ device_id: deviceId })
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ device_id })
   });
 }
-
-/**
- * Полное удаление записи об устройстве пользователя
- * POST /auth/web/devices/delete
- * Успех: 204 No Content
- */
-export function authDeleteDevice(accessToken, deviceId) {
+export function authDeleteDevice(device_id) {
   return request('/auth/web/devices/delete', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': '*/*',
-      'Authorization': `Bearer ${accessToken}`
-    },
-    body: JSON.stringify({ device_id: deviceId })
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ device_id })
   });
 }
 
-/* ======================== password & account ======================== */
-
-/**
- * Смена пароля (WEB)
- * POST /auth/web/change-password
- */
+/* ======================== PASSWORD / ACCOUNT ======================== */
+export function authRecoverPassword(email) {
+  return request('/auth/web/recover-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
+    body: JSON.stringify({ email })
+  });
+}
 export function authChangePassword(username, old_password, new_password) {
   return request('/auth/web/change-password', {
     method: 'POST',
@@ -221,11 +160,6 @@ export function authChangePassword(username, old_password, new_password) {
     body: JSON.stringify({ username, old_password, new_password })
   });
 }
-
-/**
- * Полное удаление аккаунта (WEB)
- * POST /auth/web/delete
- */
 export function authDeleteAccount(username, password) {
   return request('/auth/web/delete', {
     method: 'POST',
@@ -234,46 +168,27 @@ export function authDeleteAccount(username, password) {
   });
 }
 
-/**
- * Восстановление пароля (WEB)
- * POST /auth/web/recover-password
- */
-export function authRecoverPassword(email) {
-  return request('/auth/web/recover-password', {
+/* ======================== PREMIUM / PAYMENTS ======================== */
+export function authPremiumTransfer(device_id) {
+  return request('/auth/web/premium/transfer', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
-    body: JSON.stringify({ email })
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ device_id })
   });
 }
-
-/* ======================== subscriptions (NEW) ======================== */
-
-/**
- * Тип плана подписки (ответ /auth/web/subscriptions)
- * @typedef {Object} SubscriptionPlan
- * @property {string} id               - Идентификатор плана
- * @property {string} name             - Название подписки
- * @property {string} sku              - SKU/код продукта
- * @property {number} duration_months  - Длительность в месяцах
- * @property {number} price            - Стоимость (в минимальных единицах валюты, если так задано на сервере)
- * @property {string} currency         - Валюта (например, "RUB")
- * @property {number} discount         - Скидка (в процентах или единицах, согласно бэкенду)
- * @property {boolean} is_active       - Признак активности плана
- */
-
-/**
- * Получить список доступных web-подписок для текущего пользователя.
- * GET /auth/web/subscriptions
- * Требуется Bearer токен.
- * @param {string} accessToken
- * @returns {Promise<{ok: boolean, status: number, data: SubscriptionPlan[] | null}>}
- */
-export function authSubscriptions(accessToken) {
+export function authSubscriptions() {
   return request('/auth/web/subscriptions', {
     method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
-    }
+    headers: { 'Accept': 'application/json' }
   });
+}
+export async function authCreateSubscriptionOrder(user_id, device_id, subscription_plan_id) {
+  const payload = { user_id, device_id, subscription_plan_id };
+  const res = await request('/auth/web/payments/order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const { payment_url, order_id, payment_id } = res.data || {};
+  return { ...res, data: { payment_url, order_id, payment_id } };
 }

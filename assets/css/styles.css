@@ -45,6 +45,7 @@ body{
   position: sticky; top:0; z-index:50;
   background: color-mix(in oklab, var(--bg) 80%, transparent);
   backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px); /* Safari */
   border-bottom: 1px solid color-mix(in oklab, var(--divider) 60%, transparent);
 }
 
@@ -64,6 +65,7 @@ body{
     linear-gradient(90deg, transparent 31px, color-mix(in oklab, var(--divider) 60%, transparent) 32px);
   background-size: 32px 32px;
   mask: radial-gradient(1000px 600px at 30% -10%, rgba(0,0,0,.35), transparent 70%);
+  -webkit-mask: radial-gradient(1000px 600px at 30% -10%, rgba(0,0,0,.35), transparent 70%); /* Safari */
   pointer-events:none;
 }
 .hero-bg::after{
@@ -107,8 +109,7 @@ button, .btn-hero, .btn-outline {
   appearance: none;
 }
 
-/* БАЗОВОЕ ВЫРАВНИВАНИЕ КНОПОК: одинаковые размеры и типографика
-   (используем display:flex + min-height — надёжнее в мобильном Safari) */
+/* БАЗОВОЕ ВЫРАВНИВАНИЕ КНОПОК: одинаковые размеры и типографика */
 .btn-hero,
 .btn-outline {
   display:flex;
@@ -116,12 +117,13 @@ button, .btn-hero, .btn-outline {
   justify-content:center;
   height:44px;          /* минимальный tap-target */
   min-height:44px;
-  padding:0 20px;       /* одинаковый горизонтальный отступ */
-  font-size:15px;       /* согласованный размер шрифта */
+  padding:0 20px;
+  font-size:15px;
   border-radius:9999px;
   font-weight:700;
   line-height:1;
   text-decoration:none;
+  touch-action: manipulation;
 }
 
 /* Заливка (герой-кнопка) */
@@ -153,7 +155,7 @@ button, .btn-hero, .btn-outline {
 .btn-outline:hover{ transform:translateY(-1px); background: color-mix(in oklab, var(--divider) 12%, transparent); }
 .btn-outline:focus-visible{ outline:none; box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 55%, transparent); }
 
-/* Точечный фикс для WebKit (по желанию — чуть больше высота на iOS) */
+/* Точечный фикс для WebKit (чуть больше высота на iOS) */
 @supports (-webkit-touch-callout: none) {
   .btn-hero, .btn-outline { height:48px; min-height:48px; }
 }
@@ -409,6 +411,7 @@ button, .btn-hero, .btn-outline {
 .field:-webkit-autofill{
   -webkit-text-fill-color: var(--ink);
   transition: background-color 9999s ease-out 0s;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg) inset;
 }
 
 /* 4) Кнопки-иконки в полях: hit area + фокус */
@@ -432,6 +435,32 @@ button, .btn-hero, .btn-outline, .btn-primary{
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 8) Если захочется более «брендового» акцента — можно переопределить здесь:
+/* 8) Forced colors / High-contrast */
+@media (forced-colors: active){
+  .btn-hero, .btn-outline, .btn-primary, .field, .card, .feature-card{
+    border: 1px solid ButtonText;
+  }
+  .btn-hero, .btn-primary{
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
+  }
+  .btn-outline{
+    forced-color-adjust: none;
+    background: Canvas;
+    color: CanvasText;
+    border-color: ButtonText;
+  }
+  .field:focus,
+  .btn-hero:focus-visible,
+  .btn-outline:focus-visible,
+  .btn-primary:focus-visible{
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+}
+
+/* 9) Если захочется более «брендового» акцента — можно переопределить здесь:
 :root{ --accent: #4f46e5; }  @media (prefers-color-scheme: dark){ :root{ --accent:#6366f1; } }
 */

@@ -61,6 +61,7 @@
   -webkit-appearance: none; appearance: none;
   caret-color: var(--accent);
   font-variant-numeric: tabular-nums;
+  touch-action: manipulation;
   /* предотвращаем неожиданный zoom в iOS при фокусе */
   font-size: clamp(20px, 2.4vw, 22px);
 }
@@ -71,8 +72,10 @@
   background: var(--card);
   transform: translateY(-1px);
 }
+/* для клавиатурной навигации — видимый контур */
 .otp-input:focus-visible{
-  outline: none; /* оставляем только box-shadow */
+  outline: 2px solid transparent; /* активирует box для некоторых UA */
+  outline-offset: 2px;
 }
 .otp-input:active{
   transform: translateY(0); /* без «скачка» при быстром наборе */
@@ -86,6 +89,8 @@
   box-shadow: 0 0 0 3px color-mix(in oklab, #ef4444 25%, transparent);
   background: color-mix(in oklab, #ef4444 8%, var(--bg));
 }
+
+/* Fallback, если нет color-mix */
 @supports not (color: color-mix(in oklab, #000 10%, #fff)){
   .otp-input{
     border-color: var(--divider);
@@ -94,6 +99,7 @@
   .otp-input:focus{
     box-shadow: 0 0 0 3px rgba(99,102,241,.35);
     border-color: #6366f1;
+    background: var(--card);
   }
   .otp-input[aria-invalid="true"]{
     border-color: #ef4444;
@@ -106,7 +112,13 @@
 .otp-input:-webkit-autofill{
   -webkit-text-fill-color: var(--ink);
   transition: background-color 100000s ease-in-out 0s;
+  -webkit-box-shadow: 0 0 0px 1000px var(--card) inset;
 }
+
+/* На всякий случай — отключение спиннеров, если кто-то случайно поставит type=number */
+.otp-input[type="number"]::-webkit-outer-spin-button,
+.otp-input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance: none; margin: 0; }
+.otp-input[type="number"]{ -moz-appearance: textfield; }
 
 /* ===== Ссылка-кнопка (повторная отправка) ===== */
 .link-btn{
@@ -114,6 +126,7 @@
   background:none; border:0; padding:0;
   color:var(--accent); font: inherit; cursor:pointer;
   text-decoration: none;
+  touch-action: manipulation;
 }
 .link-btn:hover{ text-decoration: underline; }
 .link-btn:focus-visible{
@@ -128,4 +141,36 @@
 /* ===== Reduce motion ===== */
 @media (prefers-reduced-motion: reduce){
   .otp-input{ transition: none; }
+}
+
+/* ===== High-contrast / forced colors ===== */
+@media (forced-colors: active){
+  .otp-input{
+    border: 1px solid ButtonText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none !important;
+  }
+  .otp-input:focus,
+  .otp-input:focus-visible{
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .otp-input[aria-invalid="true"]{
+    border-color: ButtonText;
+    background: Canvas;
+  }
+  .link-btn{
+    -ms-high-contrast-adjust: none;
+    forced-color-adjust: none;
+    color: LinkText;
+  }
+}
+
+/* ===== Повышенная контрастность ===== */
+@media (prefers-contrast: more){
+  .otp-input{
+    border-width: 1.5px;
+  }
+  .link-btn{ text-decoration: underline; }
 }

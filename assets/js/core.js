@@ -1,17 +1,14 @@
 // core.js
-import { authMe } from './api.js';
-import { KEYS, load } from './storage.js';
+import { authRefresh, authMe } from './api.js';
 
-// Дождёмся DOM
 document.addEventListener('DOMContentLoaded', () => {
   // Footer year
   const y = document.getElementById('y');
   if (y) y.textContent = new Date().getFullYear();
 
-  // Feature tabs (если есть)
+  // Feature tabs (как было)
   const tabs   = Array.from(document.querySelectorAll('.feature-tab'));
   const panels = Array.from(document.querySelectorAll('.feature-panel'));
-
   function activate(panelId) {
     if (!panelId) return;
     tabs.forEach(btn => {
@@ -25,38 +22,29 @@ document.addEventListener('DOMContentLoaded', () => {
       p.setAttribute('aria-hidden', on ? 'false' : 'true');
     });
   }
-
   if (tabs.length && panels.length) {
     tabs.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.panel)));
     const initial = document.querySelector('.feature-tab[aria-selected="true"]');
     activate(initial ? initial.dataset.panel : (panels[0]?.id || ''));
   }
 
-  // Шапка: заменить «Авторизация» на логин, если авторизован
+  // Шапка: пробуем тихо обновить access по cookie и показать «Личный кабинет»
   const authLink = document.querySelector('#authEntry, [data-auth-link]');
   if (authLink) {
-    const tokenObj = load(KEYS.TOKEN, null);
-    const accessToken = tokenObj?.access_token;
+    authLink.textContent = 'Авторизация';
+    authLink.setAttribute('href', '/auth.html');
 
-    if (accessToken) {
-      // Сразу даём полезный линк
-      authLink.textContent = 'Личный кабинет';
-      authLink.setAttribute('href', '/cabinet.html');
-
-      // Пытаемся подтянуть username через /me (X-Device-Id подставит сам api.js)
-      authMe(accessToken)
-        .then(({ ok, data }) => {
-          if (ok && data?.username) {
-            authLink.textContent = data.username;
-            authLink.setAttribute('href', '/cabinet.html');
-          }
-        })
-        .catch(() => {
-          // Сеть упала — оставим «Личный кабинет» без изменений
-        });
-    } else {
-      authLink.textContent = 'Авторизация';
-      authLink.setAttribute('href', '/auth.html');
-    }
+    (async () => {
+      try {
+        const r = await authRefresh();      // требует X-CSRF-Token (из куки)
+        if (!r.ok) return;
+        const me = await authMe();
+        if (me.ok && me.data) {
+          const label = me.data.username || 'Личный кабинет';
+          authLink.textContent = label;
+          authLink.setAttribute('href', '/cabinet.html');
+        }
+      } catch {}
+    })();
   }
 });
