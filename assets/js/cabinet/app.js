@@ -73,6 +73,8 @@ export default function AccountApp() {
         if (dev.ok) setDevices(dev.data || []);
       }
       if (section === "subscription") {
+        const dev = await authDevices();
+        if (dev.ok) setDevices(dev.data || []);
         const subs = await authSubscriptions();
         if (subs.ok && Array.isArray(subs.data)) {
           setPlans(subs.data);
@@ -94,14 +96,17 @@ export default function AccountApp() {
       setCurrentDeviceExpiresAt(null);
       return;
     }
-    const last = active.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
-    if (last) {
-      setCurrentPremiumDeviceId(last.device_id);
-      setCurrentPremiumDeviceName(last.model || "Неизвестное устройство");
-      setCurrentDeviceIsPremium(!!last.is_premium);
-      setCurrentDeviceExpiresAt(last.premium_expires_at || null);
+    const current = currentPremiumDeviceId
+      ? active.find((d) => d.device_id === currentPremiumDeviceId)
+      : null;
+    const target = current || active.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
+    if (target) {
+      setCurrentPremiumDeviceId(target.device_id);
+      setCurrentPremiumDeviceName(target.model || "Неизвестное устройство");
+      setCurrentDeviceIsPremium(!!target.is_premium);
+      setCurrentDeviceExpiresAt(target.premium_expires_at || null);
     }
-  }, [devices]);
+  }, [devices, currentPremiumDeviceId]);
 
   const reloadDevices = async () => {
     const dev = await authDevices();
