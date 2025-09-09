@@ -25,7 +25,7 @@ export function ProfilePanel({ profile }) {
         )
       ),
       React.createElement("div", { className: "mt-4" },
-        React.createElement(KeyRow, { label: "Статус", value: React.createElement("span", { className: profile.is_active ? "text-emerald-700" : "text-rose-600" }, profile.is_active ? "Активен" : "Неактивен") }),
+        // УБРАНО: строка "Статус"
         React.createElement("div", { className: "flex items-center justify-between py-1.5" },
           React.createElement("div", { className: "text-sm text-slate-500" }, "Роли"),
           React.createElement("div", { className: "flex flex-wrap gap-1 justify-end" }, roles.map((r) => React.createElement(Chip, { key: r }, r)))
@@ -61,36 +61,28 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
           React.createElement("select", {
             value: selectedPlanId,
             onChange: (e) => setSelectedPlanId(e.target.value),
-            className: "rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100 bg-white"
+            className: "rounded-lg border border-slate-200 px-4 py-3 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white"
           }, plans.map((p) => React.createElement("option", { key: p.id, value: p.id }, `${p.duration_months} мес. — ${formatRub(p.price)} ₽`)))
         ),
         React.createElement("div", { className: "text-right" },
           React.createElement("div", { className: "text-xs text-slate-500" }, "Итого к оплате"),
-          React.createElement("div", { className: "text-lg font-semibold text-slate-900" }, formatRub(amountRub), " ₽"),
-          selectedPlanId && React.createElement("div", { className: "text-xs text-slate-500" }, `${formatRub(monthPrice)} ₽/мес× ${plans.find((p) => p.id === selectedPlanId)?.duration_months}`)
+          React.createElement("div", { className: "text-2xl font-extrabold text-slate-900 leading-none" }, formatRub(amountRub), " ₽"),
+          selectedPlanId && React.createElement("div", { className: "text-xs text-slate-500 mt-1" }, `${formatRub(monthPrice)} ₽/мес× ${plans.find((p) => p.id === selectedPlanId)?.duration_months}`)
         )
       ),
-      React.createElement("div", { className: "mt-4 flex flex-col gap-1" },
-        React.createElement("label", { className: "text-sm text-slate-600" }, "E-mail плательщика"),
-        React.createElement("input", { value: email, readOnly: true, className: "rounded-lg border border-slate-200 px-3 py-2 text-sm bg-slate-50 text-slate-700" })
-      ),
-      React.createElement("div", { className: "mt-4 flex gap-3" },
+      // СКРЫТО: поле "E-mail плательщика"
+      // React.createElement("div", { className: "mt-4 flex flex-col gap-1" }, ...)
+      React.createElement("div", { className: "mt-5 flex gap-3" },
         (() => {
           const disabled = !selectedPlanId || !currentDeviceId;
-          const cls = disabled
-            ? "bg-slate-400 cursor-not-allowed"
-            : "bg-indigo-600 hover:bg-indigo-700";
+          const cls = disabled ? "bg-slate-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700";
           return React.createElement(
             "button",
-            {
-              disabled,
-              onClick: onPay,
-              className: `rounded-xl px-4 py-2 font-medium text-white ${cls}`
-            },
+            { disabled, onClick: onPay, className: `rounded-xl px-5 py-3 font-semibold text-white text-base ${cls}` },
             isPremium ? "Продлить" : "Купить"
           );
         })(),
-        React.createElement("button", { onClick: onOpenTransfer, className: "rounded-xl border border-slate-200 px-4 py-2 font-medium" }, "Сменить устройство")
+        React.createElement("button", { onClick: onOpenTransfer, className: "rounded-xl border border-slate-200 px-5 py-3 font-semibold text-base bg-white hover:bg-slate-50" }, "Сменить устройство")
       )
     )
   );
@@ -99,6 +91,8 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
 export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -110,23 +104,57 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
     setLoading(false);
   };
 
-  return React.createElement("div", { className: "space-y-4 w-full" },
+  return React.createElement("div", { className: "space-y-6 w-full" },
     React.createElement(SectionCard, { title: "Смена пароля" },
-      React.createElement("form", { className: "space-y-3", onSubmit: handleSubmit },
-        React.createElement("p", { className: "text-sm text-slate-600" }, "Рекомендуем менять пароль раз в 6–12 месяцев."),
-        React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-3" },
-          React.createElement("div", { className: "flex flex-col gap-1" },
-            React.createElement("label", { className: "text-sm text-slate-600" }, "Текущий пароль"),
-            React.createElement("input", { type: "password", autoComplete: "current-password", value: oldPass, onChange: (e) => setOldPass(e.target.value), placeholder: "Введите текущий пароль", className: "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100" })
+      React.createElement("form", { className: "space-y-5", onSubmit: handleSubmit },
+        React.createElement("p", { className: "text-base text-slate-600" }, "Рекомендуем менять пароль раз в 6–12 месяцев."),
+        React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
+          // Текущий пароль
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700" }, "Текущий пароль"),
+            React.createElement("div", { className: "relative" },
+              React.createElement("input", {
+                type: showOld ? "text" : "password",
+                autoComplete: "current-password",
+                value: oldPass,
+                onChange: (e) => setOldPass(e.target.value),
+                placeholder: "Введите текущий пароль",
+                className: "w-full rounded-xl border border-slate-300 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white pr-12"
+              }),
+              React.createElement("button", {
+                type: "button",
+                onClick: () => setShowOld((v) => !v),
+                "aria-label": showOld ? "Скрыть пароль" : "Показать пароль",
+                title: showOld ? "Скрыть пароль" : "Показать пароль",
+                className: "absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 grid place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+              }, showOld ? "🙈" : "👁️")
+            )
           ),
-          React.createElement("div", { className: "flex flex-col gap-1" },
-            React.createElement("label", { className: "text-sm text-slate-600" }, "Новый пароль"),
-            React.createElement("input", { type: "password", autoComplete: "new-password", value: newPass, onChange: (e) => setNewPass(e.target.value), placeholder: "Введите новый пароль", className: "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100" })
+          // Новый пароль
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700" }, "Новый пароль"),
+            React.createElement("div", { className: "relative" },
+              React.createElement("input", {
+                type: showNew ? "text" : "password",
+                autoComplete: "new-password",
+                value: newPass,
+                onChange: (e) => setNewPass(e.target.value),
+                placeholder: "Введите новый пароль",
+                className: "w-full rounded-xl border border-slate-300 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white pr-12"
+              }),
+              React.createElement("button", {
+                type: "button",
+                onClick: () => setShowNew((v) => !v),
+                "aria-label": showNew ? "Скрыть пароль" : "Показать пароль",
+                title: showNew ? "Скрыть пароль" : "Показать пароль",
+                className: "absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 grid place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+              }, showNew ? "🙈" : "👁️")
+            )
           )
         ),
-        msg && React.createElement("div", { className: "text-sm text-slate-600" }, msg),
+        msg && React.createElement("div", { className: "text-base text-slate-600" }, msg),
         React.createElement("div", { className: "flex items-center justify-end" },
-          React.createElement("button", { disabled: loading, className: "rounded-lg bg-slate-900 text-white px-4 py-2 text-sm hover:bg-slate-800" }, loading ? "Обновляем…" : "Обновить")
+          React.createElement("button", { disabled: loading, className: "rounded-xl bg-slate-900 text-white px-6 h-12 text-base font-semibold hover:bg-slate-800" }, loading ? "Обновляем…" : "Обновить")
         )
       )
     ),
