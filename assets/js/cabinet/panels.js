@@ -6,13 +6,13 @@ const { useState } = React;
 
 export function ProfilePanel({ profile }) {
   if (!profile) {
-    return React.createElement("div", { className: "space-y-4 max-w-6xl" },
+    return React.createElement("div", { className: "space-y-4 w-full" },
       React.createElement(SectionCard, null, React.createElement("div", { className: "text-sm text-slate-600" }, "Загружаем профиль…"))
     );
   }
   const initial = (profile.username || profile.email || "U").trim()[0].toUpperCase();
   const roles = Array.isArray(profile.roles) ? profile.roles : [];
-  return React.createElement("div", { className: "space-y-4 max-w-6xl" },
+  return React.createElement("div", { className: "space-y-4 w-full" },
     React.createElement(SectionCard, null,
       React.createElement("div", { className: "flex items-center gap-3" },
         React.createElement("div", { className: "h-12 w-12 shrink-0 rounded-xl bg-indigo-100 text-indigo-600 font-semibold flex items-center justify-center" }, initial),
@@ -28,7 +28,7 @@ export function ProfilePanel({ profile }) {
         React.createElement(KeyRow, { label: "Статус", value: React.createElement("span", { className: profile.is_active ? "text-emerald-700" : "text-rose-600" }, profile.is_active ? "Активен" : "Неактивен") }),
         React.createElement("div", { className: "flex items-center justify-between py-1.5" },
           React.createElement("div", { className: "text-sm text-slate-500" }, "Роли"),
-          React.createElement("div", { className: "flex gap-1" }, roles.map((r) => React.createElement(Chip, { key: r }, r)))
+          React.createElement("div", { className: "flex flex-wrap gap-1 justify-end" }, roles.map((r) => React.createElement(Chip, { key: r }, r)))
         ),
         React.createElement(KeyRow, { label: "Пол", value: mapGender(profile.gender) }),
         React.createElement(KeyRow, { label: "Дата рождения", value: profile.birth_date ? `${fmtDate(profile.birth_date)}${ageFrom(profile.birth_date) ? ` • ${ageFrom(profile.birth_date)} лет` : ""}` : "—" }),
@@ -39,7 +39,7 @@ export function ProfilePanel({ profile }) {
 }
 
 export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt }) {
-  return React.createElement("div", { className: "max-w-6xl" },
+  return React.createElement("div", { className: "w-full" },
     React.createElement(SectionCard, { title: "Подписка Premium" },
       React.createElement("div", { className: "space-y-2 text-sm" },
         React.createElement("div", { className: "flex items-center justify-between" },
@@ -110,18 +110,18 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
     setLoading(false);
   };
 
-  return React.createElement("div", { className: "max-w-6xl space-y-4" },
+  return React.createElement("div", { className: "space-y-4 w-full" },
     React.createElement(SectionCard, { title: "Смена пароля" },
       React.createElement("form", { className: "space-y-3", onSubmit: handleSubmit },
         React.createElement("p", { className: "text-sm text-slate-600" }, "Рекомендуем менять пароль раз в 6–12 месяцев."),
         React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-3" },
           React.createElement("div", { className: "flex flex-col gap-1" },
             React.createElement("label", { className: "text-sm text-slate-600" }, "Текущий пароль"),
-            React.createElement("input", { type: "password", autoComplete: "current-password", value: oldPass, onChange: (e) => setOldPass(e.target.value), placeholder: "Введите текущий пароль", className: "rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100" })
+            React.createElement("input", { type: "password", autoComplete: "current-password", value: oldPass, onChange: (e) => setOldPass(e.target.value), placeholder: "Введите текущий пароль", className: "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100" })
           ),
           React.createElement("div", { className: "flex flex-col gap-1" },
             React.createElement("label", { className: "text-sm text-slate-600" }, "Новый пароль"),
-            React.createElement("input", { type: "password", autoComplete: "new-password", value: newPass, onChange: (e) => setNewPass(e.target.value), placeholder: "Введите новый пароль", className: "rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100" })
+            React.createElement("input", { type: "password", autoComplete: "new-password", value: newPass, onChange: (e) => setNewPass(e.target.value), placeholder: "Введите новый пароль", className: "w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-100" })
           )
         ),
         msg && React.createElement("div", { className: "text-sm text-slate-600" }, msg),

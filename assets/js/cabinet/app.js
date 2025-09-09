@@ -63,6 +63,29 @@ export default function AccountApp() {
   }, []);
 
   useEffect(() => {
+    (async () => {
+      if (section === "profile") {
+        const me = await authMe();
+        if (me.ok) setProfile(me.data);
+      }
+      if (section === "devices") {
+        const dev = await authDevices();
+        if (dev.ok) setDevices(dev.data || []);
+      }
+      if (section === "subscription") {
+        const subs = await authSubscriptions();
+        if (subs.ok && Array.isArray(subs.data)) {
+          setPlans(subs.data);
+          if (subs.data.length) {
+            const found = subs.data.find((p) => p.id === selectedPlanId);
+            if (!found) setSelectedPlanId(subs.data[0].id);
+          }
+        }
+      }
+    })();
+  }, [section]);
+
+  useEffect(() => {
     const active = devices.filter((d) => !d.revoked);
     if (!active.length) {
       setCurrentPremiumDeviceId(null);
