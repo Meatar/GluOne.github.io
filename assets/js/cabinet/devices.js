@@ -2,7 +2,7 @@
 import { fmtDate, fmtDateTime } from "./helpers.js";
 const { useState, useEffect } = React;
 
-export function DeviceItem({ device, onRevoke, onDelete }) {
+export function DeviceItem({ device, onRevoke, onDelete, disableDelete }) {
   const name = device?.model || "Неизвестное устройство";
   const os = device?.os || "—";
   const build = device?.app_build || "—";
@@ -32,22 +32,28 @@ export function DeviceItem({ device, onRevoke, onDelete }) {
     React.createElement("div", { className: "mt-3 flex justify-end gap-2" },
       !revoked
         ? React.createElement("button", { className: "rounded-lg bg-slate-900 text-white px-3 py-1.5 text-sm hover:bg-slate-800", onClick: () => onRevoke(deviceId) }, "Выйти с устройства")
-        : React.createElement("button", { className: "rounded-lg bg-rose-600 text-white px-3 py-1.5 text-sm hover:bg-rose-700", onClick: () => onDelete(deviceId) }, "Удалить")
+        : React.createElement("button", {
+            className: `rounded-lg px-3 py-1.5 text-sm text-white ${disableDelete ? "bg-slate-400 cursor-not-allowed" : "bg-rose-600 hover:bg-rose-700"}`,
+            onClick: () => { if (!disableDelete) onDelete(deviceId); },
+            disabled: disableDelete
+          }, "Удалить")
     )
   );
 }
 
-export function TransferPremiumModal({ open, onClose, onConfirm, devices, currentDeviceId }) {
+export function TransferPremiumModal({ open, onClose, onConfirm, devices, currentDeviceId, title = "Выбрать устройство для оплаты", description = "Выберите устройство из списка.", fromDeviceName }) {
   const [selected, setSelected] = useState(currentDeviceId || null);
   useEffect(() => { if (open) setSelected(currentDeviceId || null); }, [open, currentDeviceId]);
   if (!open) return null;
 
   const eligible = devices.filter((d) => !d.revoked);
+  const selectedDevice = eligible.find((x) => x.deviceId === selected);
   return React.createElement("div", { className: "fixed inset-0 z-50 flex items-center justify-center" },
     React.createElement("div", { className: "absolute inset-0 bg-slate-900/40", onClick: onClose }),
     React.createElement("div", { className: "relative w-full max-w-lg rounded-2xl bg-white shadow-xl border border-slate-200 p-4" },
-      React.createElement("div", { className: "text-base font-semibold text-slate-900" }, "Выбрать устройство для оплаты"),
-      React.createElement("p", { className: "mt-1 text-sm text-slate-600" }, "Выберите устройство из списка."),
+      React.createElement("div", { className: "text-base font-semibold text-slate-900" }, title),
+      React.createElement("p", { className: "mt-1 text-sm text-slate-600" }, description),
+      fromDeviceName && selectedDevice && selectedDevice.name !== fromDeviceName && React.createElement("p", { className: "mt-1 text-sm text-slate-600" }, `Премиум будет перенесен с устройства ${fromDeviceName} на устройство ${selectedDevice.name}`),
       React.createElement("div", { className: "mt-4 space-y-2 max-h-72 overflow-auto" },
         eligible.length === 0 && React.createElement("div", { className: "text-sm text-slate-500" }, "Нет доступных устройств."),
         eligible.map((d) =>
