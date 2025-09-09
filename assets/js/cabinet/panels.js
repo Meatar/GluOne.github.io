@@ -4,7 +4,8 @@ import { Chip, SectionCard, KeyRow, DangerLink } from "./ui.js";
 import { DeviceItem } from "./devices.js";
 const { useState } = React;
 
-export function ProfilePanel({ profile }) {
+/* ===================== Профиль ===================== */
+export function ProfilePanel({ profile, hiddenStatus = true }) {
   if (!profile) {
     return React.createElement("div", { className: "space-y-4 w-full" },
       React.createElement(SectionCard, null, React.createElement("div", { className: "text-sm text-slate-600" }, "Загружаем профиль…"))
@@ -25,7 +26,10 @@ export function ProfilePanel({ profile }) {
         )
       ),
       React.createElement("div", { className: "mt-4" },
-        // УБРАНО: строка "Статус"
+        !hiddenStatus && React.createElement("div", { className: "flex items-center justify-between py-1.5" },
+          React.createElement("div", { className: "text-sm text-slate-500" }, "Статус"),
+          React.createElement("span", { className: profile.is_active ? "text-emerald-700" : "text-rose-600" }, profile.is_active ? "Активен" : "Неактивен")
+        ),
         React.createElement("div", { className: "flex items-center justify-between py-1.5" },
           React.createElement("div", { className: "text-sm text-slate-500" }, "Роли"),
           React.createElement("div", { className: "flex flex-wrap gap-1 justify-end" }, roles.map((r) => React.createElement(Chip, { key: r }, r)))
@@ -38,6 +42,7 @@ export function ProfilePanel({ profile }) {
   );
 }
 
+/* ===================== Подписка ===================== */
 export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt }) {
   return React.createElement("div", { className: "w-full" },
     React.createElement(SectionCard, { title: "Подписка Premium" },
@@ -70,8 +75,7 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
           selectedPlanId && React.createElement("div", { className: "text-xs text-slate-500 mt-1" }, `${formatRub(monthPrice)} ₽/мес× ${plans.find((p) => p.id === selectedPlanId)?.duration_months}`)
         )
       ),
-      // СКРЫТО: поле "E-mail плательщика"
-      // React.createElement("div", { className: "mt-4 flex flex-col gap-1" }, ...)
+      // Скрываем E-mail плательщика по требованиям
       React.createElement("div", { className: "mt-5 flex gap-3" },
         (() => {
           const disabled = !selectedPlanId || !currentDeviceId;
@@ -88,6 +92,63 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
   );
 }
 
+/* ===================== Безопасность ===================== */
+function DeleteAccountModal({ open, onClose, onSubmit, defaultLogin = "" }) {
+  const [login, setLogin] = useState(defaultLogin || "");
+  const [pass, setPass] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [error, setError] = useState("");
+
+  if (!open) return null;
+
+  const submit = async () => {
+    setError("");
+    const res = await onSubmit(login.trim(), pass);
+    if (!res?.ok) setError(res?.msg || "Не удалось удалить аккаунт.");
+  };
+
+  return React.createElement("div", { className: "fixed inset-0 z-50 grid place-items-center" },
+    React.createElement("div", { className: "absolute inset-0 bg-slate-900/40", onClick: onClose }),
+    React.createElement("div", { className: "relative w-[min(520px,96vw)] rounded-2xl bg-white shadow-2xl border border-slate-200 p-6" },
+      React.createElement("div", { className: "text-xl font-bold text-slate-900" }, "Удаление аккаунта"),
+      React.createElement("p", { className: "mt-1 text-sm text-slate-600" }, "Подтвердите удаление — укажите логин и пароль. Действие нельзя отменить."),
+      React.createElement("div", { className: "mt-4 grid gap-3" },
+        React.createElement("div", { className: "flex flex-col gap-1" },
+          React.createElement("label", { className: "text-sm text-slate-700" }, "Логин"),
+          React.createElement("input", {
+            value: login, onChange: (e) => setLogin(e.target.value),
+            autoComplete: "username",
+            className: "w-full rounded-xl border border-slate-300 px-4 h-12 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white"
+          })
+        ),
+        React.createElement("div", { className: "flex flex-col gap-1" },
+          React.createElement("label", { className: "text-sm text-slate-700" }, "Пароль"),
+          React.createElement("div", { className: "relative" },
+            React.createElement("input", {
+              type: showPass ? "text" : "password",
+              value: pass, onChange: (e) => setPass(e.target.value),
+              autoComplete: "current-password",
+              className: "w-full rounded-xl border border-slate-300 px-4 h-12 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white pr-12"
+            }),
+            React.createElement("button", {
+              type: "button",
+              onClick: () => setShowPass(v => !v),
+              "aria-label": showPass ? "Скрыть пароль" : "Показать пароль",
+              title: showPass ? "Скрыть пароль" : "Показать пароль",
+              className: "absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 grid place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
+            }, showPass ? "🙈" : "👁️")
+          )
+        ),
+        error && React.createElement("div", { className: "text-sm text-rose-600" }, error)
+      ),
+      React.createElement("div", { className: "mt-5 flex justify-end gap-2" },
+        React.createElement("button", { onClick: onClose, className: "rounded-lg border border-slate-200 px-4 h-11 text-sm bg-white hover:bg-slate-50" }, "Отмена"),
+        React.createElement("button", { onClick: submit, className: "rounded-lg bg-rose-600 text-white px-4 h-11 text-sm font-semibold hover:bg-rose-700" }, "Удалить")
+      )
+    )
+  );
+}
+
 export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -95,6 +156,7 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
   const [showNew, setShowNew] = useState(false);
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,7 +171,6 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
       React.createElement("form", { className: "space-y-5", onSubmit: handleSubmit },
         React.createElement("p", { className: "text-base text-slate-600" }, "Рекомендуем менять пароль раз в 6–12 месяцев."),
         React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
-          // Текущий пароль
           React.createElement("div", { className: "flex flex-col gap-2" },
             React.createElement("label", { className: "text-base font-medium text-slate-700" }, "Текущий пароль"),
             React.createElement("div", { className: "relative" },
@@ -130,7 +191,6 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
               }, showOld ? "🙈" : "👁️")
             )
           ),
-          // Новый пароль
           React.createElement("div", { className: "flex flex-col gap-2" },
             React.createElement("label", { className: "text-base font-medium text-slate-700" }, "Новый пароль"),
             React.createElement("div", { className: "relative" },
@@ -159,11 +219,22 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
       )
     ),
     React.createElement(SectionCard, null,
-      React.createElement(DangerLink, { onClick: onDeleteAccount }, "Удалить аккаунт")
-    )
+      React.createElement(DangerLink, { onClick: () => setOpenDelete(true) }, "Удалить аккаунт")
+    ),
+    React.createElement(DeleteAccountModal, {
+      open: openDelete,
+      onClose: () => setOpenDelete(false),
+      onSubmit: async (login, pass) => {
+        const r = await onDeleteAccount(login, pass);
+        if (r?.ok) return { ok: true };
+        return r;
+      },
+      defaultLogin: username || ""
+    })
   );
 }
 
+/* ===================== Устройства ===================== */
 export function DevicesPanel({ devices, onRevoke, onDelete }) {
   return React.createElement("div", { className: "space-y-4" },
     React.createElement(SectionCard, { title: "Устройства", footer: React.createElement("div", { className: "text-sm text-slate-500" }, "Всего устройств: ", devices.length) },
