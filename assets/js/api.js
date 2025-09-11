@@ -194,9 +194,16 @@ export async function authCreateSubscriptionOrder(user_id, device_id, subscripti
 }
 
 // Список оплат пользователя
-export function authPaymentsList() {
-  return request('/payments/payments', {
+export async function authPaymentsList(params = {}) {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null && v !== '') q.append(k, v);
+  }
+  const qs = q.toString();
+  const res = await request(`/payments/payments${qs ? `?${qs}` : ''}`, {
     method: 'GET',
     headers: { 'Accept': 'application/json' }
   });
+  const { payments = [], next = null, limit = null, total = null } = res.data || {};
+  return { ...res, data: { payments, next, limit, total } };
 }
