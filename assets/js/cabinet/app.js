@@ -89,7 +89,7 @@ export default function AccountApp() {
       }
       if (section === "payments") {
         const pay = await authPaymentsList();
-        if (pay.ok) setPayments(pay.data || []);
+        if (pay.ok) setPayments(pay.data?.payments || []);
       }
     })();
   }, [section]);
