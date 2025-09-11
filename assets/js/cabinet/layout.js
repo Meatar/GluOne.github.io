@@ -59,7 +59,8 @@ export function Sidebar({ current, onChange }) {
       React.createElement(Item, { k: "profile", label: "Профиль", icon: "👤" }),
       React.createElement(Item, { k: "subscription", label: "Подписка", icon: "💎" }),
       React.createElement(Item, { k: "security", label: "Безопасность", icon: "🔐" }),
-      React.createElement(Item, { k: "devices", label: "Устройства", icon: "📱" })
+      React.createElement(Item, { k: "devices", label: "Устройства", icon: "📱" }),
+      React.createElement(Item, { k: "payments", label: "Оплаты", icon: "💳" })
     )
   );
 }

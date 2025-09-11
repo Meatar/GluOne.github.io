@@ -1,5 +1,5 @@
 // panels.js
-import { formatRub, maskEmail, ageFrom, fmtDate, fmtDateTime, mapGender, mapDia } from "./helpers.js";
+import { formatRub, maskEmail, ageFrom, fmtDate, fmtDateTime, mapGender, mapDia, mapPaymentStatus } from "./helpers.js";
 import { Chip, SectionCard, KeyRow, DangerLink } from "./ui.js";
 import { DeviceItem } from "./devices.js";
 const { useState } = React;
@@ -244,6 +244,38 @@ export function DevicesPanel({ devices, onRevoke, onDelete }) {
           return React.createElement(DeviceItem, { key: dev.device_id, device: dev, onRevoke, onDelete, disableDelete });
         })
       )
+    )
+  );
+}
+
+export function PaymentsPanel({ payments = [] }) {
+  return React.createElement("div", { className: "w-full" },
+    React.createElement(SectionCard, { title: "Оплаты" },
+      payments.length === 0
+        ? React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Заказы не найдены.")
+        : React.createElement("div", { className: "overflow-x-auto" },
+            React.createElement("table", { className: "min-w-full text-sm" },
+              React.createElement("thead", { className: "text-left text-slate-500 dark:text-slate-400" },
+                React.createElement("tr", null,
+                  ["ID заказа", "ID платежа", "Сумма", "Валюта", "Статус", "Дедлайн"].map((h) =>
+                    React.createElement("th", { key: h, className: "px-3 py-2 whitespace-nowrap" }, h)
+                  )
+                )
+              ),
+              React.createElement("tbody", { className: "divide-y divide-slate-200 dark:divide-slate-700" },
+                payments.map((p) =>
+                  React.createElement("tr", { key: p.order_id },
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.order_id),
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.payment_id),
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, formatRub(p.amount_rub)),
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.currency),
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, mapPaymentStatus(p.status)),
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, fmtDateTime(p.redirect_due_date))
+                  )
+                )
+              )
+            )
+          )
     )
   );
 }

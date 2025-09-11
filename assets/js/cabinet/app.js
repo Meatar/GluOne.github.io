@@ -10,11 +10,12 @@ import {
   authDeleteAccount,
   authSubscriptions,
   authCreateSubscriptionOrder,
-  authPremiumTransfer
+  authPremiumTransfer,
+  authPaymentsList
 } from "../api.js";
 import { clearAuthStorage } from "../storage.js";
 import { fmtDateTime } from "./helpers.js";
-import { ProfilePanel, SubscriptionPanel, SecurityPanel, DevicesPanel } from "./panels.js";
+import { ProfilePanel, SubscriptionPanel, SecurityPanel, DevicesPanel, PaymentsPanel } from "./panels.js";
 import { SiteHeader, Sidebar } from "./layout.js";
 import { TransferPremiumModal } from "./devices.js";
 
@@ -32,6 +33,7 @@ export default function AccountApp() {
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
   const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
   const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
+  const [payments, setPayments] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -84,6 +86,10 @@ export default function AccountApp() {
             if (!found) setSelectedPlanId(subs.data[0].id);
           }
         }
+      }
+      if (section === "payments") {
+        const pay = await authPaymentsList();
+        if (pay.ok) setPayments(pay.data || []);
       }
     })();
   }, [section]);
@@ -268,7 +274,8 @@ export default function AccountApp() {
             { key: "profile", label: "Профиль" },
             { key: "subscription", label: "Подписка" },
             { key: "security", label: "Безопасность" },
-            { key: "devices", label: "Устройства" }
+            { key: "devices", label: "Устройства" },
+            { key: "payments", label: "Оплаты" }
             ].map((t) =>
               React.createElement("button", {
                 key: t.key, onClick: () => setSection(t.key),
@@ -302,6 +309,7 @@ export default function AccountApp() {
           onDeleteAccount: handleDeleteAccount
         }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
+        section === "payments" && React.createElement(PaymentsPanel, { payments }),
       )
     ),
 

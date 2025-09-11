@@ -192,3 +192,11 @@ export async function authCreateSubscriptionOrder(user_id, device_id, subscripti
   const { payment_url, order_id, payment_id } = res.data || {};
   return { ...res, data: { payment_url, order_id, payment_id } };
 }
+
+// Список оплат пользователя
+export function authPaymentsList() {
+  return request('/payments/payments', {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
+  });
+}
