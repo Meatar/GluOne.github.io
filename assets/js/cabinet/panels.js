@@ -262,8 +262,8 @@ export function PaymentsPanel() {
                     : Array.isArray(res?.data?.payments) ? res.data.payments
                     : [];
         const sorted = list.slice().sort((a, b) => {
-          const da = a?.redirect_due_date ? new Date(a.redirect_due_date).getTime() : 0;
-          const db = b?.redirect_due_date ? new Date(b.redirect_due_date).getTime() : 0;
+          const da = a?.created_at ? new Date(a.created_at).getTime() : 0;
+          const db = b?.created_at ? new Date(b.created_at).getTime() : 0;
           return db - da;
         });
         if (!cancelled) setPayments(res?.ok ? sorted : []);
@@ -283,20 +283,23 @@ export function PaymentsPanel() {
           React.createElement("table", { className: "min-w-full text-sm" },
             React.createElement("thead", { className: "text-left text-slate-500 dark:text-slate-400" },
               React.createElement("tr", null,
-                ["ID заказа", "ID платежа", "Сумма", "Валюта", "Статус", "Дедлайн"].map((h) =>
+                ["Наименование", "ID заказа", "ID платежа", "Сумма", "Валюта", "Статус", "Создано"].map((h) =>
                   React.createElement("th", { key: h, className: "px-3 py-2 whitespace-nowrap" }, h)
                 )
               )
             ),
             React.createElement("tbody", { className: "divide-y divide-slate-200 dark:divide-slate-700" },
               payments.map((p) =>
-                React.createElement("tr", { key: p.order_id || p.payment_id },
+                React.createElement(
+                  "tr",
+                  { key: p.order_id || p.payment_id },
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.subscription_plan_name || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.order_id || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.payment_id || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, formatRub(p.amount_rub ?? 0)),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.currency || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.status || "—"),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.redirect_due_date ? fmtDateTime(p.redirect_due_date) : "—")
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.created_at ? fmtDateTime(p.created_at) : "—")
                 )
               )
             )
