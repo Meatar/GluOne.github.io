@@ -21,6 +21,17 @@ import { TransferPremiumModal } from "./devices.js";
 
 const { useState, useEffect } = React;
 
+// утилита таймаута, чтобы не висеть на вечных запросах
+function withTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error("timeout")), ms);
+    promise.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); }
+    );
+  });
+}
+
 export default function AccountApp() {
   const [section, setSection] = useState("profile");
   const [isAuthed, setIsAuthed] = useState(true);
@@ -35,61 +46,94 @@ export default function AccountApp() {
   const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
   const [payments, setPayments] = useState([]);
 
+  // ---- BOOTSTRAP: безопасная и предсказуемая инициализация ----
   useEffect(() => {
-    (async () => {
-      const r = await authRefresh();
-      if (!r.ok) {
-        setIsAuthed(false);
-        window.location.href = "/auth.html?next=%2Fcabinet.html";
-        return;
-      }
+    let aborted = false;
 
-      const me = await authMe();
-      if (me.ok) {
+    const bootstrap = async () => {
+      try {
+        // 1) refresh с таймаутом
+        const r = await withTimeout(authRefresh(), 10000);
+        if (!r?.ok) throw new Error(`refresh_failed_${r?.status ?? "no_status"}`);
+
+        // 2) профиль с таймаутом
+        const me = await withTimeout(authMe(), 10000);
+        if (!me?.ok || !me?.data) throw new Error(`me_failed_${me?.status ?? "no_status"}`);
+        if (aborted) return;
         setProfile(me.data);
         setIsAuthed(true);
-      } else {
+
+        // 3) устройства — мягко (не валим загрузку UI)
+        try {
+          const dev = await authDevices();
+          if (!aborted && dev?.ok) setDevices(dev.data || []);
+        } catch (e) {
+          console.warn("devices load failed", e);
+        }
+
+        // 4) тарифы — мягко
+        try {
+          const subs = await authSubscriptions();
+          if (!aborted && subs?.ok && Array.isArray(subs.data)) {
+            setPlans(subs.data);
+            if (subs.data.length) {
+              setSelectedPlanId((id) => subs.data.find(p => p.id === id)?.id ?? subs.data[0].id);
+            }
+          }
+        } catch (e) {
+          console.warn("subscriptions load failed", e);
+        }
+      } catch (e) {
+        console.error("bootstrap failed", e);
+        if (aborted) return;
         setIsAuthed(false);
+        // Надежный выход даже если что-то бросило раньше
         window.location.href = "/auth.html?next=%2Fcabinet.html";
-        return;
       }
+    };
 
-      const dev = await authDevices();
-      if (dev.ok) setDevices(dev.data || []);
-
-      const subs = await authSubscriptions();
-      if (subs.ok && Array.isArray(subs.data)) {
-        setPlans(subs.data);
-        if (subs.data.length) setSelectedPlanId(subs.data[0].id);
-      }
-    })();
+    bootstrap();
+    return () => { aborted = true; };
   }, []);
 
+  // ---- Подгрузка данных при смене секции (изолированно, с защитой от ошибок) ----
   useEffect(() => {
     (async () => {
-      if (section === "profile") {
-        const me = await authMe();
-        if (me.ok) setProfile(me.data);
-      }
-      if (section === "devices") {
-        const dev = await authDevices();
-        if (dev.ok) setDevices(dev.data || []);
-      }
-      if (section === "subscription") {
-        const dev = await authDevices();
-        if (dev.ok) setDevices(dev.data || []);
-        const subs = await authSubscriptions();
-        if (subs.ok && Array.isArray(subs.data)) {
-          setPlans(subs.data);
-          if (subs.data.length) {
-            const found = subs.data.find((p) => p.id === selectedPlanId);
-            if (!found) setSelectedPlanId(subs.data[0].id);
+      try {
+        if (section === "profile") {
+          const me = await authMe();
+          if (me?.ok) setProfile(me.data);
+        }
+        if (section === "devices") {
+          const dev = await authDevices();
+          if (dev?.ok) setDevices(dev.data || []);
+        }
+        if (section === "subscription") {
+          const dev = await authDevices();
+          if (dev?.ok) setDevices(dev.data || []);
+          const subs = await authSubscriptions();
+          if (subs?.ok && Array.isArray(subs.data)) {
+            setPlans(subs.data);
+            if (subs.data.length) {
+              const found = subs.data.find((p) => p.id === selectedPlanId);
+              if (!found) setSelectedPlanId(subs.data[0].id);
+            }
           }
         }
-      }
-      if (section === "payments") {
-        const pay = await authPaymentsList();
-        if (pay.ok) setPayments(pay.data?.payments || []);
+        if (section === "payments") {
+          const pay = await authPaymentsList();
+          // подстраховка: если библиотека-провайдер "съела" ok, заполним из наличия массива
+          const list = pay?.data?.payments;
+          const ok = typeof pay?.ok === "boolean" ? pay.ok : Array.isArray(list);
+          if (ok) setPayments(Array.isArray(list) ? list : []);
+          else {
+            console.warn("authPaymentsList returned not ok:", pay);
+            setPayments([]); // чтобы не висло на "загружаем"
+          }
+        }
+      } catch (e) {
+        console.error("section data load failed", section, e);
+        if (section === "payments") setPayments([]);
       }
     })();
   }, [section]);
@@ -117,8 +161,12 @@ export default function AccountApp() {
   }, [devices, currentPremiumDeviceId]);
 
   const reloadDevices = async () => {
-    const dev = await authDevices();
-    if (dev.ok) setDevices(dev.data || []);
+    try {
+      const dev = await authDevices();
+      if (dev?.ok) setDevices(dev.data || []);
+    } catch (e) {
+      console.warn("reloadDevices failed", e);
+    }
   };
 
   const handleRevokeDevice = async (id) => {
