@@ -68,12 +68,12 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
               value: selectedPlanId,
               onChange: (e) => setSelectedPlanId(e.target.value),
               className: "rounded-lg border border-slate-200 px-4 py-3 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800 dark:border-slate-600"
-            }, plans.map((p) => React.createElement("option", { key: p.id, value: p.id }, `${p.duration_months} мес. — ${formatRub(p.price)} ₽`)))
+            }, plans.map((p) => React.createElement("option", { key: p.id, value: String(p.id) }, `${p.duration_months} мес. — ${formatRub(p.price)} ₽`)))
           ),
           React.createElement("div", { className: "text-right" },
             React.createElement("div", { className: "text-xs text-slate-500 dark:text-slate-400" }, "Итого к оплате"),
             React.createElement("div", { className: "text-2xl font-extrabold text-slate-900 leading-none dark:text-slate-100" }, formatRub(amountRub), " ₽"),
-            selectedPlanId && React.createElement("div", { className: "text-xs text-slate-500 mt-1 dark:text-slate-400" }, `${formatRub(monthPrice)} ₽/мес× ${plans.find((p) => p.id === selectedPlanId)?.duration_months}`)
+            selectedPlanId && React.createElement("div", { className: "text-xs text-slate-500 mt-1 dark:text-slate-400" }, `${formatRub(monthPrice)} ₽/мес× ${plans.find((p) => String(p.id) === selectedPlanId)?.duration_months}`)
           )
         ),
         // Скрываем E-mail плательщика по требованиям
