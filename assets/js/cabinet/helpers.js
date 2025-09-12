@@ -39,24 +39,3 @@ export const fmtDateTime = (iso) => {
 export const mapGender = (g) => ({ male: "Мужской", female: "Женский" })[g] || "—";
 export const mapDia    = (t) => ({ type1: "Тип 1", type2: "Тип 2", gestational: "Гестационный" })[t] || "—";
 
-export const mapPaymentStatus = (s) => ({
-  NEW: "Создан",
-  FORM_SHOWED: "Форма оплаты открыта",
-  AUTHORIZING: "Авторизация",
-  "3DS_CHECKING": "Проверка 3-D Secure",
-  "3DS_CHECKED": "3-D Secure пройден",
-  AUTHORIZED: "Средства зарезервированы",
-  PAY_CHECKING: "Платёж проверяется",
-  CONFIRMING: "Подтверждение",
-  CONFIRMED: "Оплачено",
-  REVERSING: "Отмена",
-  PARTIAL_REVERSED: "Частично отменён",
-  REVERSED: "Отменён",
-  REFUNDING: "Возврат",
-  PARTIAL_REFUNDED: "Частичный возврат",
-  REFUNDED: "Возврат завершён",
-  CANCELED: "Отменён",
-  DEADLINE_EXPIRED: "Истёк срок оплаты",
-  REJECTED: "Отклонён",
-  AUTH_FAIL: "Ошибка авторизации"
-}[s] || s);
