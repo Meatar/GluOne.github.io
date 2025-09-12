@@ -17,7 +17,22 @@ const hasSession = (() => {
   }
 })();
 
-// Фолбэк-хранилище в памяти (на случай запрета sessionStorage)
+// Проверяем доступность localStorage (некоторые браузеры запрещают sessionStorage)
+const hasLocal = (() => {
+  try {
+    const k = '__t__';
+    localStorage.setItem(k, '1');
+    localStorage.removeItem(k);
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
+// Выбираем доступное хранилище: sessionStorage → localStorage → Map
+const store = hasSession ? sessionStorage : (hasLocal ? localStorage : null);
+
+// Фолбэк-хранилище в памяти (на случай запрета и sessionStorage, и localStorage)
 const mem = new Map();
 function k(key) { return NS + key; }
 
@@ -32,7 +47,7 @@ export const KEYS = Object.freeze({
 // Лёгкая миграция: выпилим старый токен из сессии, чтобы случайно не использовать
 try {
   const name = k(KEYS.TOKEN);
-  if (hasSession) sessionStorage.removeItem(name);
+  if (store) store.removeItem(name);
   else mem.delete(name);
 } catch {}
 
@@ -43,7 +58,7 @@ export function save(key, value) {
     const name = k(key);
     if (value === undefined || value === null) { del(key); return; }
     const str = JSON.stringify(value);
-    if (hasSession) sessionStorage.setItem(name, str);
+    if (store) store.setItem(name, str);
     else mem.set(name, str);
   } catch {}
 }
@@ -51,7 +66,7 @@ export function save(key, value) {
 export function load(key, fallback = null) {
   const name = k(key);
   try {
-    const raw = hasSession ? sessionStorage.getItem(name) : mem.get(name);
+    const raw = store ? store.getItem(name) : mem.get(name);
     if (!raw && raw !== '0') return fallback;
 
     // Пытаемся распарсить JSON; если не получилось — аккуратно вернуть примитив
@@ -71,7 +86,7 @@ export function load(key, fallback = null) {
 export function del(key) {
   try {
     const name = k(key);
-    if (hasSession) sessionStorage.removeItem(name);
+    if (store) store.removeItem(name);
     else mem.delete(name);
   } catch {}
 }

@@ -207,9 +207,9 @@ export async function authPaymentsList(params = {}) {
   });
 
   let payments = [];
-  let next: string | null = null;
-  let limit: number | null = null;
-  let total: number | null = null;
+  let next   = null;
+  let limit  = null;
+  let total  = null;
 
   const data = res?.data;
   if (Array.isArray(data)) {
