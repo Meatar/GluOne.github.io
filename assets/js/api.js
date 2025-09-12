@@ -193,38 +193,9 @@ export async function authCreateSubscriptionOrder(user_id, device_id, subscripti
   return { ...res, data: { payment_url, order_id, payment_id } };
 }
 
-// Список оплат пользователя
-export async function authPaymentsList(params = {}) {
-  const q = new URLSearchParams();
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null && v !== "") q.append(k, String(v));
-  }
-  const qs = q.toString();
-
-  const res = await request(`/payments/payments${qs ? `?${qs}` : ""}`, {
-    method: "GET",
-    headers: { Accept: "application/json" },
+export function authPaymentsList() {
+  return request('/payments/payments', {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
   });
-
-  let data = res?.data;
-
-  if (Array.isArray(data)) {
-    // сервер вернул сразу массив заказов
-    data = { payments: data };
-  } else if (data && typeof data === "object") {
-    // бэкенд может вернуть либо { payments: [...] }, либо { data: [...] }
-    if (Array.isArray(data.data) && !Array.isArray(data.payments)) {
-      data = { ...data, payments: data.data };
-      delete data.data;
-    }
-    if (!Array.isArray(data.payments)) data.payments = [];
-  } else {
-    data = { payments: [] };
-  }
-
-  return {
-    ok:    !!res?.ok,           // сохраняем явно
-    status: res?.status ?? 200, // сохраняем явно
-    data,
-  };
 }

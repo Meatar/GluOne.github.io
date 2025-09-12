@@ -257,11 +257,16 @@ export function PaymentsPanel() {
     (async () => {
       try {
         const res = await authPaymentsList();
-        const list = res?.data?.payments;
-        if (!cancelled) {
-          if (res?.ok && Array.isArray(list)) setPayments(list);
-          else setPayments([]);
-        }
+        // API: HTTP 200 -> JSON-массив платежей (а не { payments: [...] })
+        const list = Array.isArray(res?.data) ? res.data
+                    : Array.isArray(res?.data?.payments) ? res.data.payments
+                    : [];
+        const sorted = list.slice().sort((a, b) => {
+          const da = a?.redirect_due_date ? new Date(a.redirect_due_date).getTime() : 0;
+          const db = b?.redirect_due_date ? new Date(b.redirect_due_date).getTime() : 0;
+          return db - da;
+        });
+        if (!cancelled) setPayments(res?.ok ? sorted : []);
       } catch (e) {
         console.error("payments load failed", e);
         if (!cancelled) setPayments([]);
@@ -273,7 +278,7 @@ export function PaymentsPanel() {
   const content = payments === null
     ? React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Загружаем…")
     : payments.length === 0
-      ? React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Заказы не найдены.")
+      ? React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Платежи не найдены.")
       : React.createElement("div", { className: "overflow-x-auto" },
           React.createElement("table", { className: "min-w-full text-sm" },
             React.createElement("thead", { className: "text-left text-slate-500 dark:text-slate-400" },
@@ -285,13 +290,13 @@ export function PaymentsPanel() {
             ),
             React.createElement("tbody", { className: "divide-y divide-slate-200 dark:divide-slate-700" },
               payments.map((p) =>
-                React.createElement("tr", { key: p.order_id },
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.order_id),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.payment_id),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, formatRub(p.amount_rub)),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.currency),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.status),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, fmtDateTime(p.redirect_due_date))
+                React.createElement("tr", { key: p.order_id || p.payment_id },
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.order_id || "—"),
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.payment_id || "—"),
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, formatRub(p.amount_rub ?? 0)),
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.currency || "—"),
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.status || "—"),
+                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.redirect_due_date ? fmtDateTime(p.redirect_due_date) : "—")
                 )
               )
             )
@@ -302,3 +307,4 @@ export function PaymentsPanel() {
     React.createElement(SectionCard, { title: "Оплаты" }, content)
   );
 }
+
