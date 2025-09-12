@@ -1,5 +1,5 @@
 // panels.js
-import { formatRub, maskEmail, ageFrom, fmtDate, fmtDateTime, mapGender, mapDia, mapPaymentStatus } from "./helpers.js";
+import { formatRub, maskEmail, ageFrom, fmtDate, fmtDateTime, mapGender, mapDia } from "./helpers.js";
 import { Chip, SectionCard, KeyRow, DangerLink } from "./ui.js";
 import { DeviceItem } from "./devices.js";
 const { useState } = React;
@@ -269,7 +269,7 @@ export function PaymentsPanel({ payments = [] }) {
                     React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.payment_id),
                     React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, formatRub(p.amount_rub)),
                     React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.currency),
-                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, mapPaymentStatus(p.status)),
+                    React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.status),
                     React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, fmtDateTime(p.redirect_due_date))
                   )
                 )
