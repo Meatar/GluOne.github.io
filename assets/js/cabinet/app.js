@@ -10,8 +10,7 @@ import {
   authDeleteAccount,
   authSubscriptions,
   authCreateSubscriptionOrder,
-  authPremiumTransfer,
-  authPaymentsList
+  authPremiumTransfer
 } from "../api.js";
 import { clearAuthStorage } from "../storage.js";
 import { fmtDateTime } from "./helpers.js";
@@ -33,7 +32,6 @@ export default function AccountApp() {
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
   const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
   const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
-  const [payments, setPayments] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -86,10 +84,6 @@ export default function AccountApp() {
             if (!found) setSelectedPlanId(subs.data[0].id);
           }
         }
-      }
-      if (section === "payments") {
-        const pay = await authPaymentsList();
-        if (pay.ok) setPayments(pay.data?.payments || []);
       }
     })();
   }, [section]);
@@ -309,7 +303,7 @@ export default function AccountApp() {
           onDeleteAccount: handleDeleteAccount
         }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
-        section === "payments" && React.createElement(PaymentsPanel, { payments }),
+        section === "payments" && React.createElement(PaymentsPanel, null),
       )
     ),
 
