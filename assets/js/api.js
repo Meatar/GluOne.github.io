@@ -206,25 +206,25 @@ export async function authPaymentsList(params = {}) {
     headers: { Accept: "application/json" },
   });
 
-  let payments = [];
-  let next   = null;
-  let limit  = null;
-  let total  = null;
+  let data = res?.data;
 
-  const data = res?.data;
   if (Array.isArray(data)) {
-    payments = data;
+    // сервер вернул сразу массив заказов
+    data = { payments: data };
   } else if (data && typeof data === "object") {
-    payments = data.payments || [];
-    next    = data.next  ?? null;
-    limit   = data.limit ?? null;
-    total   = data.total ?? null;
+    // бэкенд может вернуть либо { payments: [...] }, либо { data: [...] }
+    if (Array.isArray(data.data) && !Array.isArray(data.payments)) {
+      data = { ...data, payments: data.data };
+      delete data.data;
+    }
+    if (!Array.isArray(data.payments)) data.payments = [];
+  } else {
+    data = { payments: [] };
   }
 
   return {
-    ok:    !!res?.ok,              // сохраняем явно
-    status: res?.status ?? 200,    // сохраняем явно
-    // при необходимости прокиньте еще res.error/res.headers и т.п.
-    data: { payments, next, limit, total },
+    ok:    !!res?.ok,           // сохраняем явно
+    status: res?.status ?? 200, // сохраняем явно
+    data,
   };
 }
