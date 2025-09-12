@@ -204,6 +204,17 @@ export async function authPaymentsList(params = {}) {
     method: 'GET',
     headers: { 'Accept': 'application/json' }
   });
-  const { payments = [], next = null, limit = null, total = null } = res.data || {};
+  let payments = [];
+  let next = null;
+  let limit = null;
+  let total = null;
+  if (Array.isArray(res.data)) {
+    payments = res.data;
+  } else if (res.data && typeof res.data === 'object') {
+    payments = res.data.payments || [];
+    next = res.data.next ?? null;
+    limit = res.data.limit ?? null;
+    total = res.data.total ?? null;
+  }
   return { ...res, data: { payments, next, limit, total } };
 }
