@@ -59,4 +59,4 @@ export const mapPaymentStatus = (s) => ({
   DEADLINE_EXPIRED: "Истёк срок оплаты",
   REJECTED: "Отклонён",
   AUTH_FAIL: "Ошибка авторизации"
-}[s] || s;
+}[s] || s);
