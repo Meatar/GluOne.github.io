@@ -197,24 +197,34 @@ export async function authCreateSubscriptionOrder(user_id, device_id, subscripti
 export async function authPaymentsList(params = {}) {
   const q = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null && v !== '') q.append(k, v);
+    if (v !== undefined && v !== null && v !== "") q.append(k, String(v));
   }
   const qs = q.toString();
-  const res = await request(`/payments/payments${qs ? `?${qs}` : ''}`, {
-    method: 'GET',
-    headers: { 'Accept': 'application/json' }
+
+  const res = await request(`/payments/payments${qs ? `?${qs}` : ""}`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
   });
+
   let payments = [];
-  let next = null;
-  let limit = null;
-  let total = null;
-  if (Array.isArray(res.data)) {
-    payments = res.data;
-  } else if (res.data && typeof res.data === 'object') {
-    payments = res.data.payments || [];
-    next = res.data.next ?? null;
-    limit = res.data.limit ?? null;
-    total = res.data.total ?? null;
+  let next: string | null = null;
+  let limit: number | null = null;
+  let total: number | null = null;
+
+  const data = res?.data;
+  if (Array.isArray(data)) {
+    payments = data;
+  } else if (data && typeof data === "object") {
+    payments = data.payments || [];
+    next    = data.next  ?? null;
+    limit   = data.limit ?? null;
+    total   = data.total ?? null;
   }
-  return { ...res, data: { payments, next, limit, total } };
+
+  return {
+    ok:    !!res?.ok,              // сохраняем явно
+    status: res?.status ?? 200,    // сохраняем явно
+    // при необходимости прокиньте еще res.error/res.headers и т.п.
+    data: { payments, next, limit, total },
+  };
 }
