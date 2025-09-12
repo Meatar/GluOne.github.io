@@ -58,7 +58,7 @@ export default function AccountApp() {
       const subs = await authSubscriptions();
       if (subs.ok && Array.isArray(subs.data)) {
         setPlans(subs.data);
-        if (subs.data.length) setSelectedPlanId(subs.data[0].id);
+        if (subs.data.length) setSelectedPlanId(String(subs.data[0].id));
       }
     })();
   }, []);
@@ -80,8 +80,8 @@ export default function AccountApp() {
         if (subs.ok && Array.isArray(subs.data)) {
           setPlans(subs.data);
           if (subs.data.length) {
-            const found = subs.data.find((p) => p.id === selectedPlanId);
-            if (!found) setSelectedPlanId(subs.data[0].id);
+            const found = subs.data.find((p) => String(p.id) === selectedPlanId);
+            if (!found) setSelectedPlanId(String(subs.data[0].id));
           }
         }
       }
@@ -181,7 +181,7 @@ export default function AccountApp() {
     }
   };
 
-  const selectedPlan = plans.find((p) => p.id === selectedPlanId);
+  const selectedPlan = plans.find((p) => String(p.id) === selectedPlanId);
   const amountRub = selectedPlan ? selectedPlan.price : 0;
   const monthPrice = selectedPlan ? Math.round(selectedPlan.price / selectedPlan.duration_months) : 0;
   const accountEmail = profile?.email || "";
