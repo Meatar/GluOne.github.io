@@ -283,7 +283,7 @@ export function PaymentsPanel() {
           React.createElement("table", { className: "min-w-full text-sm" },
             React.createElement("thead", { className: "text-left text-slate-500 dark:text-slate-400" },
               React.createElement("tr", null,
-                ["Наименование", "ID заказа", "ID платежа", "Сумма", "Валюта", "Статус", "Создано"].map((h) =>
+                ["Наименование", "Номер заказа", "Сумма", "Валюта", "Статус", "Создано"].map((h) =>
                   React.createElement("th", { key: h, className: "px-3 py-2 whitespace-nowrap" }, h)
                 )
               )
@@ -295,7 +295,6 @@ export function PaymentsPanel() {
                   { key: p.order_id || p.payment_id },
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.subscription_plan_name || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.order_id || "—"),
-                  React.createElement("td", { className: "px-3 py-2 whitespace-nowrap font-mono text-xs" }, p.payment_id || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, formatRub(p.amount_rub ?? 0)),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.currency || "—"),
                   React.createElement("td", { className: "px-3 py-2 whitespace-nowrap" }, p.status || "—"),
