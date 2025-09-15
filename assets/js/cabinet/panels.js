@@ -220,7 +220,7 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
   const [email, setEmail] = useState(profile?.email || "");
   const [gender, setGender] = useState(profile?.gender || "");
   const [birthDate, setBirthDate] = useState(profile?.birth_date || "");
-  const [dia, setDia] = useState(profile?.diabetes_type || "");
+  const [dia, setDia] = useState(profile?.diabetes_type || "type1");
   const [msgUpd, setMsgUpd] = useState("");
   const [loadingUpd, setLoadingUpd] = useState(false);
   const [verifyCtx, setVerifyCtx] = useState(null); // { challengeId, email }
@@ -238,7 +238,7 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
     setEmail(profile?.email || "");
     setGender(profile?.gender || "");
     setBirthDate(profile?.birth_date || "");
-    setDia(profile?.diabetes_type || "");
+    setDia(profile?.diabetes_type || "type1");
   }, [profile]);
 
   const handleProfileUpdate = async (e) => {
@@ -346,7 +346,6 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
               onChange: (e) => setDia(e.target.value),
               className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
             },
-              React.createElement("option", { value: "" }, "—"),
               React.createElement("option", { value: "type1" }, "Тип 1"),
               React.createElement("option", { value: "type2" }, "Тип 2"),
               React.createElement("option", { value: "gestational" }, "Гестационный")
