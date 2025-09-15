@@ -165,7 +165,7 @@ export default function AccountApp() {
     }
   };
 
-  const handleDeleteAccount = async (username, password) => {
+const handleDeleteAccount = async (username, password) => {
     if (!username || !password) return { ok: false, msg: "Укажите логин и пароль." };
     try {
       const res = await authDeleteAccount(username, password);
@@ -179,6 +179,11 @@ export default function AccountApp() {
     } catch (err) {
       return { ok: false, msg: "Ошибка сети. Повторите попытку." };
     }
+  };
+
+  const reloadProfile = async () => {
+    const me = await authMe();
+    if (me.ok) setProfile(me.data);
   };
 
   const selectedPlan = plans.find((p) => String(p.id) === selectedPlanId);
@@ -298,9 +303,10 @@ export default function AccountApp() {
           premiumExpiresAt: currentDeviceExpiresAt
         }),
         section === "security" && React.createElement(SecurityPanel, {
-          username: profile?.username || profile?.email,
+          profile,
           onChangePassword: handleChangePassword,
-          onDeleteAccount: handleDeleteAccount
+          onDeleteAccount: handleDeleteAccount,
+          onProfileReload: reloadProfile
         }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
         section === "payments" && React.createElement(PaymentsPanel, null),

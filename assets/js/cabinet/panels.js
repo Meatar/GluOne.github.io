@@ -2,7 +2,7 @@
 import { formatRub, maskEmail, ageFrom, fmtDate, fmtDateTime, mapGender, mapDia } from "./helpers.js";
 import { Chip, SectionCard, KeyRow, DangerLink } from "./ui.js";
 import { DeviceItem } from "./devices.js";
-import { authPaymentsList } from "../api.js";
+import { authPaymentsList, authUpdate, authUpdateVerify } from "../api.js";
 const { useState, useEffect } = React;
 
 /* ===================== Профиль ===================== */
@@ -151,7 +151,80 @@ function DeleteAccountModal({ open, onClose, onSubmit, defaultLogin = "" }) {
   );
 }
 
-export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
+function VerifyEmailModal({ open, onClose, onSubmit, email }) {
+  const [digits, setDigits] = useState(["", "", "", ""]);
+  const [error, setError] = useState("");
+  const inputsRef = React.useRef([]);
+
+  if (!open) return null;
+
+  const handleChange = (idx, val) => {
+    const v = (val || "").replace(/\D/g, "").slice(-1);
+    setDigits((d) => {
+      const nd = d.slice();
+      nd[idx] = v;
+      return nd;
+    });
+    if (v && idx < inputsRef.current.length - 1) {
+      inputsRef.current[idx + 1]?.focus();
+    }
+  };
+
+  const handleKey = (idx, e) => {
+    if (e.key === "Backspace" && !digits[idx] && idx > 0) {
+      inputsRef.current[idx - 1]?.focus();
+    }
+  };
+
+  const submit = async () => {
+    const code = digits.join("");
+    setError("");
+    const res = await onSubmit(code);
+    if (!res?.ok) setError(res?.msg || "Неверный код");
+  };
+
+  const masked = maskEmail(email);
+
+  return React.createElement("div", { className: "fixed inset-0 z-50 grid place-items-center" },
+    React.createElement("div", { className: "absolute inset-0 bg-slate-900/40", onClick: onClose }),
+    React.createElement("div", { className: "relative w-[min(520px,96vw)] rounded-2xl bg-white shadow-2xl border border-slate-200 p-6 dark:bg-slate-800 dark:border-slate-700" },
+      React.createElement("div", { className: "text-xl font-bold text-slate-900 dark:text-slate-100" }, "Подтверждение e-mail"),
+      React.createElement("p", { className: "mt-1 text-sm text-slate-600 dark:text-slate-400" }, `Введите код из письма, отправленного на ${masked}.`),
+      React.createElement("div", { className: "mt-4" },
+        React.createElement("div", { className: "otp-grid otp-grid--4" },
+          digits.map((d, i) => React.createElement("input", {
+            key: i,
+            ref: (el) => inputsRef.current[i] = el,
+            className: "otp-input",
+            inputMode: "numeric",
+            maxLength: 1,
+            value: d,
+            onChange: (e) => handleChange(i, e.target.value),
+            onKeyDown: (e) => handleKey(i, e)
+          }))
+        ),
+        error && React.createElement("div", { className: "mt-2 text-sm text-rose-600" }, error)
+      ),
+      React.createElement("div", { className: "mt-5 flex justify-end gap-2" },
+        React.createElement("button", { onClick: onClose, className: "rounded-lg border border-slate-200 px-4 h-11 text-sm bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Отмена"),
+        React.createElement("button", { onClick: submit, className: "rounded-lg bg-indigo-600 text-white px-4 h-11 text-sm font-semibold hover:bg-indigo-700" }, "Подтвердить")
+      )
+    )
+  );
+}
+
+export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onProfileReload }) {
+  const username = profile?.username || profile?.email || "";
+
+  const [name, setName] = useState(profile?.name || "");
+  const [email, setEmail] = useState(profile?.email || "");
+  const [gender, setGender] = useState(profile?.gender || "");
+  const [birthDate, setBirthDate] = useState(profile?.birth_date || "");
+  const [dia, setDia] = useState(profile?.diabetes_type || "");
+  const [msgUpd, setMsgUpd] = useState("");
+  const [loadingUpd, setLoadingUpd] = useState(false);
+  const [verifyCtx, setVerifyCtx] = useState(null); // { challengeId, email }
+
   const [oldPass, setOldPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [showOld, setShowOld] = useState(false);
@@ -159,6 +232,62 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
   const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+
+  useEffect(() => {
+    setName(profile?.name || "");
+    setEmail(profile?.email || "");
+    setGender(profile?.gender || "");
+    setBirthDate(profile?.birth_date || "");
+    setDia(profile?.diabetes_type || "");
+  }, [profile]);
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    const payload = {};
+    if (name !== profile?.name) payload.name = name;
+    if (email !== profile?.email) payload.email = email;
+    if (gender !== profile?.gender) payload.gender = gender;
+    if (birthDate !== profile?.birth_date) payload.birth_date = birthDate;
+    if (dia !== profile?.diabetes_type) payload.diabetes_type = dia;
+    if (!Object.keys(payload).length) { setMsgUpd("Изменений нет."); return; }
+    setLoadingUpd(true); setMsgUpd("");
+    try {
+      const res = await authUpdate(payload);
+      if (res?.data?.challenge_id) {
+        setVerifyCtx({ challengeId: res.data.challenge_id, email: payload.email || email });
+        setMsgUpd("Отправлен код подтверждения.");
+      } else if (res.ok) {
+        setMsgUpd("Данные обновлены.");
+        await onProfileReload?.();
+      } else if (res.status === 422) {
+        const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : "Проверьте корректность полей.";
+        setMsgUpd(msg);
+      } else {
+        setMsgUpd(`Ошибка: ${res.status}`);
+      }
+    } catch {
+      setMsgUpd("Ошибка сети. Повторите попытку.");
+    } finally {
+      setLoadingUpd(false);
+    }
+  };
+
+  const handleVerify = async (code) => {
+    if (!verifyCtx) return { ok: false, msg: "Нет кода" };
+    try {
+      const res = await authUpdateVerify(verifyCtx.challengeId, code);
+      if (res.ok) {
+        await onProfileReload?.();
+        setVerifyCtx(null);
+        setMsgUpd("E-mail подтверждён.");
+        return { ok: true };
+      }
+      const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
+      return { ok: false, msg };
+    } catch {
+      return { ok: false, msg: "Ошибка сети. Повторите попытку." };
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -169,6 +298,67 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
   };
 
   return React.createElement("div", { className: "space-y-6 w-full" },
+    React.createElement(SectionCard, { title: "Изменение учётных данных" },
+      React.createElement("form", { className: "space-y-5", onSubmit: handleProfileUpdate },
+        React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700 dark:text-slate-300" }, "Имя"),
+            React.createElement("input", {
+              value: name,
+              onChange: (e) => setName(e.target.value),
+              className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
+            })
+          ),
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700 dark:text-slate-300" }, "E-mail"),
+            React.createElement("input", {
+              type: "email",
+              value: email,
+              onChange: (e) => setEmail(e.target.value),
+              className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
+            })
+          ),
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700 dark:text-slate-300" }, "Пол"),
+            React.createElement("select", {
+              value: gender,
+              onChange: (e) => setGender(e.target.value),
+              className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
+            },
+              React.createElement("option", { value: "" }, "—"),
+              React.createElement("option", { value: "male" }, "Мужской"),
+              React.createElement("option", { value: "female" }, "Женский")
+            )
+          ),
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700 dark:text-slate-300" }, "Дата рождения"),
+            React.createElement("input", {
+              type: "date",
+              value: birthDate || "",
+              onChange: (e) => setBirthDate(e.target.value),
+              className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
+            })
+          ),
+          React.createElement("div", { className: "flex flex-col gap-2" },
+            React.createElement("label", { className: "text-base font-medium text-slate-700 dark:text-slate-300" }, "Тип диабета"),
+            React.createElement("select", {
+              value: dia,
+              onChange: (e) => setDia(e.target.value),
+              className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
+            },
+              React.createElement("option", { value: "" }, "—"),
+              React.createElement("option", { value: "type1" }, "Тип 1"),
+              React.createElement("option", { value: "type2" }, "Тип 2"),
+              React.createElement("option", { value: "gestational" }, "Гестационный")
+            )
+          )
+        ),
+        msgUpd && React.createElement("div", { className: "text-base text-slate-600 dark:text-slate-400" }, msgUpd),
+        React.createElement("div", { className: "flex items-center justify-end" },
+          React.createElement("button", { disabled: loadingUpd, className: "rounded-xl bg-slate-900 text-white px-6 h-12 text-base font-semibold hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600" }, loadingUpd ? "Обновляем…" : "Обновить")
+        )
+      )
+    ),
     React.createElement(SectionCard, { title: "Смена пароля" },
       React.createElement("form", { className: "space-y-5", onSubmit: handleSubmit },
         React.createElement("p", { className: "text-base text-slate-600 dark:text-slate-400" }, "Рекомендуем менять пароль раз в 6–12 месяцев."),
@@ -232,6 +422,12 @@ export function SecurityPanel({ username, onChangePassword, onDeleteAccount }) {
         return r;
       },
       defaultLogin: username || ""
+    }),
+    React.createElement(VerifyEmailModal, {
+      open: !!verifyCtx,
+      email: verifyCtx?.email,
+      onClose: () => setVerifyCtx(null),
+      onSubmit: handleVerify
     })
   );
 }

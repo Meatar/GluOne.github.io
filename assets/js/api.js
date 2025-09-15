@@ -168,6 +168,22 @@ export function authDeleteAccount(username, password) {
   });
 }
 
+// UPDATE USER DATA
+export function authUpdate(fields) {
+  return request('/auth/web/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(fields)
+  });
+}
+export function authUpdateVerify(challenge_id, code) {
+  return request('/auth/web/update/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({ challenge_id, code })
+  });
+}
+
 /* ======================== PREMIUM / PAYMENTS ======================== */
 export function authPremiumTransfer(device_id) {
   return request('/auth/web/premium/transfer', {
