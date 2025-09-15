@@ -12,7 +12,7 @@ export function ProfilePanel({ profile, hiddenStatus = true }) {
       React.createElement(SectionCard, null, React.createElement("div", { className: "text-sm text-slate-600" }, "Загружаем профиль…"))
     );
   }
-  const initial = (profile.username || profile.email || "U").trim()[0].toUpperCase();
+  const initial = (profile.name || profile.username || profile.email || "U").trim()[0].toUpperCase();
   const roles = Array.isArray(profile.roles) ? profile.roles : [];
   return React.createElement("div", { className: "space-y-4 w-full" },
     React.createElement(SectionCard, null,
@@ -31,6 +31,7 @@ export function ProfilePanel({ profile, hiddenStatus = true }) {
             React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Статус"),
             React.createElement("span", { className: profile.is_active ? "text-emerald-700" : "text-rose-600" }, profile.is_active ? "Активен" : "Неактивен")
           ),
+          React.createElement(KeyRow, { label: "Имя", value: profile.name || "—" }),
           React.createElement("div", { className: "flex items-center justify-between py-1.5" },
             React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Роли"),
             React.createElement("div", { className: "flex flex-wrap gap-1 justify-end" }, roles.map((r) => React.createElement(Chip, { key: r }, r)))

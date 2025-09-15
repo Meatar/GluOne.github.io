@@ -49,11 +49,11 @@ async function request(
 
 /* ======================== AUTH (WEB) ======================== */
 // REGISTER
-export function authRegister(username, email, password, gender, birth_date, diabetes_type) {
+export function authRegister(username, email, name, password, gender, birth_date, diabetes_type) {
   return request('/auth/web/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ username, email, password, gender, birth_date, diabetes_type })
+    body: JSON.stringify({ username, email, name, password, gender, birth_date, diabetes_type })
   });
 }
 export function authRegisterVerify(challenge_id, code) {
