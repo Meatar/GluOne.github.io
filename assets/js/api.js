@@ -177,7 +177,8 @@ export function authUpdate(fields) {
     method: 'POST',
     headers,
     body: JSON.stringify(fields),
-    credentials: 'omit'
+    // включаем отправку cookies для CSRF-проверки
+    credentials: 'include'
   });
 }
 export function authUpdateVerify(challenge_id, code) {
@@ -188,7 +189,8 @@ export function authUpdateVerify(challenge_id, code) {
     method: 'POST',
     headers,
     body: JSON.stringify({ challenge_id, code }),
-    credentials: 'omit'
+    // требуется cookie csrf_token
+    credentials: 'include'
   });
 }
 
@@ -199,7 +201,8 @@ export function authUpdateResend() {
   return request('/auth/web/update/resend', {
     method: 'POST',
     headers,
-    credentials: 'omit'
+    // сервер ожидает cookie с токеном
+    credentials: 'include'
   });
 }
 
