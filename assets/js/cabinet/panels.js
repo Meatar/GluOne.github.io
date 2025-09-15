@@ -216,35 +216,46 @@ function VerifyEmailModal({ open, onClose, onSubmit, email, onResend }) {
   return React.createElement("div", { className: "fixed inset-0 z-50 grid place-items-center" },
     React.createElement("div", { className: "absolute inset-0 bg-slate-900/40", onClick: onClose }),
     React.createElement("div", { className: "relative w-[min(520px,96vw)] rounded-2xl bg-white shadow-2xl border border-slate-200 p-6 dark:bg-slate-800 dark:border-slate-700" },
-      React.createElement("div", { className: "text-xl font-bold text-slate-900 dark:text-slate-100" }, "Подтверждение e-mail"),
-      React.createElement("p", { className: "mt-1 text-sm text-slate-600 dark:text-slate-400" }, `Введите код из письма (${masked}).`),
-      React.createElement("div", { className: "mt-4 space-y-4" },
-        React.createElement("div", null,
-          React.createElement("div", { className: "otp-grid otp-grid--4" },
-            digits.map((d, i) => React.createElement("input", {
-              key: i,
-              ref: (el) => refs.current[i] = el,
-              className: "otp-input",
-              inputMode: "numeric",
-              maxLength: 1,
-              value: d,
-              onChange: (e) => handleChange(i, e.target.value),
-              onKeyDown: (e) => handleKey(i, e)
-            }))
+      React.createElement("div", { style: { textAlign: "center" } },
+        React.createElement("div", { className: "circle-icon", "aria-hidden": "true" },
+          React.createElement("svg", { width: 28, height: 28, viewBox: "0 0 24 24", fill: "none" },
+            React.createElement("rect", { x: 3, y: 5, width: 18, height: 14, rx: 3, stroke: "currentColor", "stroke-width": 2 }),
+            React.createElement("path", { d: "M4 7l8 6 8-6", stroke: "currentColor", "stroke-width": 2, fill: "none" })
           )
         ),
-        error && React.createElement("div", { className: "text-sm text-rose-600" }, error),
-        msg && React.createElement("div", { className: "text-sm text-emerald-600" }, msg)
+        React.createElement("h1", { className: "auth-title" }, "Код подтверждения"),
+        React.createElement("p", { className: "auth-sub" }, "Мы отправили код на e-mail ", React.createElement("span", null, masked))
       ),
-      React.createElement("div", { className: "mt-5 flex items-center justify-between gap-2" },
-        React.createElement("button", {
-          onClick: handleResend,
-          disabled: resendLeft > 0,
-          className: "text-sm text-indigo-600 hover:text-indigo-700 disabled:text-slate-400"
-        }, resendLeft > 0 ? `Отправить код ещё раз (${fmt(resendLeft)})` : "Отправить код ещё раз"),
-        React.createElement("div", { className: "flex gap-2" },
-          React.createElement("button", { onClick: onClose, className: "rounded-lg border border-slate-200 px-4 h-11 text-sm bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Отмена"),
-          React.createElement("button", { onClick: submit, className: "rounded-lg bg-indigo-600 text-white px-4 h-11 text-sm font-semibold hover:bg-indigo-700" }, "Подтвердить")
+      React.createElement("form", { onSubmit: (e) => { e.preventDefault(); submit(); }, style: { marginTop: 24 } },
+        React.createElement("div", { className: "otp-grid otp-grid--4", "aria-label": "Поля ввода кода из письма" },
+          digits.map((d, i) => React.createElement("input", {
+            key: i,
+            ref: (el) => refs.current[i] = el,
+            className: "otp-input",
+            inputMode: "numeric",
+            maxLength: 1,
+            value: d,
+            onChange: (e) => handleChange(i, e.target.value),
+            onKeyDown: (e) => handleKey(i, e)
+          }))
+        ),
+        error && React.createElement("p", { className: "form-error", style: { marginTop: 10 } }, error),
+        React.createElement("div", { className: "resend-wrap", style: { marginTop: 14, textAlign: "center" } },
+          React.createElement("span", { className: "form-hint" }, "Не получили код?"),
+          React.createElement("button", { type: "button", onClick: handleResend, className: "link-btn", disabled: resendLeft > 0 }, "Отправить повторно"),
+          React.createElement("div", { className: "form-hint", style: { marginTop: 6 } }, "Повторная отправка доступна через ", React.createElement("span", null, fmt(resendLeft)))
+        ),
+        React.createElement("div", { className: "note note--confirm", role: "note", style: { marginTop: 18 } },
+          React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24", fill: "none", "aria-hidden": "true" },
+            React.createElement("circle", { cx: 12, cy: 12, r: 9, stroke: "currentColor", "stroke-width": 2 }),
+            React.createElement("path", { d: "M12 8h.01M11 12h2v5h-2z", stroke: "currentColor", "stroke-width": 2 })
+          ),
+          React.createElement("div", null, "Код действует в течение 10 минут. Если письмо не пришло, проверьте папку «Спам» или правильность адреса.")
+        ),
+        msg && React.createElement("p", { className: "form-hint", style: { marginTop: 10 } }, msg),
+        React.createElement("div", { className: "mt-5 flex justify-end gap-2" },
+          React.createElement("button", { type: "button", onClick: onClose, className: "rounded-lg border border-slate-200 px-4 h-11 text-sm bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Отмена"),
+          React.createElement("button", { type: "submit", className: "rounded-lg bg-indigo-600 text-white px-4 h-11 text-sm font-semibold hover:bg-indigo-700" }, "Подтвердить")
         )
       )
     )
