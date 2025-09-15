@@ -170,24 +170,36 @@ export function authDeleteAccount(username, password) {
 
 // UPDATE USER DATA
 export function authUpdate(fields) {
+  const csrf = getCsrfToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (csrf) headers['X-CSRF-Token'] = csrf;
   return request('/auth/web/update', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify(fields)
+    headers,
+    body: JSON.stringify(fields),
+    credentials: 'omit'
   });
 }
 export function authUpdateVerify(challenge_id, code) {
+  const csrf = getCsrfToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (csrf) headers['X-CSRF-Token'] = csrf;
   return request('/auth/web/update/verify', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ challenge_id, code })
+    headers,
+    body: JSON.stringify({ challenge_id, code }),
+    credentials: 'omit'
   });
 }
 
 export function authUpdateResend() {
+  const csrf = getCsrfToken();
+  const headers = {};
+  if (csrf) headers['X-CSRF-Token'] = csrf;
   return request('/auth/web/update/resend', {
     method: 'POST',
-    headers: { 'Accept': 'application/json' }
+    headers,
+    credentials: 'omit'
   });
 }
 
