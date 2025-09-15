@@ -156,15 +156,16 @@ function VerifyEmailModal({ open, onClose, onSubmit, email, onResend }) {
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
   const [resendLeft, setResendLeft] = useState(0);
-  const inputsRef = React.useRef([]);
+  const refs = React.useRef([]);
 
   useEffect(() => {
     if (open) {
       setDigits(["", "", "", ""]);
+      refs.current = [];
       setError("");
       setMsg("");
       setResendLeft(45);
-      setTimeout(() => inputsRef.current[0]?.focus(), 0);
+      setTimeout(() => refs.current[0]?.focus(), 0);
     }
   }, [open]);
 
@@ -183,14 +184,12 @@ function VerifyEmailModal({ open, onClose, onSubmit, email, onResend }) {
       nd[idx] = v;
       return nd;
     });
-    if (v && idx < inputsRef.current.length - 1) {
-      inputsRef.current[idx + 1]?.focus();
-    }
+    if (v && idx < refs.current.length - 1) refs.current[idx + 1]?.focus();
   };
 
   const handleKey = (idx, e) => {
     if (e.key === "Backspace" && !digits[idx] && idx > 0) {
-      inputsRef.current[idx - 1]?.focus();
+      refs.current[idx - 1]?.focus();
     }
   };
 
@@ -218,22 +217,24 @@ function VerifyEmailModal({ open, onClose, onSubmit, email, onResend }) {
     React.createElement("div", { className: "absolute inset-0 bg-slate-900/40", onClick: onClose }),
     React.createElement("div", { className: "relative w-[min(520px,96vw)] rounded-2xl bg-white shadow-2xl border border-slate-200 p-6 dark:bg-slate-800 dark:border-slate-700" },
       React.createElement("div", { className: "text-xl font-bold text-slate-900 dark:text-slate-100" }, "Подтверждение e-mail"),
-      React.createElement("p", { className: "mt-1 text-sm text-slate-600 dark:text-slate-400" }, `Введите код из письма, отправленного на ${masked}.`),
-      React.createElement("div", { className: "mt-4" },
-        React.createElement("div", { className: "otp-grid otp-grid--4" },
-          digits.map((d, i) => React.createElement("input", {
-            key: i,
-            ref: (el) => inputsRef.current[i] = el,
-            className: "otp-input",
-            inputMode: "numeric",
-            maxLength: 1,
-            value: d,
-            onChange: (e) => handleChange(i, e.target.value),
-            onKeyDown: (e) => handleKey(i, e)
-          }))
+      React.createElement("p", { className: "mt-1 text-sm text-slate-600 dark:text-slate-400" }, `Введите код из письма (${masked}).`),
+      React.createElement("div", { className: "mt-4 space-y-4" },
+        React.createElement("div", null,
+          React.createElement("div", { className: "otp-grid otp-grid--4" },
+            digits.map((d, i) => React.createElement("input", {
+              key: i,
+              ref: (el) => refs.current[i] = el,
+              className: "otp-input",
+              inputMode: "numeric",
+              maxLength: 1,
+              value: d,
+              onChange: (e) => handleChange(i, e.target.value),
+              onKeyDown: (e) => handleKey(i, e)
+            }))
+          )
         ),
-        error && React.createElement("div", { className: "mt-2 text-sm text-rose-600" }, error),
-        msg && React.createElement("div", { className: "mt-2 text-sm text-emerald-600" }, msg)
+        error && React.createElement("div", { className: "text-sm text-rose-600" }, error),
+        msg && React.createElement("div", { className: "text-sm text-emerald-600" }, msg)
       ),
       React.createElement("div", { className: "mt-5 flex items-center justify-between gap-2" },
         React.createElement("button", {
@@ -309,36 +310,36 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
     }
   };
 
-  const handleVerify = async (code) => {
-    if (!verifyCtx) return { ok: false, msg: "Нет кода" };
-    try {
-      const res = await authUpdateVerify(verifyCtx.challengeId, code);
-      if (res.ok) {
-        await onProfileReload?.();
-        setVerifyCtx(null);
-        setMsgUpd("E-mail подтверждён.");
-        return { ok: true };
+    const handleVerify = async (code) => {
+      if (!verifyCtx) return { ok: false, msg: "Нет кода" };
+      try {
+        const res = await authUpdateVerify(verifyCtx.challengeId, code);
+        if (res.ok) {
+          await onProfileReload?.();
+          setVerifyCtx(null);
+          setMsgUpd("E-mail подтверждён.");
+          return { ok: true };
+        }
+        const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
+        return { ok: false, msg };
+      } catch {
+        return { ok: false, msg: "Ошибка сети. Повторите попытку." };
       }
-      const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
-      return { ok: false, msg };
-    } catch {
-      return { ok: false, msg: "Ошибка сети. Повторите попытку." };
-    }
-  };
+    };
 
-  const handleResend = async () => {
-    try {
-      const res = await authUpdateResend();
-      if (res?.data?.challenge_id) {
-        setVerifyCtx((v) => ({ ...(v || {}), challengeId: res.data.challenge_id }));
-        return { ok: true };
+    const handleResend = async () => {
+      try {
+        const res = await authUpdateResend(verifyCtx?.challengeId);
+        if (res?.data?.challenge_id) {
+          setVerifyCtx((v) => ({ ...(v || {}), challengeId: res.data.challenge_id }));
+          return { ok: true };
+        }
+        const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
+        return { ok: false, msg };
+      } catch {
+        return { ok: false, msg: "Ошибка сети. Повторите попытку." };
       }
-      const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
-      return { ok: false, msg };
-    } catch {
-      return { ok: false, msg: "Ошибка сети. Повторите попытку." };
-    }
-  };
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
