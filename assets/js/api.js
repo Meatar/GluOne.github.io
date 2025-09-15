@@ -176,7 +176,8 @@ export function authUpdate(fields) {
   return request('/auth/web/update', {
     method: 'POST',
     headers,
-    body: JSON.stringify(fields)
+    body: JSON.stringify(fields),
+    credentials: 'omit'
   });
 }
 export function authUpdateVerify(challenge_id, code) {
@@ -186,7 +187,8 @@ export function authUpdateVerify(challenge_id, code) {
   return request('/auth/web/update/verify', {
     method: 'POST',
     headers,
-    body: JSON.stringify({ challenge_id, code })
+    body: JSON.stringify({ challenge_id, code }),
+    credentials: 'omit'
   });
 }
 
@@ -196,7 +198,8 @@ export function authUpdateResend() {
   if (csrf) headers['X-CSRF-Token'] = csrf;
   return request('/auth/web/update/resend', {
     method: 'POST',
-    headers
+    headers,
+    credentials: 'omit'
   });
 }
 
