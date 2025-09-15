@@ -245,7 +245,7 @@ export default function AccountApp() {
   };
 
   return React.createElement("div", { className: "min-h-screen w-full bg-slate-50 flex flex-col dark:bg-slate-950 dark:text-slate-100" },
-    React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.username || profile?.email }),
+    React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.name || profile?.username || profile?.email }),
 
     React.createElement(TransferPremiumModal, {
       open: !!transferContext,
