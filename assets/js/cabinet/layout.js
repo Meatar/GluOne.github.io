@@ -54,12 +54,12 @@ export function Sidebar({ current, onChange }) {
           : "hover:bg-slate-50 text-slate-700 dark:hover:bg-slate-700 dark:text-slate-300"
       }`
     }, React.createElement("span", { className: "text-base" }, icon), React.createElement("span", { className: "font-medium" }, label));
-  return React.createElement("aside", { className: "hidden xl:block w-64 shrink-0" },
-    React.createElement("div", { className: "sticky top-16 space-y-1" },
-      React.createElement(Item, { k: "profile", label: "Профиль", icon: "👤" }),
-      React.createElement(Item, { k: "subscription", label: "Подписка", icon: "💎" }),
-      React.createElement(Item, { k: "security", label: "Безопасность", icon: "🔐" }),
-      React.createElement(Item, { k: "devices", label: "Устройства", icon: "📱" }),
+    return React.createElement("aside", { className: "cab-sidebar w-64 shrink-0" },
+      React.createElement("div", { className: "sticky top-16 space-y-1" },
+        React.createElement(Item, { k: "profile", label: "Профиль", icon: "👤" }),
+        React.createElement(Item, { k: "subscription", label: "Подписка", icon: "💎" }),
+        React.createElement(Item, { k: "security", label: "Безопасность", icon: "🔐" }),
+        React.createElement(Item, { k: "devices", label: "Устройства", icon: "📱" }),
       React.createElement(Item, { k: "payments", label: "Оплаты", icon: "💳" })
     )
   );
