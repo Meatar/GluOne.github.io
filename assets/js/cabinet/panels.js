@@ -2,7 +2,7 @@
 import { formatRub, maskEmail, ageFrom, fmtDate, fmtDateTime, mapGender, mapDia } from "./helpers.js";
 import { Chip, SectionCard, KeyRow, DangerLink } from "./ui.js";
 import { DeviceItem } from "./devices.js";
-import { authPaymentsList, authUpdate, authUpdateVerify } from "../api.js";
+import { authPaymentsList, authUpdate, authUpdateVerify, authUpdateResend } from "../api.js";
 const { useState, useEffect } = React;
 
 /* ===================== Профиль ===================== */
@@ -151,10 +151,28 @@ function DeleteAccountModal({ open, onClose, onSubmit, defaultLogin = "" }) {
   );
 }
 
-function VerifyEmailModal({ open, onClose, onSubmit, email }) {
+function VerifyEmailModal({ open, onClose, onSubmit, email, onResend }) {
   const [digits, setDigits] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
+  const [msg, setMsg] = useState("");
+  const [resendLeft, setResendLeft] = useState(0);
   const inputsRef = React.useRef([]);
+
+  useEffect(() => {
+    if (open) {
+      setDigits(["", "", "", ""]);
+      setError("");
+      setMsg("");
+      setResendLeft(45);
+      setTimeout(() => inputsRef.current[0]?.focus(), 0);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (resendLeft <= 0) return;
+    const tId = setInterval(() => setResendLeft((s) => s - 1), 1000);
+    return () => clearInterval(tId);
+  }, [resendLeft]);
 
   if (!open) return null;
 
@@ -176,9 +194,20 @@ function VerifyEmailModal({ open, onClose, onSubmit, email }) {
     }
   };
 
+  const fmt = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+  const handleResend = async () => {
+    if (resendLeft > 0) return;
+    setError(""); setMsg("");
+    setResendLeft(45);
+    const res = await onResend?.();
+    if (res?.ok) setMsg("Новый код отправлен.");
+    else { setError(res?.msg || "Не удалось отправить код"); setResendLeft(0); }
+  };
+
   const submit = async () => {
     const code = digits.join("");
-    setError("");
+    setError(""); setMsg("");
     const res = await onSubmit(code);
     if (!res?.ok) setError(res?.msg || "Неверный код");
   };
@@ -203,11 +232,19 @@ function VerifyEmailModal({ open, onClose, onSubmit, email }) {
             onKeyDown: (e) => handleKey(i, e)
           }))
         ),
-        error && React.createElement("div", { className: "mt-2 text-sm text-rose-600" }, error)
+        error && React.createElement("div", { className: "mt-2 text-sm text-rose-600" }, error),
+        msg && React.createElement("div", { className: "mt-2 text-sm text-emerald-600" }, msg)
       ),
-      React.createElement("div", { className: "mt-5 flex justify-end gap-2" },
-        React.createElement("button", { onClick: onClose, className: "rounded-lg border border-slate-200 px-4 h-11 text-sm bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Отмена"),
-        React.createElement("button", { onClick: submit, className: "rounded-lg bg-indigo-600 text-white px-4 h-11 text-sm font-semibold hover:bg-indigo-700" }, "Подтвердить")
+      React.createElement("div", { className: "mt-5 flex items-center justify-between gap-2" },
+        React.createElement("button", {
+          onClick: handleResend,
+          disabled: resendLeft > 0,
+          className: "text-sm text-indigo-600 hover:text-indigo-700 disabled:text-slate-400"
+        }, resendLeft > 0 ? `Отправить код ещё раз (${fmt(resendLeft)})` : "Отправить код ещё раз"),
+        React.createElement("div", { className: "flex gap-2" },
+          React.createElement("button", { onClick: onClose, className: "rounded-lg border border-slate-200 px-4 h-11 text-sm bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Отмена"),
+          React.createElement("button", { onClick: submit, className: "rounded-lg bg-indigo-600 text-white px-4 h-11 text-sm font-semibold hover:bg-indigo-700" }, "Подтвердить")
+        )
       )
     )
   );
@@ -280,6 +317,20 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
         await onProfileReload?.();
         setVerifyCtx(null);
         setMsgUpd("E-mail подтверждён.");
+        return { ok: true };
+      }
+      const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
+      return { ok: false, msg };
+    } catch {
+      return { ok: false, msg: "Ошибка сети. Повторите попытку." };
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      const res = await authUpdateResend();
+      if (res?.data?.challenge_id) {
+        setVerifyCtx((v) => ({ ...(v || {}), challengeId: res.data.challenge_id }));
         return { ok: true };
       }
       const msg = Array.isArray(res.data?.detail) ? res.data.detail.map((e) => e?.msg).filter(Boolean).join("; ") : `Ошибка: ${res.status}`;
@@ -426,7 +477,8 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
       open: !!verifyCtx,
       email: verifyCtx?.email,
       onClose: () => setVerifyCtx(null),
-      onSubmit: handleVerify
+      onSubmit: handleVerify,
+      onResend: handleResend
     })
   );
 }

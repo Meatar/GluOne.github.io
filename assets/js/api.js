@@ -184,6 +184,13 @@ export function authUpdateVerify(challenge_id, code) {
   });
 }
 
+export function authUpdateResend() {
+  return request('/auth/web/update/resend', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' }
+  });
+}
+
 /* ======================== PREMIUM / PAYMENTS ======================== */
 export function authPremiumTransfer(device_id) {
   return request('/auth/web/premium/transfer', {
