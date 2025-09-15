@@ -194,13 +194,14 @@ export function authUpdateVerify(challenge_id, code) {
   });
 }
 
-export function authUpdateResend() {
+export function authUpdateResend(challenge_id) {
   const csrf = getCsrfToken();
-  const headers = {};
+  const headers = { 'Content-Type': 'application/json' };
   if (csrf) headers['X-CSRF-Token'] = csrf;
   return request('/auth/web/update/resend', {
     method: 'POST',
     headers,
+    body: JSON.stringify({ challenge_id }),
     // сервер ожидает cookie с токеном
     credentials: 'include'
   });
