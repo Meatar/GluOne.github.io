@@ -359,7 +359,7 @@ export default function AccountApp({ bootstrap = {} }) {
           )
         ),
         /* показываем панели по секциям */
-        section === "profile" && React.createElement(ProfilePanel, { profile, hiddenStatus: true }),
+        section === "profile" && React.createElement(ProfilePanel, { profile, hiddenStatus: true, hidePremiumBadge: hideBilling }),
         !hideBilling && section === "subscription" && React.createElement(SubscriptionPanel, {
           onOpenTransfer: () => setTransferContext({ type: 'subscription' }),
           currentDeviceName: currentPremiumDeviceName,
@@ -380,7 +380,7 @@ export default function AccountApp({ bootstrap = {} }) {
           onDeleteAccount: handleDeleteAccount,
           onProfileReload: reloadProfile
         }),
-        section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
+        section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice, hidePremiumInfo: hideBilling }),
         !hideBilling && section === "payments" && React.createElement(PaymentsPanel, null),
       )
     ),
