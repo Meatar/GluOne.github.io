@@ -91,7 +91,7 @@ export function SiteHeader({ isAuthed, onLogout, userName }) {
       ),
       React.createElement(
         "nav",
-        { className: "hidden md:flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400" },
+        { className: "cab-header-nav items-center gap-6 text-sm text-slate-600 dark:text-slate-400" },
         React.createElement(
           "a",
           { className: "hover:text-slate-900 dark:hover:text-slate-100", href: "https://gluone.ru" },
@@ -130,7 +130,7 @@ export function Sidebar({ current, onChange }) {
 
   return React.createElement(
     "aside",
-    { className: "cab-sidebar hidden w-64 shrink-0 lg:block" },
+    { className: "cab-sidebar w-64 shrink-0" },
     React.createElement(
       "div",
       { className: "sticky top-16 space-y-1" },
