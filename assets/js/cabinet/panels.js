@@ -95,7 +95,9 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
           React.createElement("button", { onClick: onOpenTransfer, className: "rounded-xl border border-slate-200 px-5 py-3 font-semibold text-base bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Сменить устройство")
         ),
         React.createElement("p", { className: "mt-3 text-[13px] text-slate-500 dark:text-slate-400" },
-          "Нажимая кнопку «Купить», вы подтверждаете согласие с ",
+          "Нажимая кнопку «Купить», вы подтверждаете согласие",
+          React.createElement("br", null),
+          "с ",
           React.createElement("a", {
             href: "https://gluone.ru/offer.html",
             className: "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300",
