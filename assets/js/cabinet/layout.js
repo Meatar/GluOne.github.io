@@ -74,8 +74,15 @@ export function SiteHeader({ isAuthed, onLogout, userName }) {
       "div",
       { className: "mx-auto max-w-screen-2xl px-5 h-14 flex items-center justify-between" },
       React.createElement(
-        "div",
-        { className: "flex items-center gap-3" },
+        "button",
+        {
+          type: "button",
+          onClick: () => {
+            window.location.href = "https://gluone.ru/";
+          },
+          className:
+            "flex items-center gap-3 rounded-xl px-2 py-1 text-left text-slate-900 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-900/20 dark:text-slate-100 dark:hover:bg-slate-800 dark:focus-visible:ring-slate-100/30",
+        },
         React.createElement("img", {
           src: "assets/image/logo.png",
           className: "h-9 w-9 rounded-xl",
@@ -85,22 +92,8 @@ export function SiteHeader({ isAuthed, onLogout, userName }) {
         }),
         React.createElement(
           "span",
-          { className: "font-semibold text-slate-900 dark:text-slate-100" },
+          { className: "font-semibold" },
           "GluOne"
-        )
-      ),
-      React.createElement(
-        "nav",
-        { className: "cab-header-nav items-center gap-6 text-sm text-slate-600 dark:text-slate-400" },
-        React.createElement(
-          "a",
-          { className: "hover:text-slate-900 dark:hover:text-slate-100", href: "https://gluone.ru" },
-          "Главная"
-        ),
-        React.createElement(
-          "a",
-          { className: "hover:text-slate-900 dark:hover:text-slate-100", href: "#" },
-          "Поддержка"
         )
       ),
       React.createElement(
