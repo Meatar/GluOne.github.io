@@ -99,14 +99,14 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
           React.createElement("br", null),
           "с ",
           React.createElement("a", {
-            href: "https://gluone.ru/offer.html",
+            href: "https://gluone.ru/offer",
             className: "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300",
             target: "_blank",
             rel: "noopener noreferrer"
           }, "Публичной офертой"),
           " и ",
           React.createElement("a", {
-            href: "https://gluone.ru/privacy.html",
+            href: "https://gluone.ru/privacy",
             className: "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300",
             target: "_blank",
             rel: "noopener noreferrer"

@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const authLink = document.querySelector('#authEntry, [data-auth-link]');
   if (authLink) {
     authLink.textContent = 'Авторизация';
-    authLink.setAttribute('href', '/auth.html');
+    authLink.setAttribute('href', '/auth');
 
     (async () => {
       try {
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (me.ok && me.data) {
           const label = me.data.username || 'Личный кабинет';
           authLink.textContent = label;
-          authLink.setAttribute('href', '/cabinet.html');
+          authLink.setAttribute('href', '/cabinet');
         }
       } catch {}
     })();

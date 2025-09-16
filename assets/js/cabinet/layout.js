@@ -7,7 +7,7 @@ export function UserMenu({ isAuthed, userName = "", onLogout }) {
 
   const handleClick = () => {
     if (!isAuthed) {
-      window.location.href = "https://gluone.ru/auth.html";
+      window.location.href = "https://gluone.ru/auth";
       return;
     }
     setOpen((v) => !v);

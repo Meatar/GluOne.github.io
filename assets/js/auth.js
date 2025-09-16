@@ -214,7 +214,7 @@ import { KEYS, save } from './storage.js';
           ? `Код отправлен на e-mail. Введите его для подтверждения.`
           : 'Код подтверждения отправлен. Проверьте почту.';
         formMsg.style.color = '#059669';
-        window.location.href = 'confirm.html';
+        window.location.href = '/confirm';
         return;
       }
 
