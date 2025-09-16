@@ -392,7 +392,6 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
               onChange: (e) => setGender(e.target.value),
               className: "w-full rounded-xl border border-slate-300 dark:border-slate-600 px-4 h-14 text-base outline-none focus:ring-2 focus:ring-indigo-100 bg-white dark:bg-slate-800"
             },
-              React.createElement("option", { value: "" }, "—"),
               React.createElement("option", { value: "male" }, "Мужской"),
               React.createElement("option", { value: "female" }, "Женский")
             )
