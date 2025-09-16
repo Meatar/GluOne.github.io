@@ -1,25 +1,51 @@
 # =========================
-# Политики: заголовки страниц
+# GluOne .htaccess (REG.RU)
 # =========================
+
+# Пробрасываем Authorization (если нужно PHP)
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+# Не угадывать расширения
+Options -MultiViews
+DirectoryIndex index.html
+
+RewriteEngine On
+RewriteBase /
+
+# --- ЧИСТЫЕ URL ---
+
+# 1) Отдаём существующие файлы/папки как есть
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2) INTERNAL: /page -> /page.html (если такой файл есть)
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.+?)/?$ $1.html [L]
+
+# 3) SEO-редирект: /page.html -> /page (только если .html был в ИСХОДНОМ запросе)
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[?\s] [NC]
+RewriteRule ^ %1 [R=301,L]
+
+
+# --- ПОЛИТИКИ: заголовки для конкретных страниц ---
+# На некоторых shared-конфигурациях Nginx может не пропускать обычный ETag,
+# поэтому дублируем хэш в X-Policy-ETag (на него и опираемся в бэке).
+
 <IfModule mod_headers.c>
 
-  # ---------- PRIVACY ----------
+  # privacy
   <Files "privacy.html">
     Header set X-Policy-Slug "privacy"
     Header set X-Policy-Version "2025-09-16-v1"
-
-    # Наш «надёжный» хэш (используй его в журнале согласий)
     Header set X-Policy-ETag "6149042b587c2f5ed34a80e2c2ea200adb9e75ddddd945315812a03dee97a698"
-
-    # Пытаемся проставить обычный ETag (может быть выкинут Nginx)
     FileETag None
     Header set ETag "\"6149042b587c2f5ed34a80e2c2ea200adb9e75ddddd945315812a03dee97a698\""
-
     Header set Cache-Control "public, max-age=31536000, immutable"
     Header merge Vary "Accept-Encoding"
   </Files>
 
-  # ---------- CONSENT ----------
+  # consent
   <Files "consent.html">
     Header set X-Policy-Slug "consent"
     Header set X-Policy-Version "2025-09-16-v3"
@@ -30,7 +56,7 @@
     Header merge Vary "Accept-Encoding"
   </Files>
 
-  # ---------- TERMS ----------
+  # terms
   <Files "terms.html">
     Header set X-Policy-Slug "terms"
     Header set X-Policy-Version "2025-09-16-v1"
@@ -41,7 +67,7 @@
     Header merge Vary "Accept-Encoding"
   </Files>
 
-  # ---------- OFFER ----------
+  # offer
   <Files "offer.html">
     Header set X-Policy-Slug "offer"
     Header set X-Policy-Version "2025-09-16-v1"
