@@ -6,7 +6,7 @@ import { authPaymentsList, authUpdate, authUpdateVerify, authUpdateResend } from
 const { useState, useEffect } = React;
 
 /* ===================== Профиль ===================== */
-export function ProfilePanel({ profile, hiddenStatus = true }) {
+export function ProfilePanel({ profile, hiddenStatus = true, hidePremiumBadge = false }) {
   if (!profile) {
     return React.createElement("div", { className: "space-y-4 w-full" },
       React.createElement(SectionCard, null, React.createElement("div", { className: "text-sm text-slate-600" }, "Загружаем профиль…"))
@@ -21,7 +21,7 @@ export function ProfilePanel({ profile, hiddenStatus = true }) {
           React.createElement("div", { className: "flex-1" },
             React.createElement("div", { className: "flex items-center gap-2 flex-wrap" },
               React.createElement("div", { className: "font-semibold text-slate-900 dark:text-slate-100" }, profile.username || "Без имени"),
-              profile.is_premium && React.createElement(Chip, null, "Premium")
+              profile.is_premium && !hidePremiumBadge && React.createElement(Chip, null, "Premium")
             ),
             React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, profile.email ? maskEmail(profile.email) : "—")
           )
@@ -518,13 +518,13 @@ export function SecurityPanel({ profile, onChangePassword, onDeleteAccount, onPr
 }
 
 /* ===================== Устройства ===================== */
-export function DevicesPanel({ devices, onRevoke, onDelete }) {
+export function DevicesPanel({ devices, onRevoke, onDelete, hidePremiumInfo = false }) {
   return React.createElement("div", { className: "space-y-4" },
       React.createElement(SectionCard, { title: "Устройства", footer: React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Всего устройств: ", devices.length) },
       React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-3" },
         devices.map((dev) => {
           const disableDelete = devices.length === 1 && dev.is_premium;
-          return React.createElement(DeviceItem, { key: dev.device_id, device: dev, onRevoke, onDelete, disableDelete });
+          return React.createElement(DeviceItem, { key: dev.device_id, device: dev, onRevoke, onDelete, disableDelete, hidePremiumInfo });
         })
       )
     )
