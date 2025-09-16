@@ -268,7 +268,7 @@ const handleDeleteAccount = async (username, password) => {
     React.createElement("main", { className: "flex-1 mx-auto max-w-screen-2xl px-5 py-6 flex gap-6" },
       React.createElement(Sidebar, { current: section, onChange: setSection }),
       React.createElement("div", { className: "flex-1 min-w-0" },
-        React.createElement("div", { className: "cab-mobile-nav mb-4 grid grid-cols-2 sm:grid-cols-4 gap-2" },
+        React.createElement("div", { className: "cab-mobile-nav mb-4 grid grid-cols-2 sm:grid-cols-4 gap-2 xl:hidden" },
           [
             { key: "profile", label: "Профиль" },
             { key: "subscription", label: "Подписка" },
