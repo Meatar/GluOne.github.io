@@ -1,3 +1,26 @@
 RewriteEngine On
 # Пробрасываем Authorization в PHP
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+# Отключаем MultiViews, чтобы Apache не гадал расширения
+Options -MultiViews
+
+RewriteEngine On
+
+# 1) Если запрошен реальный файл или папка — отдаём как есть
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2) /index.html -> /
+RewriteRule ^index\.html$ / [R=301,L]
+
+# 3) SEO-редирект: со старых ссылок с .html на "чистые"
+#    /page.html -> /page
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[?\s] [NC]
+RewriteRule ^ %1 [R=301,L]
+
+# 4) Внутреннее сопоставление "чистых" URL к .html файлам
+#    /page -> /page.html
+RewriteCond %{REQUEST_FILENAME}\.html -f
+RewriteRule ^(.+?)/?$ $1.html [L]
