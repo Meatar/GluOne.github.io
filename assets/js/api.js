@@ -71,6 +71,38 @@ export function authRegisterResend(challenge_id) {
   });
 }
 
+// PERSONAL DATA CONSENT LOGGING
+export const PERSONAL_DATA_CONSENT_EVENT = 'consent_personal_data';
+export const PERSONAL_DATA_CONSENT_ACTION = 'checkbox_checked_and_register_pressed';
+
+export function authLogPersonalDataConsent({
+  user_id,
+  timestamp = new Date().toISOString(),
+  consent_text_version,
+  action = PERSONAL_DATA_CONSENT_ACTION,
+  source,
+  ip,
+  event = PERSONAL_DATA_CONSENT_EVENT
+} = {}) {
+  const ts = timestamp instanceof Date ? timestamp.toISOString() : timestamp;
+  const payload = {
+    event,
+    user_id,
+    timestamp: ts,
+    consent_text_version,
+    action
+  };
+
+  if (source !== undefined) payload.source = source;
+  if (ip !== undefined) payload.ip = ip;
+
+  return request('/auth/web/consent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+}
+
 // LOGIN (step 1 -> challenge)
 export function authLogin(username, password) {
   return request('/auth/web/login', {
