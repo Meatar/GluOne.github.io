@@ -48,7 +48,7 @@ RewriteRule ^(.+?)/?$ $1.html [L]
   # ---------- CONSENT ----------
   <Files "consent.html">
     Header set X-Policy-Slug "consent"
-    Header set X-Policy-Version "2025-09-16-v3"
+    Header set X-Policy-Version "2025-09-16-v1"
     Header set X-Policy-ETag "535cac1c51ce74eb9b528daee1e51dc58a101ff87f34a1331315b2952ccf58b0"
     FileETag None
     Header set ETag "\"535cac1c51ce74eb9b528daee1e51dc58a101ff87f34a1331315b2952ccf58b0\""
