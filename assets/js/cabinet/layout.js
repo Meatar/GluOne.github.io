@@ -130,7 +130,7 @@ export function Sidebar({ current, onChange }) {
 
   return React.createElement(
     "aside",
-    { className: "cab-sidebar hidden w-64 shrink-0 xl:block" },
+    { className: "cab-sidebar hidden w-64 shrink-0 lg:block" },
     React.createElement(
       "div",
       { className: "sticky top-16 space-y-1" },
