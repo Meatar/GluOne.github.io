@@ -2,37 +2,39 @@
 # GluOne .htaccess (REG.RU)
 # =========================
 
+# Пробрасываем Authorization (если нужно PHP)
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+# Не угадывать расширения; главная — index.html
 Options -MultiViews
 DirectoryIndex index.html
 
 RewriteEngine On
 RewriteBase /
 
-# --- SEO-редиректы СНАЧАЛА ---
-# /index.html -> /
-RewriteCond %{THE_REQUEST} \s/+index\.html[?\s] [NC]
-RewriteRule ^index\.html$ / [R=301,L]
+# --- ЧИСТЫЕ URL и редиректы ---
 
-# /page.html -> /page (только если файл реально существует)
-RewriteCond %{REQUEST_URI} !^/assets/        [NC]
-RewriteCond %{REQUEST_URI} !^/\.well-known/  [NC]
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^(.+)\.html$ /$1 [R=301,L]
+# 1) Если в исходном запросе был .html → редиректим на версию без .html
+#    Примеры: /privacy.html -> /privacy
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[?\s] [NC]
+RewriteRule ^ %1 [R=301,L]
 
-# --- ЧИСТЫЕ URL ---
-# если запрошен реальный файл/папка — отдаём как есть
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# /page -> /page.html (внутреннее сопоставление)
+# 2) Внутренне обслуживаем "чистые" URL через соответствующие .html
+#    Примеры: /privacy -> (внутренне) /privacy.html
+#             /docs/faq -> (внутренне) /docs/faq.html
+#    Не трогаем существующие файлы/папки.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
 
-# --- Заголовки для policy-страниц ---
+# --- ПОЛИТИКИ: заголовки для конкретных страниц ---
+# На shared-хостинге Nginx может не пропускать обычный ETag,
+# поэтому дублируем хэш в X-Policy-ETag (на него и опираемся на бэке).
+
 <IfModule mod_headers.c>
-  # privacy
+
+  # ---------- PRIVACY ----------
   <Files "privacy.html">
     Header set X-Policy-Slug "privacy"
     Header set X-Policy-Version "2025-09-16-v1"
@@ -43,7 +45,7 @@ RewriteRule ^(.+?)/?$ $1.html [L]
     Header merge Vary "Accept-Encoding"
   </Files>
 
-  # consent
+  # ---------- CONSENT ----------
   <Files "consent.html">
     Header set X-Policy-Slug "consent"
     Header set X-Policy-Version "2025-09-16-v3"
@@ -54,7 +56,7 @@ RewriteRule ^(.+?)/?$ $1.html [L]
     Header merge Vary "Accept-Encoding"
   </Files>
 
-  # terms
+  # ---------- TERMS ----------
   <Files "terms.html">
     Header set X-Policy-Slug "terms"
     Header set X-Policy-Version "2025-09-16-v1"
@@ -65,7 +67,7 @@ RewriteRule ^(.+?)/?$ $1.html [L]
     Header merge Vary "Accept-Encoding"
   </Files>
 
-  # offer
+  # ---------- OFFER ----------
   <Files "offer.html">
     Header set X-Policy-Slug "offer"
     Header set X-Policy-Version "2025-09-16-v1"
@@ -75,4 +77,5 @@ RewriteRule ^(.+?)/?$ $1.html [L]
     Header set Cache-Control "public, max-age=31536000, immutable"
     Header merge Vary "Accept-Encoding"
   </Files>
+
 </IfModule>
