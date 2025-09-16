@@ -319,7 +319,7 @@ const handleDeleteAccount = async (username, password) => {
         React.createElement("div", { className: "flex items-center gap-4" },
           React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "https://gluone.ru/privacy" }, "Политика конфиденциальности"),
           React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "https://gluone.ru/terms.html" }, "Пользовательское соглашение"),
-          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "#" }, "Контакты")
+          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "https://gluone.ru/contacts" }, "Контакты")
         )
       )
     )
