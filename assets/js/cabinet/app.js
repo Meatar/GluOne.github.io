@@ -20,47 +20,116 @@ import { TransferPremiumModal } from "./devices.js";
 
 const { useState, useEffect } = React;
 
-export default function AccountApp() {
+const BILLING_BLOCKED_USERNAME = "testuser";
+function shouldHideBilling(profile) {
+  if (!profile || typeof profile.username !== "string") return false;
+  return profile.username.trim().toLowerCase() === BILLING_BLOCKED_USERNAME;
+}
+
+export default function AccountApp({ bootstrap = {} }) {
+  const bootstrapAttempted = !!bootstrap?.attempted;
+  const bootstrapAuthed = bootstrapAttempted ? !!bootstrap?.authed : null;
+  const bootstrapDevicesLoaded = bootstrapAttempted ? !!bootstrap?.devicesLoaded : false;
+  const bootstrapPlansLoaded = bootstrapAttempted ? !!bootstrap?.plansLoaded : false;
+
+  const initialProfile = bootstrap?.profile ?? null;
+  const initialDevices = Array.isArray(bootstrap?.devices) ? bootstrap.devices : [];
+  const initialPlans = Array.isArray(bootstrap?.plans) ? bootstrap.plans : [];
+  const initialSelectedPlanId =
+    bootstrap?.selectedPlanId !== undefined
+      ? String(bootstrap.selectedPlanId || "")
+      : (initialPlans.length ? String(initialPlans[0].id) : "");
+
   const [section, setSection] = useState("profile");
-  const [isAuthed, setIsAuthed] = useState(true);
-  const [profile, setProfile] = useState(null);
-  const [devices, setDevices] = useState([]);
-  const [plans, setPlans] = useState([]);
-  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [isAuthed, setIsAuthed] = useState(bootstrapAttempted ? !!bootstrap?.authed : true);
+  const [profile, setProfile] = useState(initialProfile);
+  const [devices, setDevices] = useState(initialDevices);
+  const [plans, setPlans] = useState(initialPlans);
+  const [selectedPlanId, setSelectedPlanId] = useState(initialSelectedPlanId);
   const [transferContext, setTransferContext] = useState(null); // { type: 'subscription' | 'delete', fromDeviceId?, fromDeviceName? }
   const [currentPremiumDeviceId, setCurrentPremiumDeviceId] = useState(null);
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
   const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
   const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
 
+  const hideBilling = shouldHideBilling(profile);
+
   useEffect(() => {
+    if (!hideBilling) return;
+    if (section === "subscription" || section === "payments") setSection("profile");
+  }, [hideBilling, section]);
+
+  useEffect(() => {
+    let cancelled = false;
+
     (async () => {
+      if (bootstrapAttempted) {
+        if (!bootstrapAuthed) {
+          setIsAuthed(false);
+          window.location.href = "/auth?next=%2Fcabinet";
+          return;
+        }
+        setIsAuthed(true);
+
+        if (!profile) {
+          const me = await authMe();
+          if (!cancelled && me.ok) setProfile(me.data);
+        }
+
+        if (!bootstrapDevicesLoaded) {
+          const dev = await authDevices();
+          if (!cancelled && dev.ok) setDevices(dev.data || []);
+        }
+
+        if (!bootstrapPlansLoaded) {
+          const subs = await authSubscriptions();
+          if (!cancelled && subs.ok && Array.isArray(subs.data)) {
+            setPlans(subs.data);
+            if (subs.data.length) {
+              setSelectedPlanId((prev) => {
+                const found = subs.data.find((p) => String(p.id) === prev);
+                return found ? prev : String(subs.data[0].id);
+              });
+            }
+          }
+        }
+        return;
+      }
+
       const r = await authRefresh();
       if (!r.ok) {
-        setIsAuthed(false);
-        window.location.href = "/auth?next=%2Fcabinet";
+        if (!cancelled) {
+          setIsAuthed(false);
+          window.location.href = "/auth?next=%2Fcabinet";
+        }
         return;
       }
 
       const me = await authMe();
-      if (me.ok) {
-        setProfile(me.data);
-        setIsAuthed(true);
-      } else {
-        setIsAuthed(false);
-        window.location.href = "/auth?next=%2Fcabinet";
+      if (!me.ok) {
+        if (!cancelled) {
+          setIsAuthed(false);
+          window.location.href = "/auth?next=%2Fcabinet";
+        }
         return;
       }
 
+      if (!cancelled) {
+        setProfile(me.data);
+        setIsAuthed(true);
+      }
+
       const dev = await authDevices();
-      if (dev.ok) setDevices(dev.data || []);
+      if (!cancelled && dev.ok) setDevices(dev.data || []);
 
       const subs = await authSubscriptions();
-      if (subs.ok && Array.isArray(subs.data)) {
+      if (!cancelled && subs.ok && Array.isArray(subs.data)) {
         setPlans(subs.data);
         if (subs.data.length) setSelectedPlanId(String(subs.data[0].id));
       }
     })();
+
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -73,7 +142,7 @@ export default function AccountApp() {
         const dev = await authDevices();
         if (dev.ok) setDevices(dev.data || []);
       }
-      if (section === "subscription") {
+      if (section === "subscription" && !hideBilling) {
         const dev = await authDevices();
         if (dev.ok) setDevices(dev.data || []);
         const subs = await authSubscriptions();
@@ -86,7 +155,7 @@ export default function AccountApp() {
         }
       }
     })();
-  }, [section]);
+  }, [section, hideBilling]);
 
   useEffect(() => {
     const active = devices.filter((d) => !d.revoked);
@@ -165,7 +234,7 @@ export default function AccountApp() {
     }
   };
 
-const handleDeleteAccount = async (username, password) => {
+  const handleDeleteAccount = async (username, password) => {
     if (!username || !password) return { ok: false, msg: "Укажите логин и пароль." };
     try {
       const res = await authDeleteAccount(username, password);
@@ -249,6 +318,14 @@ const handleDeleteAccount = async (username, password) => {
     setTransferContext(null);
   };
 
+  const navItems = [
+    { key: "profile", label: "Профиль", icon: "👤" },
+    ...(!hideBilling ? [{ key: "subscription", label: "Подписка", icon: "💎" }] : []),
+    { key: "security", label: "Безопасность", icon: "🔐" },
+    { key: "devices", label: "Устройства", icon: "📱" },
+    ...(!hideBilling ? [{ key: "payments", label: "Оплаты", icon: "💳" }] : []),
+  ];
+
   return React.createElement("div", { className: "min-h-screen w-full bg-slate-50 flex flex-col dark:bg-slate-950 dark:text-slate-100" },
     React.createElement(SiteHeader, { isAuthed, onLogout: handleLogout, userName: profile?.name || profile?.username || profile?.email }),
 
@@ -266,29 +343,24 @@ const handleDeleteAccount = async (username, password) => {
     }),
 
     React.createElement("main", { className: "flex-1 mx-auto max-w-screen-2xl px-5 py-6 flex gap-6" },
-      React.createElement(Sidebar, { current: section, onChange: setSection }),
+      React.createElement(Sidebar, { current: section, onChange: setSection, items: navItems }),
       React.createElement("div", { className: "flex-1 min-w-0" },
         React.createElement("div", { className: "cab-mobile-nav" },
-          [
-            { key: "profile", label: "Профиль" },
-            { key: "subscription", label: "Подписка" },
-            { key: "security", label: "Безопасность" },
-            { key: "devices", label: "Устройства" },
-            { key: "payments", label: "Оплаты" }
-            ].map((t) =>
-              React.createElement("button", {
-                key: t.key, onClick: () => setSection(t.key),
-                className: `rounded-lg px-3 py-2 text-sm border ${
-                  section === t.key
-                    ? "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200"
-                    : "bg-slate-100 dark:bg-slate-700 border-transparent text-slate-700 dark:text-slate-300"
-                }`
-              }, t.label)
-            )
+          navItems.map(({ key: itemKey, label }) =>
+            React.createElement("button", {
+              key: itemKey,
+              onClick: () => setSection(itemKey),
+              className: `rounded-lg px-3 py-2 text-sm border ${
+                section === itemKey
+                  ? "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200"
+                  : "bg-slate-100 dark:bg-slate-700 border-transparent text-slate-700 dark:text-slate-300"
+              }`
+            }, label)
+          )
         ),
         /* показываем панели по секциям */
         section === "profile" && React.createElement(ProfilePanel, { profile, hiddenStatus: true }),
-        section === "subscription" && React.createElement(SubscriptionPanel, {
+        !hideBilling && section === "subscription" && React.createElement(SubscriptionPanel, {
           onOpenTransfer: () => setTransferContext({ type: 'subscription' }),
           currentDeviceName: currentPremiumDeviceName,
           onPay: handlePay,
@@ -309,7 +381,7 @@ const handleDeleteAccount = async (username, password) => {
           onProfileReload: reloadProfile
         }),
         section === "devices" && React.createElement(DevicesPanel, { devices, onRevoke: handleRevokeDevice, onDelete: handleDeleteDevice }),
-        section === "payments" && React.createElement(PaymentsPanel, null),
+        !hideBilling && section === "payments" && React.createElement(PaymentsPanel, null),
       )
     ),
 
