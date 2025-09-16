@@ -32,9 +32,13 @@ export function ProfilePanel({ profile, hiddenStatus = true }) {
             React.createElement("span", { className: profile.is_active ? "text-emerald-700" : "text-rose-600" }, profile.is_active ? "Активен" : "Неактивен")
           ),
           React.createElement(KeyRow, { label: "Имя", value: profile.name || "—" }),
-          React.createElement("div", { className: "flex items-center justify-between py-1.5" },
+          React.createElement("div", { className: "grid grid-cols-[minmax(140px,220px)_1fr] gap-3 items-start py-2" },
             React.createElement("div", { className: "text-sm text-slate-500 dark:text-slate-400" }, "Роли"),
-            React.createElement("div", { className: "flex flex-wrap gap-1 justify-end" }, roles.map((r) => React.createElement(Chip, { key: r }, r)))
+            React.createElement("div", {
+              className: "flex flex-wrap gap-1 text-sm font-medium text-slate-800 dark:text-slate-100"
+            }, roles.length
+              ? roles.map((r) => React.createElement(Chip, { key: r }, r))
+              : React.createElement("span", { className: "text-slate-500 dark:text-slate-400 font-normal" }, "—"))
           ),
         React.createElement(KeyRow, { label: "Пол", value: mapGender(profile.gender) }),
         React.createElement(KeyRow, { label: "Дата рождения", value: profile.birth_date ? `${fmtDate(profile.birth_date)}${ageFrom(profile.birth_date) ? ` • ${ageFrom(profile.birth_date)} лет` : ""}` : "—" }),
