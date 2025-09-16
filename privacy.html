@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Политика конфиденциальности — GluOne</title>
+
+    <meta name="description" content="Политика конфиденциальности мобильного приложения и веб-сервиса GluOne." />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Favicons -->
+    <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/image/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/image/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/image/favicon-180.png" />
+    <link rel="mask-icon" href="assets/image/logo-symbol.svg" color="#0f172a" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+
+    <style>
+      .privacy-card{
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: transform .2s ease, box-shadow .2s ease;
+      }
+      .privacy-card:hover{
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+      }
+      .section-anchor{
+        scroll-margin-top: 120px;
+      }
+      @media (max-width: 768px){
+        .section-anchor{ scroll-margin-top: 96px; }
+      }
+    </style>
+
+    <script type="module" src="assets/js/core.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a class="flex items-center gap-3" href="/">
+          <img src="assets/image/logo.png" class="h-9 w-9 rounded-xl" alt="Логотип GluOne" width="36" height="36" />
+          <span class="font-semibold tracking-tight">GluOne</span>
+        </a>
+        <a href="/auth" class="btn-hero" data-auth-link role="button">Авторизация</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-bg">
+        <div class="relative max-w-4xl mx-auto px-4 py-12 md:py-16 text-slate-900 dark:text-white">
+          <h1 class="mt-4 text-2xl md:text-3xl font-extrabold leading-tight tracking-tight">
+            Политика конфиденциальности мобильного приложения и&nbsp;веб-сервиса «GluOne»
+          </h1>
+          <p class="mt-5 text-lg text-slate-700 dark:text-slate-300">
+            Настоящий документ описывает порядок обработки и защиты персональных данных пользователей мобильного приложения и веб-сервиса GluOne.
+          </p>
+          <p class="mt-7 text-sm text-slate-600 dark:text-slate-400">
+            Дата вступления в силу: <time datetime="2025-10-10">10.10.2025</time>
+          </p>
+        </div>
+      </section>
+
+      <nav aria-label="Разделы политики" class="max-w-4xl mx-auto px-4 mt-10">
+        <div class="grid gap-3 sm:grid-cols-2">
+          <a href="#section-1" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">1</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Общие положения</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Основные требования и согласие пользователя.</p>
+            </div>
+          </a>
+          <a href="#section-2" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">2</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Какие данные собираем</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Перечень персональных данных пользователя.</p>
+            </div>
+          </a>
+          <a href="#section-3" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">3</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Цели обработки</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Зачем нам нужны персональные данные.</p>
+            </div>
+          </a>
+          <a href="#section-4" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">4</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Правовые основания</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">На каком основании ведём обработку.</p>
+            </div>
+          </a>
+          <a href="#section-5" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">5</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Условия обработки</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Как защищаем и храним данные.</p>
+            </div>
+          </a>
+          <a href="#section-6" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">6</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Права пользователя</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Какие возможности доступны каждому.</p>
+            </div>
+          </a>
+          <a href="#section-7" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">7</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Сроки хранения</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Когда и как долго мы храним данные.</p>
+            </div>
+          </a>
+          <a href="#section-8" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">8</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Cookies и аналитика</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Работа файлов cookie и сервисов аналитики.</p>
+            </div>
+          </a>
+          <a href="#section-9" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">9</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Ответственность</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Ограничения ответственности сервиса.</p>
+            </div>
+          </a>
+          <a href="#section-10" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">10</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Изменения политики</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Как публикуем обновления документа.</p>
+            </div>
+          </a>
+          <a href="#section-11" class="privacy-card group flex items-center gap-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/60 p-4 no-underline">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-600 transition group-hover:bg-slate-900 group-hover:text-white dark:bg-slate-800 dark:text-slate-200 dark:group-hover:bg-white dark:group-hover:text-slate-900">11</span>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-white">Контакты</p>
+              <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Как связаться с оператором данных.</p>
+            </div>
+          </a>
+        </div>
+      </nav>
+
+      <article class="max-w-4xl mx-auto px-4 pb-16 pt-6 text-slate-700 dark:text-slate-300 text-lg leading-relaxed space-y-12">
+        <section id="section-1" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">1.</span>
+            <span>Общие положения</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p><strong>1.1.</strong> Оператор обрабатывает персональные данные в соответствии с Конституцией РФ, Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных», а также иными нормативными актами Российской Федерации.</p>
+            <p><strong>1.2.</strong> Используя Сервис, Пользователь подтверждает согласие с условиями настоящей Политики.</p>
+            <p><strong>1.3.</strong> В случае несогласия с Политикой Пользователь обязан прекратить использование Сервиса.</p>
+          </div>
+        </section>
+
+        <section id="section-2" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">2.</span>
+            <span>Персональные данные, которые мы обрабатываем</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p>Мы собираем и обрабатываем персональные данные, которые Пользователь указывает самостоятельно при регистрации и использовании Сервиса:</p>
+            <ul class="list-disc pl-5 md:pl-6 space-y-2">
+              <li>имя (или выбранный никнейм),</li>
+              <li>пол,</li>
+              <li>дата рождения,</li>
+              <li>тип диабета,</li>
+              <li>адрес электронной почты (e-mail).</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="section-3" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">3.</span>
+            <span>Цели обработки персональных данных</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p>Персональные данные обрабатываются для следующих целей:</p>
+            <ul class="list-disc pl-5 md:pl-6 space-y-2">
+              <li>регистрация и идентификация Пользователя,</li>
+              <li>предоставление доступа к функционалу Сервиса,</li>
+              <li>персонализация интерфейса и расчётов,</li>
+              <li>коммуникация с Пользователем (уведомления, поддержка),</li>
+              <li>выполнение требований законодательства Российской Федерации.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="section-4" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">4.</span>
+            <span>Правовые основания обработки</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p>Обработка персональных данных осуществляется:</p>
+            <ul class="list-disc pl-5 md:pl-6 space-y-2">
+              <li>на основании согласия Пользователя, выраженного при регистрации,</li>
+              <li>для исполнения договора (оказания услуг через Сервис),</li>
+              <li>в случаях, когда обработка обязательна по законодательству Российской Федерации.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="section-5" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">5.</span>
+            <span>Условия и порядок обработки</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p><strong>5.1.</strong> Оператор обеспечивает конфиденциальность персональных данных и принимает необходимые организационные и технические меры по их защите.</p>
+            <p><strong>5.2.</strong> Персональные данные Пользователей хранятся на серверах, расположенных на территории Российской Федерации, в соответствии с требованиями Федерального закона № 152-ФЗ «О персональных данных».</p>
+            <p><strong>5.3.</strong> Доступ к персональным данным имеют только уполномоченные сотрудники Оператора, обеспечивающие поддержку работы Сервиса.</p>
+            <p><strong>5.4.</strong> Передача персональных данных третьим лицам допускается только:</p>
+            <ul class="list-disc pl-5 md:pl-6 space-y-2">
+              <li>по запросу уполномоченных государственных органов,</li>
+              <li>в случаях, предусмотренных законодательством Российской Федерации.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="section-6" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">6.</span>
+            <span>Права Пользователя</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p>Пользователь имеет право:</p>
+            <ul class="list-disc pl-5 md:pl-6 space-y-2">
+              <li>получать информацию о своих персональных данных и об их обработке,</li>
+              <li>требовать уточнения, блокирования или уничтожения персональных данных,</li>
+              <li>отозвать согласие на обработку персональных данных, направив запрос на e-mail: <a href="mailto:notify@gluone.ru">notify@gluone.ru</a>,</li>
+              <li>обжаловать действия или бездействие Оператора в Роскомнадзоре или суде.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="section-7" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">7.</span>
+            <span>Хранение данных</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p><strong>7.1.</strong> Персональные данные хранятся в течение срока действия учётной записи Пользователя.</p>
+            <p><strong>7.2.</strong> При удалении учётной записи все персональные данные уничтожаются в течение 30 (тридцати) календарных дней.</p>
+          </div>
+        </section>
+
+        <section id="section-8" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">8.</span>
+            <span>Cookies и аналитика</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p><strong>8.1.</strong> Сайт может использовать файлы cookie для авторизации и аналитики.</p>
+            <p><strong>8.2.</strong> Пользователь вправе отключить использование cookie в настройках браузера, однако это может ограничить работу Сервиса.</p>
+            <p><strong>8.3.</strong> Мы можем использовать сторонние сервисы аналитики (например, Яндекс.Метрика, Firebase), которые обрабатывают только обезличенные данные.</p>
+          </div>
+        </section>
+
+        <section id="section-9" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">9.</span>
+            <span>Ответственность</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p><strong>9.1.</strong> Оператор не несёт ответственности за действия Пользователя, повлекшие раскрытие его персональных данных третьим лицам.</p>
+            <p><strong>9.2.</strong> Сервис не является медицинской услугой и не заменяет консультацию врача. Данные, отображаемые в Сервисе, носят исключительно справочный характер.</p>
+          </div>
+        </section>
+
+        <section id="section-10" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">10.</span>
+            <span>Изменения Политики</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <p><strong>10.1.</strong> Оператор вправе изменять Политику.</p>
+            <p><strong>10.2.</strong> Актуальная версия Политики всегда доступна на сайте: <a href="https://gluone.ru/privacy">https://gluone.ru/privacy</a>.</p>
+          </div>
+        </section>
+
+        <section id="section-11" class="section-anchor space-y-4">
+          <h2 class="flex items-baseline gap-3 text-2xl font-semibold text-slate-900 dark:text-white">
+            <span class="font-bold">11.</span>
+            <span>Контактная информация Оператора</span>
+          </h2>
+          <div class="space-y-3 pl-5 md:pl-6">
+            <address class="not-italic space-y-1">
+              <p>Индивидуальный предприниматель Киселёв Алексей Борисович</p>
+              <p>ИНН: 230110074610</p>
+              <p>ОГРНИП: 324619600076322</p>
+              <p>Адрес: Ростовская обл., г.о. город Батайск, г. Батайск, ул. Северный Массив, д. 15</p>
+              <p>E-mail: <a href="mailto:notify@gluone.ru">notify@gluone.ru</a></p>
+            </address>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <footer class="border-t border-slate-200 dark:border-slate-700">
+      <div
+        class="max-w-6xl mx-auto flex flex-col gap-4 px-4 py-10 text-sm text-slate-500 dark:text-slate-400 md:flex-row md:items-center md:justify-between"
+      >
+        <p>© <span id="y"></span> GluOne</p>
+        <nav class="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Нижняя навигация">
+          <a class="hover:text-slate-700 dark:hover:text-slate-200" href="/privacy">Политика конфиденциальности</a>
+          <a class="hover:text-slate-700 dark:hover:text-slate-200" href="/terms.html">Пользовательское соглашение</a>
+          <a class="hover:text-slate-700 dark:hover:text-slate-200" href="/contacts">Контакты</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const yearSpan = document.getElementById('y');
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+      });
+    </script>
+  </body>
+</html>

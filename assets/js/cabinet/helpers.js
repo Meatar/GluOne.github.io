@@ -38,3 +38,4 @@ export const fmtDateTime = (iso) => {
 
 export const mapGender = (g) => ({ male: "Мужской", female: "Женский" })[g] || "—";
 export const mapDia    = (t) => ({ type1: "Тип 1", type2: "Тип 2", gestational: "Гестационный" })[t] || "—";
+

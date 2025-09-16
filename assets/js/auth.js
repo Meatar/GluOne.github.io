@@ -211,10 +211,10 @@ import { KEYS, save } from './storage.js';
           ts: Date.now()
         });
         formMsg.textContent = data?.email
-          ? `Код отправлен на ${data.email}. Введите его для подтверждения.`
+          ? `Код отправлен на e-mail. Введите его для подтверждения.`
           : 'Код подтверждения отправлен. Проверьте почту.';
         formMsg.style.color = '#059669';
-        window.location.href = '/confirm.html';
+        window.location.href = '/confirm';
         return;
       }
 

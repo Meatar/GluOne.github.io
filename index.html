@@ -10,10 +10,11 @@
     <meta name="color-scheme" content="light dark" />
 
     <!-- Favicons -->
-    <link rel="shortcut icon" href="/favicon.ico?v=4" type="image/x-icon" />
-    <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png" />
-    <link rel="icon" href="/favicon-192.png?v=4" sizes="192x192" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" sizes="180x180" />
+    <link rel="icon" href="assets/image/favicon.ico" type="image/x-icon" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/image/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/image/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/image/favicon-180.png" />
+    <link rel="mask-icon" href="assets/image/logo-symbol.svg" color="#0f172a" />
 
     <!-- Tailwind (reset + утилиты) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -82,7 +83,7 @@
         <img src="assets/image/logo.png" class="h-9 w-9 rounded-xl" alt="GluOne logo" width="36" height="36" />
         <span class="font-semibold tracking-tight">GluOne</span>
       </a>
-      <a href="/auth.html" class="btn-hero" data-auth-link role="button">Авторизация</a>
+      <a href="/auth" class="btn-hero" data-auth-link role="button">Авторизация</a>
     </header>
 
     <!-- HERO -->
@@ -98,7 +99,7 @@
               Контролируйте глюкозу, питание, инсулин и активность в одном приложении.
             </p>
             <div class="mt-7 flex items-center gap-4 flex-wrap">
-              <a href="/auth.html" class="btn-hero" data-auth-link role="button">Авторизация</a>
+              <a href="/auth" class="btn-hero" data-auth-link role="button">Авторизация</a>
               <a
                 href="https://apps.apple.com/app/idXXXXXXXX"
                 target="_blank" rel="noopener noreferrer"
@@ -223,8 +224,17 @@
     </section>
 
     <!-- Footer -->
-    <footer class="max-w-6xl mx-auto px-4 py-10 text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700">
-      © <span id="y"></span> GluOne · <a href="#" class="underline">Политика конфиденциальности</a>
+    <footer class="border-t border-slate-200 dark:border-slate-700">
+      <div
+        class="max-w-6xl mx-auto flex flex-col gap-4 px-4 py-10 text-sm text-slate-500 dark:text-slate-400 md:flex-row md:items-center md:justify-between"
+      >
+        <p>© <span id="y">2025</span> GluOne</p>
+        <nav class="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Нижняя навигация">
+          <a class="hover:text-slate-700 dark:hover:text-slate-200" href="/privacy">Политика конфиденциальности</a>
+          <a class="hover:text-slate-700 dark:hover:text-slate-200" href="/terms.html">Пользовательское соглашение</a>
+          <a class="hover:text-slate-700 dark:hover:text-slate-200" href="/contacts">Контакты</a>
+        </nav>
+      </div>
     </footer>
 
     <!-- Tabs + год -->

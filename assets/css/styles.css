@@ -435,6 +435,32 @@ button, .btn-hero, .btn-outline, .btn-primary{
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ===== Cabinet responsive navigation ===== */
+.cab-header-nav{ display:none; }
+@media (min-width: 768px){
+  .cab-header-nav{ display:flex; }
+}
+
+.cab-sidebar{ display:none; }
+@media (min-width: 1024px){
+  .cab-sidebar{ display:block; }
+}
+
+.cab-mobile-nav{
+  display:grid;
+  gap:0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+@media (min-width: 640px){
+  .cab-mobile-nav{
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px){
+  .cab-mobile-nav{ display:none; }
+}
+
 /* 8) Forced colors / High-contrast */
 @media (forced-colors: active){
   .btn-hero, .btn-outline, .btn-primary, .field, .card, .feature-card{

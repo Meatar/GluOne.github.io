@@ -49,11 +49,11 @@ async function request(
 
 /* ======================== AUTH (WEB) ======================== */
 // REGISTER
-export function authRegister(username, email, password, gender, birth_date, diabetes_type) {
+export function authRegister(username, email, name, password, gender, birth_date, diabetes_type) {
   return request('/auth/web/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ username, email, password, gender, birth_date, diabetes_type })
+    body: JSON.stringify({ username, email, name, password, gender, birth_date, diabetes_type })
   });
 }
 export function authRegisterVerify(challenge_id, code) {
@@ -68,6 +68,38 @@ export function authRegisterResend(challenge_id) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': '*/*' },
     body: JSON.stringify({ challenge_id })
+  });
+}
+
+// PERSONAL DATA CONSENT LOGGING
+export const PERSONAL_DATA_CONSENT_EVENT = 'consent_personal_data';
+export const PERSONAL_DATA_CONSENT_ACTION = 'checkbox_checked_and_register_pressed';
+
+export function authLogPersonalDataConsent({
+  user_id,
+  timestamp = new Date().toISOString(),
+  consent_text_version,
+  action = PERSONAL_DATA_CONSENT_ACTION,
+  source,
+  ip,
+  event = PERSONAL_DATA_CONSENT_EVENT
+} = {}) {
+  const ts = timestamp instanceof Date ? timestamp.toISOString() : timestamp;
+  const payload = {
+    event,
+    user_id,
+    timestamp: ts,
+    consent_text_version,
+    action
+  };
+
+  if (source !== undefined) payload.source = source;
+  if (ip !== undefined) payload.ip = ip;
+
+  return request('/auth/web/consent', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
   });
 }
 
@@ -168,6 +200,45 @@ export function authDeleteAccount(username, password) {
   });
 }
 
+// UPDATE USER DATA
+export function authUpdate(fields) {
+  const csrf = getCsrfToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+  return request('/auth/web/update', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(fields),
+    // включаем отправку cookies для CSRF-проверки
+    credentials: 'include'
+  });
+}
+export function authUpdateVerify(challenge_id, code) {
+  const csrf = getCsrfToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+  return request('/auth/web/update/verify', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ challenge_id, code }),
+    // требуется cookie csrf_token
+    credentials: 'include'
+  });
+}
+
+export function authUpdateResend(challenge_id) {
+  const csrf = getCsrfToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+  return request('/auth/web/update/resend', {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ challenge_id }),
+    // сервер ожидает cookie с токеном
+    credentials: 'include'
+  });
+}
+
 /* ======================== PREMIUM / PAYMENTS ======================== */
 export function authPremiumTransfer(device_id) {
   return request('/auth/web/premium/transfer', {
@@ -191,4 +262,11 @@ export async function authCreateSubscriptionOrder(user_id, device_id, subscripti
   });
   const { payment_url, order_id, payment_id } = res.data || {};
   return { ...res, data: { payment_url, order_id, payment_id } };
+}
+
+export function authPaymentsList() {
+  return request('/payments/payments', {
+    method: 'GET',
+    headers: { 'Accept': 'application/json' }
+  });
 }
