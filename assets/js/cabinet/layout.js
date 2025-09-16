@@ -105,14 +105,24 @@ export function SiteHeader({ isAuthed, onLogout, userName }) {
   );
 }
 
-export function Sidebar({ current, onChange }) {
-  const Item = ({ k, label, icon }) =>
+const DEFAULT_SIDEBAR_ITEMS = [
+  { key: "profile", label: "Профиль", icon: "👤" },
+  { key: "subscription", label: "Подписка", icon: "💎" },
+  { key: "security", label: "Безопасность", icon: "🔐" },
+  { key: "devices", label: "Устройства", icon: "📱" },
+  { key: "payments", label: "Оплаты", icon: "💳" }
+];
+
+export function Sidebar({ current, onChange, items = DEFAULT_SIDEBAR_ITEMS }) {
+  const nav = Array.isArray(items) && items.length ? items : DEFAULT_SIDEBAR_ITEMS;
+
+  const Item = ({ itemKey, label, icon }) =>
     React.createElement(
       "button",
       {
-        onClick: () => onChange(k),
+        onClick: () => onChange(itemKey),
         className: `w-full flex items-center gap-2 rounded-xl px-3 py-2 text-sm ${
-          current === k
+          current === itemKey
             ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-100"
             : "hover:bg-slate-50 text-slate-700 dark:hover:bg-slate-700 dark:text-slate-300"
         }`,
@@ -127,11 +137,9 @@ export function Sidebar({ current, onChange }) {
     React.createElement(
       "div",
       { className: "sticky top-16 space-y-1" },
-      React.createElement(Item, { k: "profile", label: "Профиль", icon: "👤" }),
-      React.createElement(Item, { k: "subscription", label: "Подписка", icon: "💎" }),
-      React.createElement(Item, { k: "security", label: "Безопасность", icon: "🔐" }),
-      React.createElement(Item, { k: "devices", label: "Устройства", icon: "📱" }),
-      React.createElement(Item, { k: "payments", label: "Оплаты", icon: "💳" })
+      nav.map(({ key, label, icon }) =>
+        React.createElement(Item, { key, itemKey: key, label, icon })
+      )
     )
   );
 }
