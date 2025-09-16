@@ -2,38 +2,36 @@
 # GluOne .htaccess (REG.RU)
 # =========================
 
-# Пробрасываем Authorization (если нужно PHP)
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-
-# Не угадывать расширения
 Options -MultiViews
 DirectoryIndex index.html
 
 RewriteEngine On
 RewriteBase /
 
-# --- ЧИСТЫЕ URL ---
+# --- SEO-редиректы СНАЧАЛА ---
+# /index.html -> /
+RewriteCond %{THE_REQUEST} \s/+index\.html[?\s] [NC]
+RewriteRule ^index\.html$ / [R=301,L]
 
-# 1) Отдаём существующие файлы/папки как есть
+# /page.html -> /page (только если файл реально существует)
+RewriteCond %{REQUEST_URI} !^/assets/        [NC]
+RewriteCond %{REQUEST_URI} !^/\.well-known/  [NC]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(.+)\.html$ /$1 [R=301,L]
+
+# --- ЧИСТЫЕ URL ---
+# если запрошен реальный файл/папка — отдаём как есть
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# 2) INTERNAL: /page -> /page.html (если такой файл есть)
+# /page -> /page.html (внутреннее сопоставление)
 RewriteCond %{REQUEST_FILENAME}\.html -f
 RewriteRule ^(.+?)/?$ $1.html [L]
 
-# 3) SEO-редирект: /page.html -> /page (только если .html был в ИСХОДНОМ запросе)
-RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[?\s] [NC]
-RewriteRule ^ %1 [R=301,L]
-
-
-# --- ПОЛИТИКИ: заголовки для конкретных страниц ---
-# На некоторых shared-конфигурациях Nginx может не пропускать обычный ETag,
-# поэтому дублируем хэш в X-Policy-ETag (на него и опираемся в бэке).
-
+# --- Заголовки для policy-страниц ---
 <IfModule mod_headers.c>
-
   # privacy
   <Files "privacy.html">
     Header set X-Policy-Slug "privacy"
@@ -77,5 +75,4 @@ RewriteRule ^ %1 [R=301,L]
     Header set Cache-Control "public, max-age=31536000, immutable"
     Header merge Vary "Accept-Encoding"
   </Files>
-
 </IfModule>
