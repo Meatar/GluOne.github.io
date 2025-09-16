@@ -38,7 +38,7 @@ export default function AccountApp() {
       const r = await authRefresh();
       if (!r.ok) {
         setIsAuthed(false);
-        window.location.href = "/auth.html?next=%2Fcabinet.html";
+        window.location.href = "/auth?next=%2Fcabinet";
         return;
       }
 
@@ -48,7 +48,7 @@ export default function AccountApp() {
         setIsAuthed(true);
       } else {
         setIsAuthed(false);
-        window.location.href = "/auth.html?next=%2Fcabinet.html";
+        window.location.href = "/auth?next=%2Fcabinet";
         return;
       }
 
@@ -143,7 +143,7 @@ export default function AccountApp() {
   const handleLogout = async () => {
     try { await authLogout(); } catch {}
     clearAuthStorage();
-    window.location.href = "/auth.html";
+    window.location.href = "/auth";
   };
 
   const handleChangePassword = async (oldPwd, newPwd) => {
@@ -317,7 +317,7 @@ const handleDeleteAccount = async (username, password) => {
       React.createElement("div", { className: "mx-auto max-w-screen-2xl px-5 py-6 text-sm text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-3" },
         React.createElement("div", null, "© ", (new Date()).getFullYear(), " GluOne. Все права защищены."),
         React.createElement("div", { className: "flex items-center gap-4" },
-          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "https://gluone.ru/privacy.html" }, "Политика конфиденциальности"),
+          React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "https://gluone.ru/privacy" }, "Политика конфиденциальности"),
           React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "#" }, "Условия"),
           React.createElement("a", { className: "hover:text-slate-700 dark:hover:text-slate-200", href: "#" }, "Контакты")
         )

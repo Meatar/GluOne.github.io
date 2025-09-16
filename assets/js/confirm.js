@@ -35,7 +35,7 @@ import { KEYS, load, save, del } from './storage.js';
 
     if (!challengeId) {
       setMsg('Сессия подтверждения не найдена. Возвращаемся на шаг входа…', '#e11d48');
-      setTimeout(() => { window.location.href = '/auth.html'; }, 1200);
+      setTimeout(() => { window.location.href = '/auth'; }, 1200);
       return;
     }
 
@@ -78,7 +78,7 @@ import { KEYS, load, save, del } from './storage.js';
           del(KEYS.CHALLENGE);
 
           setMsg('Готово! Входим…', '#059669');
-          const next = new URLSearchParams(location.search).get('next') || '/cabinet.html';
+          const next = new URLSearchParams(location.search).get('next') || '/cabinet';
           window.location.href = next;
           return;
         }

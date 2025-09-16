@@ -218,7 +218,7 @@
   color:var(--danger-text);
 }
 
-/* ==== Показ/скрытие пароля (как в auth.html) ==== */
+/* ==== Показ/скрытие пароля (как на странице авторизации) ==== */
 .form-field .field-wrap{
   position: relative;
   display: block;
