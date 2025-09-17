@@ -49,7 +49,7 @@ export function ProfilePanel({ profile, hiddenStatus = true, hidePremiumBadge = 
 }
 
 /* ===================== Подписка ===================== */
-export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt }) {
+export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, plans, selectedPlanId, setSelectedPlanId, amountRub, monthPrice, email, currentDeviceId, isPremium, premiumExpiresAt, changeDeviceDisabled = false }) {
   return React.createElement("div", { className: "w-full" },
     React.createElement(SectionCard, { title: "Подписка Premium" },
         React.createElement("div", { className: "space-y-2 text-sm" },
@@ -92,7 +92,17 @@ export function SubscriptionPanel({ onOpenTransfer, currentDeviceName, onPay, pl
               isPremium ? "Продлить" : "Купить"
             );
           })(),
-          React.createElement("button", { onClick: onOpenTransfer, className: "rounded-xl border border-slate-200 px-5 py-3 font-semibold text-base bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700" }, "Сменить устройство")
+          (() => {
+            const disabled = changeDeviceDisabled;
+            const cls = disabled
+              ? "rounded-xl border border-slate-200 px-5 py-3 font-semibold text-base bg-slate-100 text-slate-400 cursor-not-allowed dark:bg-slate-700/50 dark:border-slate-600 dark:text-slate-500"
+              : "rounded-xl border border-slate-200 px-5 py-3 font-semibold text-base bg-white hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-600 dark:hover:bg-slate-700";
+            return React.createElement(
+              "button",
+              { onClick: onOpenTransfer, disabled, className: cls },
+              "Сменить устройство"
+            );
+          })()
         ),
         React.createElement("p", { className: "mt-3 text-[13px] text-slate-500 dark:text-slate-400" },
           "Нажимая кнопку «Купить», вы подтверждаете согласие",

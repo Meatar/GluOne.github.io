@@ -21,6 +21,15 @@ import { TransferPremiumModal } from "./devices.js";
 const { useState, useEffect } = React;
 
 const BILLING_BLOCKED_USERNAME = "testuser";
+const SUPPORTED_OS_PREFIXES = ["iOS"]; // расширяемый список поддерживаемых ОС
+
+function isSupportedOs(os) {
+  if (!os || typeof os !== "string") return false;
+  const normalized = os.trim().toLowerCase();
+  return SUPPORTED_OS_PREFIXES.some((prefix) =>
+    normalized.startsWith(String(prefix).trim().toLowerCase())
+  );
+}
 function shouldHideBilling(profile) {
   if (!profile || typeof profile.username !== "string") return false;
   return profile.username.trim().toLowerCase() === BILLING_BLOCKED_USERNAME;
@@ -51,6 +60,7 @@ export default function AccountApp({ bootstrap = {} }) {
   const [currentPremiumDeviceName, setCurrentPremiumDeviceName] = useState("—");
   const [currentDeviceIsPremium, setCurrentDeviceIsPremium] = useState(false);
   const [currentDeviceExpiresAt, setCurrentDeviceExpiresAt] = useState(null);
+  const [canChangeDevice, setCanChangeDevice] = useState(false);
 
   const hideBilling = shouldHideBilling(profile);
 
@@ -158,24 +168,46 @@ export default function AccountApp({ bootstrap = {} }) {
   }, [section, hideBilling]);
 
   useEffect(() => {
-    const active = devices.filter((d) => !d.revoked);
-    if (!active.length) {
+    const supportedDevices = devices.filter((d) => isSupportedOs(d.os));
+    const activeSupported = supportedDevices.filter((d) => !d.revoked);
+
+    if (!supportedDevices.length) {
       setCurrentPremiumDeviceId(null);
-      setCurrentPremiumDeviceName(devices.length ? "Нет активных устройств" : "Нет устройств");
+      setCurrentPremiumDeviceName(devices.length ? "Нет подходящих устройств" : "Нет устройств");
       setCurrentDeviceIsPremium(false);
       setCurrentDeviceExpiresAt(null);
+      setCanChangeDevice(false);
       return;
     }
+
+    if (!activeSupported.length) {
+      setCurrentPremiumDeviceId(null);
+      setCurrentPremiumDeviceName("Нет активных устройств");
+      setCurrentDeviceIsPremium(false);
+      setCurrentDeviceExpiresAt(null);
+      setCanChangeDevice(false);
+      return;
+    }
+
     const current = currentPremiumDeviceId
-      ? active.find((d) => d.device_id === currentPremiumDeviceId)
+      ? activeSupported.find((d) => d.device_id === currentPremiumDeviceId)
       : null;
-    const premium = active.find((d) => d.is_premium);
-    const target = current || premium || active.slice().sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
+    const premium = activeSupported.find((d) => d.is_premium);
+    const target =
+      current ||
+      premium ||
+      activeSupported
+        .slice()
+        .sort((a, b) => new Date(b.last_seen_at || 0) - new Date(a.last_seen_at || 0))[0];
+
     if (target) {
       setCurrentPremiumDeviceId(target.device_id);
       setCurrentPremiumDeviceName(target.model || "Неизвестное устройство");
       setCurrentDeviceIsPremium(!!target.is_premium);
       setCurrentDeviceExpiresAt(target.premium_expires_at || null);
+      setCanChangeDevice(activeSupported.length > 1);
+    } else {
+      setCanChangeDevice(false);
     }
   }, [devices, currentPremiumDeviceId]);
 
@@ -334,6 +366,7 @@ export default function AccountApp({ bootstrap = {} }) {
       onClose: () => setTransferContext(null),
       onConfirm: handleConfirmTransfer,
       devices: devices
+        .filter((d) => isSupportedOs(d.os))
         .filter((d) => !transferContext || transferContext.type !== 'delete' || d.device_id !== transferContext.fromDeviceId)
         .map((d) => ({ name: d.model || "Неизвестное устройство", os: d.os, ip: d.last_ip, active: fmtDateTime(d.last_seen_at), deviceId: d.device_id, revoked: d.revoked, isPremium: d.is_premium, premiumExpiresAt: d.premium_expires_at })),
       currentDeviceId: transferContext && transferContext.type === 'subscription' ? currentPremiumDeviceId : null,
@@ -372,7 +405,8 @@ export default function AccountApp({ bootstrap = {} }) {
           email: accountEmail,
           currentDeviceId: currentPremiumDeviceId,
           isPremium: currentDeviceIsPremium,
-          premiumExpiresAt: currentDeviceExpiresAt
+          premiumExpiresAt: currentDeviceExpiresAt,
+          changeDeviceDisabled: !canChangeDevice
         }),
         section === "security" && React.createElement(SecurityPanel, {
           profile,
