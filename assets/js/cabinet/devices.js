@@ -31,16 +31,6 @@ export function DeviceItem({ device, onRevoke, onDelete, disableDelete, hidePrem
     React.createElement("div", { className: "text-slate-800 break-words dark:text-slate-100" }, ip),
   ];
 
-  if (!hidePremiumInfo) {
-    attributeRows.push(
-      React.createElement("div", { className: "text-slate-500 dark:text-slate-400" }, "Премиум"),
-      React.createElement("div", { className: "text-slate-800 break-words dark:text-slate-100" }, isPremium ? "Активен" : "Нет"),
-
-      React.createElement("div", { className: "text-slate-500 dark:text-slate-400" }, "Действует до"),
-      React.createElement("div", { className: "text-slate-800 break-words dark:text-slate-100" }, isPremium ? premiumUntil : "—"),
-    );
-  }
-
   attributeRows.push(
     React.createElement("div", { className: "text-slate-500 dark:text-slate-400" }, "ID устройства"),
     React.createElement("div", { className: "text-slate-800 break-words dark:text-slate-100" }, deviceId),
@@ -51,8 +41,13 @@ export function DeviceItem({ device, onRevoke, onDelete, disableDelete, hidePrem
     { className: "rounded-xl border border-slate-200 p-4 bg-white dark:bg-slate-800 dark:border-slate-700" },
     React.createElement(
       "div",
-      { className: "flex items-start justify-between" },
-      React.createElement("div", { className: "font-semibold text-slate-800 dark:text-slate-100" }, name),
+      { className: "font-semibold text-slate-800 dark:text-slate-100" },
+      name
+    ),
+
+    React.createElement(
+      "div",
+      { className: "mt-2 flex items-center justify-between gap-3" },
       React.createElement(
         "span",
         {
@@ -63,7 +58,20 @@ export function DeviceItem({ device, onRevoke, onDelete, disableDelete, hidePrem
           }`,
         },
         revoked ? "Отозвано" : "Активно"
-      )
+      ),
+      !hidePremiumInfo &&
+        React.createElement(
+          "span",
+          {
+            className: `text-xs px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+              isPremium
+                ? "text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-200 dark:bg-indigo-900/60 dark:border-indigo-700"
+                : "text-slate-600 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-700 dark:border-slate-600"
+            }`,
+          },
+          React.createElement("span", null, "\uD83D\uDC8E"),
+          React.createElement("span", null, "Премиум")
+        )
     ),
 
     // Блок атрибутов: широкая правая колонка
@@ -75,6 +83,21 @@ export function DeviceItem({ device, onRevoke, onDelete, disableDelete, hidePrem
       },
       ...attributeRows
     ),
+
+    !hidePremiumInfo &&
+      React.createElement(
+        "div",
+        {
+          className: `mt-3 rounded-lg px-3 py-2 text-sm ${
+            isPremium
+              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+              : "bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-300"
+          }`,
+        },
+        isPremium
+          ? `Подписка действует до ${premiumUntil}`
+          : "Подписка не активна"
+      ),
 
     React.createElement(
       "div",
