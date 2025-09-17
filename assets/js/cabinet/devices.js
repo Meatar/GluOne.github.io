@@ -60,13 +60,12 @@ export function DeviceItem({ device, onRevoke, onDelete, disableDelete, hidePrem
         revoked ? "Отозвано" : "Активно"
       ),
       !hidePremiumInfo &&
+      isPremium &&
         React.createElement(
           "span",
           {
             className: `text-xs px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-              isPremium
-                ? "text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-200 dark:bg-indigo-900/60 dark:border-indigo-700"
-                : "text-slate-600 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-700 dark:border-slate-600"
+              "text-indigo-700 bg-indigo-50 border-indigo-200 dark:text-indigo-200 dark:bg-indigo-900/60 dark:border-indigo-700"
             }`,
           },
           React.createElement("span", null, "\uD83D\uDC8E"),
@@ -85,18 +84,14 @@ export function DeviceItem({ device, onRevoke, onDelete, disableDelete, hidePrem
     ),
 
     !hidePremiumInfo &&
+      isPremium &&
       React.createElement(
         "div",
         {
-          className: `mt-3 rounded-lg px-3 py-2 text-sm ${
-            isPremium
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
-              : "bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-300"
-          }`,
+          className:
+            "mt-3 rounded-lg px-3 py-2 text-sm bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200",
         },
-        isPremium
-          ? `Подписка действует до ${premiumUntil}`
-          : "Подписка не активна"
+        `Подписка действует до ${premiumUntil}`
       ),
 
     React.createElement(
